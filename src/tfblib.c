@@ -23,7 +23,7 @@
       return false;                                             \
    }
 
-struct fb_var_screeninfo fbi;
+struct fb_var_screeninfo __fbi;
 struct fb_fix_screeninfo fb_fixinfo;
 
 char *__fb_buffer;
@@ -40,7 +40,7 @@ static int ttyfd = -1;
 static inline void *memset32(void *s, uint32_t val, size_t n)
 {
    unsigned unused;
-   
+
    __asm__ volatile ("rep stosl"
                      : "=D" (unused), "=a" (val), "=c" (n)
                      :  "D" (s), "a" (val), "c" (n)
@@ -49,19 +49,19 @@ static inline void *memset32(void *s, uint32_t val, size_t n)
    return s;
 }
 
-static inline uint32_t make_color(uint8_t red, uint8_t green, uint8_t blue)
+uint32_t tfb_make_color(uint8_t red, uint8_t green, uint8_t blue)
 {
-   return red << fbi.red.offset |
-          green << fbi.green.offset |
-          blue << fbi.blue.offset;
+   return red << __fbi.red.offset |
+          green << __fbi.green.offset |
+          blue << __fbi.blue.offset;
 }
 
-void clear_screen(uint32_t color)
+void tfb_clear_screen(uint32_t color)
 {
    memset32(__fb_buffer, color, fb_size >> 2);
 }
 
-void draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
+void tfb_draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
 {
    for (uint32_t cy = y; cy < y + h; cy++)
       memset32(__fb_buffer + cy * fb_pitch + x, color, w);
@@ -69,29 +69,29 @@ void draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
 
 static bool check_fb_assumptions(void)
 {
-   FB_ASSUMPTION(fbi.bits_per_pixel == 32);
+   FB_ASSUMPTION(__fbi.bits_per_pixel == 32);
 
-   FB_ASSUMPTION((fbi.red.offset % 8) == 0);
-   FB_ASSUMPTION((fbi.green.offset % 8) == 0);
-   FB_ASSUMPTION((fbi.blue.offset % 8) == 0);
-   FB_ASSUMPTION((fbi.transp.offset % 8) == 0);
+   FB_ASSUMPTION((__fbi.red.offset % 8) == 0);
+   FB_ASSUMPTION((__fbi.green.offset % 8) == 0);
+   FB_ASSUMPTION((__fbi.blue.offset % 8) == 0);
+   FB_ASSUMPTION((__fbi.transp.offset % 8) == 0);
 
-   FB_ASSUMPTION(fbi.red.length == 8);
-   FB_ASSUMPTION(fbi.green.length == 8);
-   FB_ASSUMPTION(fbi.blue.length == 8);
-   FB_ASSUMPTION(fbi.transp.length == 0);
+   FB_ASSUMPTION(__fbi.red.length == 8);
+   FB_ASSUMPTION(__fbi.green.length == 8);
+   FB_ASSUMPTION(__fbi.blue.length == 8);
+   FB_ASSUMPTION(__fbi.transp.length == 0);
 
-   FB_ASSUMPTION(fbi.xoffset == 0);
-   FB_ASSUMPTION(fbi.yoffset == 0);
+   FB_ASSUMPTION(__fbi.xoffset == 0);
+   FB_ASSUMPTION(__fbi.yoffset == 0);
 
-   FB_ASSUMPTION(fbi.red.msb_right == 0);
-   FB_ASSUMPTION(fbi.green.msb_right == 0);
-   FB_ASSUMPTION(fbi.blue.msb_right == 0);
+   FB_ASSUMPTION(__fbi.red.msb_right == 0);
+   FB_ASSUMPTION(__fbi.green.msb_right == 0);
+   FB_ASSUMPTION(__fbi.blue.msb_right == 0);
 
    return true;
 }
 
-bool fb_acquire(void)
+bool tfb_acquire_fb(void)
 {
    fbfd = open(FB_DEVICE, O_RDWR);
 
@@ -105,13 +105,13 @@ bool fb_acquire(void)
       return false;
    }
 
-   if (ioctl (fbfd, FBIOGET_VSCREENINFO, &fbi) != 0) {
+   if (ioctl (fbfd, FBIOGET_VSCREENINFO, &__fbi) != 0) {
       fprintf(stderr, "ioctl(FBIOGET_VSCREENINFO) failed\n");
       return false;
    }
 
    fb_pitch = fb_fixinfo.line_length;
-   fb_size = fb_pitch * fbi.yres;
+   fb_size = fb_pitch * __fbi.yres;
    __fb_pitch_div4 = fb_pitch >> 2;
 
    if (!check_fb_assumptions())
@@ -140,7 +140,7 @@ bool fb_acquire(void)
    return true;
 }
 
-void fb_release(void)
+void tfb_release_fb(void)
 {
    if (__fb_buffer)
       munmap(__fb_buffer, fb_size);
