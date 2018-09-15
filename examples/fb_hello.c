@@ -5,7 +5,12 @@
 
 int main(int argc, char **argv)
 {
-    if (!tfb_acquire_fb()) {
+    int rc;
+
+    rc = tfb_acquire_fb();
+
+    if (rc != TFB_SUCCESS) {
+        fprintf(stderr, "tfb_acquire_fb failed with: %d\n", rc);
         tfb_release_fb();
         return 1;
     }

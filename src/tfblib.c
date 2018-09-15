@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <time.h>
 
+#include <tfblib/tfblib.h>
+
 #define FB_DEVICE "/dev/fb0"
 #define TTY_DEVICE "/dev/tty"
 
@@ -24,10 +26,11 @@
    }
 
 struct fb_var_screeninfo __fbi;
-struct fb_fix_screeninfo fb_fixinfo;
 
 char *__fb_buffer;
 size_t __fb_pitch_div4;
+
+static struct fb_fix_screeninfo fb_fixinfo;
 
 static size_t fb_size;
 static size_t fb_pitch;
@@ -37,7 +40,7 @@ static int ttyfd = -1;
 /*
  * Set 'n' 32-bit elems pointed by 's' to 'val'.
  */
-static inline void *memset32(void *s, uint32_t val, size_t n)
+static inline void *memset32(void *s, u32 val, size_t n)
 {
    unsigned unused;
 
@@ -49,21 +52,21 @@ static inline void *memset32(void *s, uint32_t val, size_t n)
    return s;
 }
 
-uint32_t tfb_make_color(uint8_t red, uint8_t green, uint8_t blue)
+u32 tfb_make_color(u8 red, u8 green, u8 blue)
 {
    return red << __fbi.red.offset |
           green << __fbi.green.offset |
           blue << __fbi.blue.offset;
 }
 
-void tfb_clear_screen(uint32_t color)
+void tfb_clear_screen(u32 color)
 {
    memset32(__fb_buffer, color, fb_size >> 2);
 }
 
-void tfb_draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
+void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
 {
-   for (uint32_t cy = y; cy < y + h; cy++)
+   for (u32 cy = y; cy < y + h; cy++)
       memset32(__fb_buffer + cy * fb_pitch + x, color, w);
 }
 
@@ -91,53 +94,41 @@ static bool check_fb_assumptions(void)
    return true;
 }
 
-bool tfb_acquire_fb(void)
+int tfb_acquire_fb(void)
 {
    fbfd = open(FB_DEVICE, O_RDWR);
 
-   if (fbfd < 0) {
-      fprintf(stderr, "unable to open '%s'\n", FB_DEVICE);
-      return false;
-   }
+   if (fbfd < 0)
+      return -TFB_ERROR_OPEN_FB;
 
-   if (ioctl(fbfd, FBIOGET_FSCREENINFO, &fb_fixinfo) != 0) {
-      fprintf(stderr, "ioctl(FBIOGET_FSCREENINFO) failed\n");
-      return false;
-   }
+   if (ioctl(fbfd, FBIOGET_FSCREENINFO, &fb_fixinfo) != 0)
+      return -TFB_ERROR_IOCTL_FB;
 
-   if (ioctl (fbfd, FBIOGET_VSCREENINFO, &__fbi) != 0) {
-      fprintf(stderr, "ioctl(FBIOGET_VSCREENINFO) failed\n");
-      return false;
-   }
+
+   if (ioctl (fbfd, FBIOGET_VSCREENINFO, &__fbi) != 0)
+      return -TFB_ERROR_IOCTL_FB;
 
    fb_pitch = fb_fixinfo.line_length;
    fb_size = fb_pitch * __fbi.yres;
    __fb_pitch_div4 = fb_pitch >> 2;
 
    if (!check_fb_assumptions())
-      return false;
+      return -TFB_ASSUMPTION_FAILED;
 
    ttyfd = open(TTY_DEVICE, O_RDWR);
 
-   if (ttyfd < 0) {
-      fprintf(stderr, "Unable to open '%s'\n", TTY_DEVICE);
-      return false;
-   }
+   if (ttyfd < 0)
+      return -TFB_ERROR_OPEN_TTY;
 
-   if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0) {
-      fprintf(stderr,
-              "WARNING: unable set tty into graphics mode on '%s'\n",
-              TTY_DEVICE);
-   }
+   if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0)
+      return -TFB_ERROR_TTY_GRAPHIC_MODE;
 
    __fb_buffer = mmap(0, fb_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 
-   if (__fb_buffer == MAP_FAILED) {
-      fprintf(stderr, "Unable to mmap frame__fb_buffer '%s'\n", FB_DEVICE);
-      return false;
-   }
+   if (__fb_buffer == MAP_FAILED)
+      return -TFB_MMAP_FB_ERROR;
 
-   return true;
+   return TFB_SUCCESS;
 }
 
 void tfb_release_fb(void)
