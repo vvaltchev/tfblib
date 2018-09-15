@@ -25,6 +25,8 @@
       return false;                                             \
    }
 
+#define INT_ABS(_x) ((_x) > 0 ? (_x) : (-(_x)))
+
 struct fb_var_screeninfo __fbi;
 
 void *__fb_buffer;
@@ -92,6 +94,55 @@ void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color)
 
    for (u32 cy = y; cy < y + len; cy++, buf += __fb_pitch_div4)
       *buf = color;
+}
+
+static void
+midpoint_line(int x, int y, int x1, int y1, u32 color, bool swap_xy)
+{
+   const int dx = INT_ABS(x1 - x);
+   const int dy = INT_ABS(y1 - y);
+   const int sx = x1 > x ? 1 : -1;
+   const int sy = y1 > y ? 1 : -1;
+   const int incE = dy << 1;
+   const int incNE = (dy - dx) << 1;
+   const int inc_d[2] = {incNE, incE};
+   const int inc_y[2] = {sy, 0};
+
+   int d = (dy << 1) - dx;
+
+   if (swap_xy) {
+
+      tfb_draw_pixel(y, x, color);
+
+      while (x != x1) {
+         x += sx;
+         y += inc_y[d <= 0];
+         d += inc_d[d <= 0];
+         tfb_draw_pixel(y, x, color);
+      }
+
+   } else {
+
+      tfb_draw_pixel(x, y, color);
+
+      while (x != x1) {
+         x += sx;
+         y += inc_y[d <= 0];
+         d += inc_d[d <= 0];
+         tfb_draw_pixel(x, y, color);
+      }
+   }
+}
+
+void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color)
+{
+   const int dx = INT_ABS((int)x1 - (int)x0);
+   const int dy = INT_ABS((int)y1 - (int)y0);
+
+   if (dy <= dx)
+      midpoint_line(x0, y0, x1, y1, color, false);
+   else
+      midpoint_line(y0, x0, y1, x1, color, true);
 }
 
 void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color)

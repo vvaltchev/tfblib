@@ -19,6 +19,8 @@ extern size_t __fb_pitch_div4;
 u32 tfb_make_color(u8 red, u8 green, u8 blue);
 
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
+void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
+void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);
 void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_clear_screen(u32 color);
@@ -26,7 +28,7 @@ void tfb_clear_screen(u32 color);
 int tfb_acquire_fb(void);
 void tfb_release_fb(void);
 
-static inline void set_pixel(u32 x, u32 y, u32 color)
+static inline void tfb_draw_pixel(u32 x, u32 y, u32 color)
 {
    ((volatile u32 *)__fb_buffer)[x + y * __fb_pitch_div4] = color;
 }

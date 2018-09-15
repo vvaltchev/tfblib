@@ -1,3 +1,5 @@
 {
-    "editor.tabSize": 3
+    "editor.tabSize": 3,
+    "files.trimTrailingWhitespace": true,
+    "editor.detectIndentation": false
 }
