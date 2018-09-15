@@ -27,7 +27,7 @@
 
 struct fb_var_screeninfo __fbi;
 
-char *__fb_buffer;
+void *__fb_buffer;
 size_t __fb_pitch_div4;
 
 static struct fb_fix_screeninfo fb_fixinfo;
@@ -77,7 +77,29 @@ void tfb_clear_screen(u32 color)
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
 {
    for (u32 cy = y; cy < y + h; cy++)
-      memset32(__fb_buffer + cy * fb_pitch + x, color, w);
+      memset32(__fb_buffer + cy * fb_pitch + (x << 2), color, w);
+}
+
+void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color)
+{
+   memset32(__fb_buffer + y * fb_pitch + (x << 2), color, len);
+}
+
+void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color)
+{
+   volatile u32 *buf =
+      ((volatile u32 *) __fb_buffer) + y * __fb_pitch_div4 + x;
+
+   for (u32 cy = y; cy < y + len; cy++, buf += __fb_pitch_div4)
+      *buf = color;
+}
+
+void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
+{
+   tfb_draw_hline(x, y, w, color);
+   tfb_draw_vline(x, y, h, color);
+   tfb_draw_vline(x + w - 1, y, h, color);
+   tfb_draw_hline(x, y + h - 1, w, color);
 }
 
 static bool check_fb_assumptions(void)
@@ -109,34 +131,33 @@ int tfb_acquire_fb(void)
    fbfd = open(FB_DEVICE, O_RDWR);
 
    if (fbfd < 0)
-      return -TFB_ERROR_OPEN_FB;
+      return TFB_ERROR_OPEN_FB;
 
    if (ioctl(fbfd, FBIOGET_FSCREENINFO, &fb_fixinfo) != 0)
-      return -TFB_ERROR_IOCTL_FB;
-
+      return TFB_ERROR_IOCTL_FB;
 
    if (ioctl (fbfd, FBIOGET_VSCREENINFO, &__fbi) != 0)
-      return -TFB_ERROR_IOCTL_FB;
+      return TFB_ERROR_IOCTL_FB;
 
    fb_pitch = fb_fixinfo.line_length;
    fb_size = fb_pitch * __fbi.yres;
    __fb_pitch_div4 = fb_pitch >> 2;
 
    if (!check_fb_assumptions())
-      return -TFB_ASSUMPTION_FAILED;
+      return TFB_ASSUMPTION_FAILED;
 
    ttyfd = open(TTY_DEVICE, O_RDWR);
 
    if (ttyfd < 0)
-      return -TFB_ERROR_OPEN_TTY;
+      return TFB_ERROR_OPEN_TTY;
 
    if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0)
-      return -TFB_ERROR_TTY_GRAPHIC_MODE;
+      return TFB_ERROR_TTY_GRAPHIC_MODE;
 
    __fb_buffer = mmap(0, fb_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 
    if (__fb_buffer == MAP_FAILED)
-      return -TFB_MMAP_FB_ERROR;
+      return TFB_MMAP_FB_ERROR;
 
    return TFB_SUCCESS;
 }
