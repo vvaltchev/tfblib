@@ -17,7 +17,7 @@ extern char *__fb_buffer;
 extern size_t __fb_pitch_div4;
 
 u32 tfb_make_color(u8 red, u8 green, u8 blue);
-void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
+void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_clear_screen(u32 color);
 
 int tfb_acquire_fb(void);

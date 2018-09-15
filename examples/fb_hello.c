@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
     tfb_clear_screen(tfb_make_color(0, 0, 0));
 
-    tfb_draw_rect(tfb_screen_width()/8,
+    tfb_fill_rect(tfb_screen_width()/8,
                   tfb_screen_height()/8,
                   tfb_screen_width()/4,
                   tfb_screen_height()/4,

@@ -42,12 +42,22 @@ static int ttyfd = -1;
  */
 static inline void *memset32(void *s, u32 val, size_t n)
 {
+
+#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+
    unsigned unused;
 
    __asm__ volatile ("rep stosl"
                      : "=D" (unused), "=a" (val), "=c" (n)
                      :  "D" (s), "a" (val), "c" (n)
                      : "cc", "memory");
+#else
+
+
+   for (size_t i = 0; i < n; i++)
+      ((volatile u32 *)s)[i] = val;
+
+#endif
 
    return s;
 }
@@ -64,7 +74,7 @@ void tfb_clear_screen(u32 color)
    memset32(__fb_buffer, color, fb_size >> 2);
 }
 
-void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
+void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
 {
    for (u32 cy = y; cy < y + h; cy++)
       memset32(__fb_buffer + cy * fb_pitch + x, color, w);
