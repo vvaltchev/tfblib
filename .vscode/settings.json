@@ -1,5 +1,6 @@
 {
     "editor.tabSize": 3,
     "files.trimTrailingWhitespace": true,
-    "editor.detectIndentation": false
+    "editor.detectIndentation": false,
+    "editor.rulers": [80]
 }

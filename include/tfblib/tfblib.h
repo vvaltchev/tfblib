@@ -8,29 +8,59 @@
 
 #include <linux/fb.h>
 
+/* Error codes */
+#define TFB_SUCCESS                  0
+#define TFB_ERROR_OPEN_FB            1
+#define TFB_ERROR_IOCTL_FB           2
+#define TFB_ERROR_OPEN_TTY           3
+#define TFB_ERROR_TTY_GRAPHIC_MODE   4
+#define TFB_ASSUMPTION_FAILED        5
+#define TFB_MMAP_FB_ERROR            6
+#define TFB_INVALID_WINDOW           7
+
 typedef uint8_t u8;
 typedef uint32_t u32;
 
 extern struct fb_var_screeninfo __fbi;
-
 extern void *__fb_buffer;
 extern size_t __fb_pitch_div4;
 
-u32 tfb_make_color(u8 red, u8 green, u8 blue);
+/* Window-related variables */
+extern u32 __fb_win_w;
+extern u32 __fb_win_h;
+extern u32 __fb_off_x;
+extern u32 __fb_off_y;
+extern u32 __fb_win_end_x;
+extern u32 __fb_win_end_y;
 
+/* Initialization/setup functions */
+int tfb_set_window(u32 x, u32 y, u32 w, u32 h);
+int tfb_set_center_window_size(u32 w, u32 h);
+int tfb_acquire_fb(void);
+void tfb_release_fb(void);
+
+/* Drawing functions */
+u32 tfb_make_color(u8 red, u8 green, u8 blue);
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
 void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);
 void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_clear_screen(u32 color);
-
-int tfb_acquire_fb(void);
-void tfb_release_fb(void);
+void tfb_clear_win(u32 color);
 
 inline void tfb_draw_pixel(u32 x, u32 y, u32 color)
 {
    ((volatile u32 *)__fb_buffer)[x + y * __fb_pitch_div4] = color;
+}
+
+inline void tfb_draw_pixel_win(u32 x, u32 y, u32 color)
+{
+   x += __fb_off_x;
+   y += __fb_off_y;
+
+   if (x < __fb_win_end_x && y < __fb_win_end_y)
+      ((volatile u32 *)__fb_buffer)[x + y * __fb_pitch_div4] = color;
 }
 
 inline u32 tfb_screen_width(void)
@@ -43,10 +73,12 @@ inline u32 tfb_screen_height(void)
     return __fbi.yres;
 }
 
-#define TFB_SUCCESS                  0
-#define TFB_ERROR_OPEN_FB            1
-#define TFB_ERROR_IOCTL_FB           2
-#define TFB_ERROR_OPEN_TTY           3
-#define TFB_ERROR_TTY_GRAPHIC_MODE   4
-#define TFB_ASSUMPTION_FAILED        5
-#define TFB_MMAP_FB_ERROR            6
+inline u32 tfb_win_width(void)
+{
+   return __fb_win_w;
+}
+
+inline u32 tfb_win_height(void)
+{
+   return __fb_win_h;
+}

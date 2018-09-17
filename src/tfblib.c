@@ -27,10 +27,15 @@
    }
 
 #define INT_ABS(_x) ((_x) > 0 ? (_x) : (-(_x)))
+#define INT_MIN(x, y) ((x) <= (y) ? (x) : (y))
+#define INT_MAX(x, y) ((x) > (y) ? (x) : (y))
 
 extern inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
+extern inline void tfb_draw_pixel_win(u32 x, u32 y, u32 color);
 extern inline u32 tfb_screen_width(void);
 extern inline u32 tfb_screen_height(void);
+extern inline u32 tfb_win_width(void);
+extern inline u32 tfb_win_height(void);
 
 struct fb_var_screeninfo __fbi;
 
@@ -44,6 +49,40 @@ static size_t fb_pitch;
 static int fbfd = -1;
 static int ttyfd = -1;
 
+u32 __fb_win_w;
+u32 __fb_win_h;
+u32 __fb_off_x;
+u32 __fb_off_y;
+u32 __fb_win_end_x;
+u32 __fb_win_end_y;
+
+int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
+{
+   if (x + w > __fbi.xres)
+      return TFB_INVALID_WINDOW;
+
+   if (y + h > __fbi.yres)
+      return TFB_INVALID_WINDOW;
+
+   __fb_off_x = x;
+   __fb_off_y = y;
+   __fb_win_w = w;
+   __fb_win_h = h;
+   __fb_win_end_x = __fb_off_x + __fb_win_w;
+   __fb_win_end_y = __fb_off_y + __fb_win_h;
+
+   printf("[tfblib debug] win: (%u, %u), (%u, %u)\n",
+          __fb_off_x, __fb_off_y, __fb_win_end_x, __fb_win_end_y);
+
+   return TFB_SUCCESS;
+}
+
+int tfb_set_center_window_size(u32 w, u32 h)
+{
+   return tfb_set_window(__fbi.xres / 2 - w / 2,
+                         __fbi.yres / 2 - h / 2,
+                         w, h);
+}
 
 u32 tfb_make_color(u8 red, u8 green, u8 blue)
 {
@@ -63,24 +102,59 @@ void tfb_clear_screen(u32 color)
       tfb_draw_hline(0, y, __fbi.xres, color);
 }
 
-void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
+void tfb_clear_win(u32 color)
 {
-   for (u32 cy = y; cy < y + h; cy++)
-      memset32(__fb_buffer + cy * fb_pitch + (x << 2), color, w);
+   for (u32 y = 0; y < __fb_win_h; y++)
+      tfb_draw_hline(0, y, __fb_win_w, color);
 }
 
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color)
 {
+   x += __fb_off_x;
+   y += __fb_off_y;
+
+   if (y >= __fb_win_end_y)
+      return;
+
+   len = INT_MIN((int)len, (int)__fb_win_end_x - (int)x);
    memset32(__fb_buffer + y * fb_pitch + (x << 2), color, len);
 }
 
 void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color)
 {
+   u32 yend;
+
+   x += __fb_off_x;
+   y += __fb_off_y;
+   yend = INT_MIN(y + len, __fb_win_end_y);
+
    volatile u32 *buf =
       ((volatile u32 *) __fb_buffer) + y * __fb_pitch_div4 + x;
 
-   for (u32 cy = y; cy < y + len; cy++, buf += __fb_pitch_div4)
+   for (; y < yend; y++, buf += __fb_pitch_div4)
       *buf = color;
+}
+
+void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
+{
+   u32 yend;
+
+   x += __fb_off_x;
+   y += __fb_off_y;
+
+   w = INT_MIN((int)w, (int)__fb_win_end_x - (int)x);
+   yend = INT_MIN(y + h, __fb_win_end_y);
+
+   for (u32 cy = y; cy < yend; cy++)
+      memset32(__fb_buffer + cy * fb_pitch + (x << 2), color, w);
+}
+
+void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
+{
+   tfb_draw_hline(x, y, w, color);
+   tfb_draw_vline(x, y, h, color);
+   tfb_draw_vline(x + w - 1, y, h, color);
+   tfb_draw_hline(x, y + h - 1, w, color);
 }
 
 static void
@@ -123,6 +197,11 @@ midpoint_line(int x, int y, int x1, int y1, u32 color, bool swap_xy)
 
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color)
 {
+   x0 = INT_MIN(x0 + __fb_off_x, __fb_win_end_x);
+   y0 = INT_MIN(y0 + __fb_off_y, __fb_win_end_y);
+   x1 = INT_MIN(x1 + __fb_off_x, __fb_win_end_x);
+   y1 = INT_MIN(y1 + __fb_off_y, __fb_win_end_y);
+
    const int dx = INT_ABS((int)x1 - (int)x0);
    const int dy = INT_ABS((int)y1 - (int)y0);
 
@@ -130,14 +209,6 @@ void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color)
       midpoint_line(x0, y0, x1, y1, color, false);
    else
       midpoint_line(y0, x0, y1, x1, color, true);
-}
-
-void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
-{
-   tfb_draw_hline(x, y, w, color);
-   tfb_draw_vline(x, y, h, color);
-   tfb_draw_vline(x + w - 1, y, h, color);
-   tfb_draw_hline(x, y + h - 1, w, color);
 }
 
 static bool check_fb_assumptions(void)
@@ -196,6 +267,9 @@ int tfb_acquire_fb(void)
 
    if (__fb_buffer == MAP_FAILED)
       return TFB_MMAP_FB_ERROR;
+
+   if (tfb_set_window(0, 0, __fbi.xres, __fbi.yres) != TFB_SUCCESS)
+      abort(); /* internal error */
 
    return TFB_SUCCESS;
 }

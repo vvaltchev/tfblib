@@ -3,18 +3,25 @@
 #include <stdio.h>
 #include <tfblib/tfblib.h>
 
+u32 red, green, blue, white, black, yellow, gray;
+
+void init_colors(void)
+{
+   white = tfb_make_color(255, 255, 255);
+   black = tfb_make_color(0, 0, 0);
+   red = tfb_make_color(255, 0, 0);
+   green = tfb_make_color(0, 255, 0);
+   blue = tfb_make_color(0, 0, 255);
+   yellow = tfb_make_color(255, 255, 0);
+   gray = tfb_make_color(50, 50, 50);
+}
+
 void draw_something()
 {
    u32 w = tfb_screen_width();
    u32 h = tfb_screen_height();
 
-   u32 red = tfb_make_color(255, 0, 0);
-   u32 green = tfb_make_color(0, 255, 0);
-   u32 blue = tfb_make_color(0, 0, 255);
-   u32 white = tfb_make_color(255, 255, 255);
-   u32 yellow = tfb_make_color(255, 255, 0);
-
-   tfb_clear_screen(tfb_make_color(0, 0, 0));
+   tfb_clear_screen(black);
 
    // screen border
    tfb_draw_rect(0, 0, w, h, white);
@@ -70,6 +77,21 @@ void draw_something()
    tfb_draw_line(w/2, h/2, w/2 - 25, h/2 - 100, yellow);
 }
 
+void draw_something2(void)
+{
+   u32 w = tfb_screen_width() / 2;
+   u32 h = tfb_screen_height() / 2;
+
+   tfb_clear_screen(black);
+   tfb_set_center_window_size(w, h);
+   tfb_clear_win(gray);
+
+   tfb_draw_rect(0, 0, w, h, red);
+   tfb_draw_line(0, 0, w * 2, h * 2, yellow);
+
+   tfb_fill_rect(w/2, h/2, w, h, green);
+}
+
 int main(int argc, char **argv)
 {
    int rc;
@@ -82,7 +104,10 @@ int main(int argc, char **argv)
       return 1;
    }
 
+   init_colors();
    draw_something();
+   getchar();
+   draw_something2();
    getchar();
 
    tfb_release_fb();
