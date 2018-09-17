@@ -26,10 +26,7 @@
       return false;                                             \
    }
 
-#define INT_ABS(_x) ((_x) > 0 ? (_x) : (-(_x)))
-#define INT_MIN(x, y) ((x) <= (y) ? (x) : (y))
-#define INT_MAX(x, y) ((x) > (y) ? (x) : (y))
-
+extern inline u32 tfb_make_color(u8 red, u8 green, u8 blue);
 extern inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
 extern inline void tfb_draw_pixel_win(u32 x, u32 y, u32 color);
 extern inline u32 tfb_screen_width(void);
@@ -41,20 +38,18 @@ struct fb_var_screeninfo __fbi;
 
 void *__fb_buffer;
 size_t __fb_pitch_div4;
-
-static struct fb_fix_screeninfo fb_fixinfo;
-
-static size_t fb_size;
-static size_t fb_pitch;
-static int fbfd = -1;
-static int ttyfd = -1;
-
 u32 __fb_win_w;
 u32 __fb_win_h;
 u32 __fb_off_x;
 u32 __fb_off_y;
 u32 __fb_win_end_x;
 u32 __fb_win_end_y;
+
+static struct fb_fix_screeninfo fb_fixinfo;
+static size_t fb_size;
+static size_t fb_pitch;
+static int fbfd = -1;
+static int ttyfd = -1;
 
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
 {
@@ -82,13 +77,6 @@ int tfb_set_center_window_size(u32 w, u32 h)
    return tfb_set_window(__fbi.xres / 2 - w / 2,
                          __fbi.yres / 2 - h / 2,
                          w, h);
-}
-
-u32 tfb_make_color(u8 red, u8 green, u8 blue)
-{
-   return red << __fbi.red.offset |
-          green << __fbi.green.offset |
-          blue << __fbi.blue.offset;
 }
 
 void tfb_clear_screen(u32 color)

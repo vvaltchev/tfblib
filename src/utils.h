@@ -2,6 +2,11 @@
 
 #pragma once
 
+#define INT_ABS(_x) ((_x) > 0 ? (_x) : (-(_x)))
+#define INT_MIN(x, y) ((x) <= (y) ? (x) : (y))
+#define INT_MAX(x, y) ((x) > (y) ? (x) : (y))
+
+
 /*
  * Set 'n' 32-bit elems pointed by 's' to 'val'.
  */

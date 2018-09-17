@@ -40,7 +40,6 @@ int tfb_acquire_fb(void);
 void tfb_release_fb(void);
 
 /* Drawing functions */
-u32 tfb_make_color(u8 red, u8 green, u8 blue);
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
 void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);
@@ -48,6 +47,13 @@ void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_clear_screen(u32 color);
 void tfb_clear_win(u32 color);
+
+inline u32 tfb_make_color(u8 red, u8 green, u8 blue)
+{
+   return red << __fbi.red.offset |
+          green << __fbi.green.offset |
+          blue << __fbi.blue.offset;
+}
 
 inline void tfb_draw_pixel(u32 x, u32 y, u32 color)
 {
