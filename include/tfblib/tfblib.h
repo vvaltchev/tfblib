@@ -28,17 +28,17 @@ void tfb_clear_screen(u32 color);
 int tfb_acquire_fb(void);
 void tfb_release_fb(void);
 
-static inline void tfb_draw_pixel(u32 x, u32 y, u32 color)
+inline void tfb_draw_pixel(u32 x, u32 y, u32 color)
 {
    ((volatile u32 *)__fb_buffer)[x + y * __fb_pitch_div4] = color;
 }
 
-static u32 inline tfb_screen_width(void)
+inline u32 tfb_screen_width(void)
 {
     return __fbi.xres;
 }
 
-static u32 inline tfb_screen_height(void)
+inline u32 tfb_screen_height(void)
 {
     return __fbi.yres;
 }

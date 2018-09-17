@@ -15,6 +15,7 @@
 #include <time.h>
 
 #include <tfblib/tfblib.h>
+#include "utils.h"
 
 #define FB_DEVICE "/dev/fb0"
 #define TTY_DEVICE "/dev/tty"
@@ -26,6 +27,10 @@
    }
 
 #define INT_ABS(_x) ((_x) > 0 ? (_x) : (-(_x)))
+
+extern inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
+extern inline u32 tfb_screen_width(void);
+extern inline u32 tfb_screen_height(void);
 
 struct fb_var_screeninfo __fbi;
 
@@ -39,30 +44,6 @@ static size_t fb_pitch;
 static int fbfd = -1;
 static int ttyfd = -1;
 
-/*
- * Set 'n' 32-bit elems pointed by 's' to 'val'.
- */
-static inline void *memset32(void *s, u32 val, size_t n)
-{
-
-#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
-
-   unsigned unused;
-
-   __asm__ volatile ("rep stosl"
-                     : "=D" (unused), "=a" (val), "=c" (n)
-                     :  "D" (s), "a" (val), "c" (n)
-                     : "cc", "memory");
-#else
-
-
-   for (size_t i = 0; i < n; i++)
-      ((volatile u32 *)s)[i] = val;
-
-#endif
-
-   return s;
-}
 
 u32 tfb_make_color(u8 red, u8 green, u8 blue)
 {
@@ -73,7 +54,13 @@ u32 tfb_make_color(u8 red, u8 green, u8 blue)
 
 void tfb_clear_screen(u32 color)
 {
-   memset32(__fb_buffer, color, fb_size >> 2);
+   if (fb_pitch == 4 * __fbi.xres) {
+      memset32(__fb_buffer, color, fb_size >> 2);
+      return;
+   }
+
+   for (u32 y = 0; y < __fbi.yres; y++)
+      tfb_draw_hline(0, y, __fbi.xres, color);
 }
 
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
