@@ -23,6 +23,7 @@ typedef uint32_t u32;
 
 extern struct fb_var_screeninfo __fbi;
 extern void *__fb_buffer;
+extern size_t __fb_size;
 extern size_t __fb_pitch;
 extern size_t __fb_pitch_div4;
 
@@ -91,22 +92,7 @@ inline void tfb_draw_pixel(u32 x, u32 y, u32 color)
       ((volatile u32 *)__fb_buffer)[x + y * __fb_pitch_div4] = color;
 }
 
-inline u32 tfb_screen_width(void)
-{
-    return __fbi.xres;
-}
-
-inline u32 tfb_screen_height(void)
-{
-    return __fbi.yres;
-}
-
-inline u32 tfb_win_width(void)
-{
-   return __fb_win_w;
-}
-
-inline u32 tfb_win_height(void)
-{
-   return __fb_win_h;
-}
+inline u32 tfb_screen_width(void) { return __fbi.xres; }
+inline u32 tfb_screen_height(void) { return __fbi.yres; }
+inline u32 tfb_win_width(void) { return __fb_win_w; }
+inline u32 tfb_win_height(void) { return __fb_win_h; }

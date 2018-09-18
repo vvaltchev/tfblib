@@ -6,25 +6,9 @@
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
-#include <fcntl.h>
-#include <linux/fb.h>
-#include <linux/kd.h>
-#include <sys/mman.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <time.h>
 
 #include <tfblib/tfblib.h>
 #include "utils.h"
-
-#define FB_DEVICE "/dev/fb0"
-#define TTY_DEVICE "/dev/tty"
-
-#define FB_ASSUMPTION(x)                                        \
-   if (!(x)) {                                                  \
-      fprintf(stderr, "fb mode assumption '%s' failed\n", #x);  \
-      return false;                                             \
-   }
 
 extern inline u32 tfb_make_color(u8 red, u8 green, u8 blue);
 extern inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
@@ -33,8 +17,6 @@ extern inline u32 tfb_screen_width(void);
 extern inline u32 tfb_screen_height(void);
 extern inline u32 tfb_win_width(void);
 extern inline u32 tfb_win_height(void);
-
-struct fb_var_screeninfo __fbi;
 
 void *__fb_buffer;
 size_t __fb_size;
@@ -64,8 +46,6 @@ u8 __fb_r_pos;
 u8 __fb_g_pos;
 u8 __fb_b_pos;
 
-static int fbfd = -1;
-static int ttyfd = -1;
 
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
 {
@@ -81,9 +61,6 @@ int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
    __fb_win_h = h;
    __fb_win_end_x = __fb_off_x + __fb_win_w;
    __fb_win_end_y = __fb_off_y + __fb_win_h;
-
-   printf("[tfblib debug] win: (%u, %u), (%u, %u)\n",
-          __fb_off_x, __fb_off_y, __fb_win_end_x, __fb_win_end_y);
 
    return TFB_SUCCESS;
 }
@@ -213,80 +190,4 @@ void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color)
       midpoint_line(x0, y0, x1, y1, color, false);
    else
       midpoint_line(y0, x0, y1, x1, color, true);
-}
-
-static bool check_fb_assumptions(void)
-{
-   FB_ASSUMPTION(__fbi.bits_per_pixel == 32);
-   FB_ASSUMPTION(__fbi.red.msb_right == 0);
-   FB_ASSUMPTION(__fbi.green.msb_right == 0);
-   FB_ASSUMPTION(__fbi.blue.msb_right == 0);
-   return true;
-}
-
-int tfb_acquire_fb(void)
-{
-   static struct fb_fix_screeninfo fb_fixinfo;
-
-   fbfd = open(FB_DEVICE, O_RDWR);
-
-   if (fbfd < 0)
-      return TFB_ERROR_OPEN_FB;
-
-   if (ioctl(fbfd, FBIOGET_FSCREENINFO, &fb_fixinfo) != 0)
-      return TFB_ERROR_IOCTL_FB;
-
-   if (ioctl (fbfd, FBIOGET_VSCREENINFO, &__fbi) != 0)
-      return TFB_ERROR_IOCTL_FB;
-
-   __fb_pitch = fb_fixinfo.line_length;
-   __fb_size = __fb_pitch * __fbi.yres;
-   __fb_pitch_div4 = __fb_pitch >> 2;
-
-   if (!check_fb_assumptions())
-      return TFB_ASSUMPTION_FAILED;
-
-   ttyfd = open(TTY_DEVICE, O_RDWR);
-
-   if (ttyfd < 0)
-      return TFB_ERROR_OPEN_TTY;
-
-   if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0)
-      return TFB_ERROR_TTY_GRAPHIC_MODE;
-
-   __fb_buffer = mmap(0, __fb_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
-
-   if (__fb_buffer == MAP_FAILED)
-      return TFB_MMAP_FB_ERROR;
-
-   if (tfb_set_window(0, 0, __fbi.xres, __fbi.yres) != TFB_SUCCESS)
-      abort(); /* internal error */
-
-   __fb_r_pos = __fbi.red.offset;
-   __fb_r_mask_size = __fbi.red.length;
-   __fb_r_mask = ((1 << __fb_r_mask_size) - 1) << __fb_r_pos;
-
-   __fb_g_pos = __fbi.green.offset;
-   __fb_g_mask_size = __fbi.green.length;
-   __fb_g_mask = ((1 << __fb_g_mask_size) - 1) << __fb_g_pos;
-
-   __fb_b_pos = __fbi.blue.offset;
-   __fb_b_mask_size = __fbi.blue.length;
-   __fb_b_mask = ((1 << __fb_b_mask_size) - 1) << __fb_b_pos;
-
-   return TFB_SUCCESS;
-}
-
-void tfb_release_fb(void)
-{
-   if (__fb_buffer)
-      munmap(__fb_buffer, __fb_size);
-
-   if (ttyfd != -1) {
-      ioctl(ttyfd, KDSETMODE, KD_TEXT);
-      close(ttyfd);
-   }
-
-   if (fbfd != -1)
-      close(fbfd);
 }
