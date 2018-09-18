@@ -28,7 +28,7 @@
 
 extern inline u32 tfb_make_color(u8 red, u8 green, u8 blue);
 extern inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
-extern inline void tfb_draw_pixel_win(u32 x, u32 y, u32 color);
+extern inline void tfb_draw_pixel_raw(u32 x, u32 y, u32 color);
 extern inline u32 tfb_screen_width(void);
 extern inline u32 tfb_screen_height(void);
 extern inline u32 tfb_win_width(void);
@@ -55,8 +55,6 @@ u8 __fb_r_pos;
 u8 __fb_g_pos;
 u8 __fb_b_pos;
 
-
-static struct fb_fix_screeninfo fb_fixinfo;
 static size_t fb_size;
 static size_t fb_pitch;
 static int fbfd = -1;
@@ -172,24 +170,24 @@ midpoint_line(int x, int y, int x1, int y1, u32 color, bool swap_xy)
 
    if (swap_xy) {
 
-      tfb_draw_pixel(y, x, color);
+      tfb_draw_pixel_raw(y, x, color);
 
       while (x != x1) {
          x += sx;
          y += inc_y[d <= 0];
          d += inc_d[d <= 0];
-         tfb_draw_pixel(y, x, color);
+         tfb_draw_pixel_raw(y, x, color);
       }
 
    } else {
 
-      tfb_draw_pixel(x, y, color);
+      tfb_draw_pixel_raw(x, y, color);
 
       while (x != x1) {
          x += sx;
          y += inc_y[d <= 0];
          d += inc_d[d <= 0];
-         tfb_draw_pixel(x, y, color);
+         tfb_draw_pixel_raw(x, y, color);
       }
    }
 }
@@ -221,6 +219,8 @@ static bool check_fb_assumptions(void)
 
 int tfb_acquire_fb(void)
 {
+   static struct fb_fix_screeninfo fb_fixinfo;
+
    fbfd = open(FB_DEVICE, O_RDWR);
 
    if (fbfd < 0)

@@ -66,12 +66,22 @@ inline u32 tfb_make_color(u8 r, u8 g, u8 b)
           ((b << __fb_b_pos) & __fb_b_mask);
 }
 
-inline void tfb_draw_pixel(u32 x, u32 y, u32 color)
+/*
+ * WARNING: using this function is UNSAFE.
+ *
+ *    - the caller have to offset (x,y) by (__fbi.xoffset, __fbi.yoffset)
+ *      in case one of the offsets is != 0.
+ *
+ *    - the caller takes the full responsibility to avoid using coordinates
+ *      outside of the screen boundaries. Doing that would cause an undefined
+ *      behavior.
+ */
+inline void tfb_draw_pixel_raw(u32 x, u32 y, u32 color)
 {
    ((volatile u32 *)__fb_buffer)[x + y * __fb_pitch_div4] = color;
 }
 
-inline void tfb_draw_pixel_win(u32 x, u32 y, u32 color)
+inline void tfb_draw_pixel(u32 x, u32 y, u32 color)
 {
    x += __fb_off_x;
    y += __fb_off_y;
