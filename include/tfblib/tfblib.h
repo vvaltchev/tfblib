@@ -16,8 +16,14 @@
 #define TFB_MMAP_FB_ERROR            6
 #define TFB_INVALID_WINDOW           7
 
-typedef uint8_t u8;
-typedef uint32_t u32;
+/*
+ * Define these convenience types as macros, in order to allow at the end of the
+ * header to just #undef them. Their only purpose is to make the signatures much
+ * shorter.
+ */
+
+#define u8 uint8_t
+#define u32 uint32_t
 
 extern void *__fb_buffer;
 extern u32 __fb_screen_w;
@@ -95,3 +101,6 @@ inline u32 tfb_screen_width(void) { return __fb_screen_w; }
 inline u32 tfb_screen_height(void) { return __fb_screen_h; }
 inline u32 tfb_win_width(void) { return __fb_win_w; }
 inline u32 tfb_win_height(void) { return __fb_win_h; }
+
+#undef u8
+#undef u32

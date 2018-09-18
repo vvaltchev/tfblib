@@ -6,6 +6,10 @@
 #define INT_MIN(x, y) ((x) <= (y) ? (x) : (y))
 #define INT_MAX(x, y) ((x) > (y) ? (x) : (y))
 
+/* Here in our internal header, it's save to typedef our convenience types */
+typedef uint8_t u8;
+typedef uint32_t u32;
+
 
 /*
  * Set 'n' 32-bit elems pointed by 's' to 'val'.

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <tfblib/tfblib.h>
 
-u32 red, green, blue, white, black, yellow, gray;
+uint32_t red, green, blue, white, black, yellow, gray;
 
 void init_colors(void)
 {
@@ -18,8 +18,8 @@ void init_colors(void)
 
 void draw_something()
 {
-   u32 w = tfb_screen_width();
-   u32 h = tfb_screen_height();
+   uint32_t w = tfb_screen_width();
+   uint32_t h = tfb_screen_height();
 
    tfb_clear_screen(black);
 
@@ -79,8 +79,8 @@ void draw_something()
 
 void draw_something2(void)
 {
-   u32 w = tfb_screen_width() / 2;
-   u32 h = tfb_screen_height() / 2;
+   uint32_t w = tfb_screen_width() / 2;
+   uint32_t h = tfb_screen_height() / 2;
 
    tfb_clear_screen(black);
    tfb_set_center_window_size(w, h);
