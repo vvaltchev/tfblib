@@ -23,6 +23,7 @@ typedef uint32_t u32;
 
 extern struct fb_var_screeninfo __fbi;
 extern void *__fb_buffer;
+extern size_t __fb_pitch;
 extern size_t __fb_pitch_div4;
 
 /* Window-related variables */

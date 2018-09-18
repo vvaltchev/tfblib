@@ -37,7 +37,16 @@ extern inline u32 tfb_win_height(void);
 struct fb_var_screeninfo __fbi;
 
 void *__fb_buffer;
-size_t __fb_pitch_div4;
+size_t __fb_size;
+size_t __fb_pitch;
+size_t __fb_pitch_div4; /*
+                         * Used in tfb_draw_pixel* to save a (x << 2) operation.
+                         * If we had to use __fb_pitch, we'd had to write:
+                         *    *(u32 *)(__fb_buffer + (x << 2) + y * __fb_pitch)
+                         * which clearly requires an additional shift operation
+                         * that we can skip by using __fb_pitch_div4.
+                         */
+
 u32 __fb_win_w;
 u32 __fb_win_h;
 u32 __fb_off_x;
@@ -55,8 +64,6 @@ u8 __fb_r_pos;
 u8 __fb_g_pos;
 u8 __fb_b_pos;
 
-static size_t fb_size;
-static size_t fb_pitch;
 static int fbfd = -1;
 static int ttyfd = -1;
 
@@ -90,8 +97,8 @@ int tfb_set_center_window_size(u32 w, u32 h)
 
 void tfb_clear_screen(u32 color)
 {
-   if (fb_pitch == 4 * __fbi.xres) {
-      memset32(__fb_buffer, color, fb_size >> 2);
+   if (__fb_pitch == 4 * __fbi.xres) {
+      memset32(__fb_buffer, color, __fb_size >> 2);
       return;
    }
 
@@ -114,7 +121,7 @@ void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color)
       return;
 
    len = INT_MIN((int)len, (int)__fb_win_end_x - (int)x);
-   memset32(__fb_buffer + y * fb_pitch + (x << 2), color, len);
+   memset32(__fb_buffer + y * __fb_pitch + (x << 2), color, len);
 }
 
 void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color)
@@ -143,7 +150,7 @@ void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
    yend = INT_MIN(y + h, __fb_win_end_y);
 
    for (u32 cy = y; cy < yend; cy++)
-      memset32(__fb_buffer + cy * fb_pitch + (x << 2), color, w);
+      memset32(__fb_buffer + cy * __fb_pitch + (x << 2), color, w);
 }
 
 void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
@@ -232,9 +239,9 @@ int tfb_acquire_fb(void)
    if (ioctl (fbfd, FBIOGET_VSCREENINFO, &__fbi) != 0)
       return TFB_ERROR_IOCTL_FB;
 
-   fb_pitch = fb_fixinfo.line_length;
-   fb_size = fb_pitch * __fbi.yres;
-   __fb_pitch_div4 = fb_pitch >> 2;
+   __fb_pitch = fb_fixinfo.line_length;
+   __fb_size = __fb_pitch * __fbi.yres;
+   __fb_pitch_div4 = __fb_pitch >> 2;
 
    if (!check_fb_assumptions())
       return TFB_ASSUMPTION_FAILED;
@@ -247,7 +254,7 @@ int tfb_acquire_fb(void)
    if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0)
       return TFB_ERROR_TTY_GRAPHIC_MODE;
 
-   __fb_buffer = mmap(0, fb_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
+   __fb_buffer = mmap(0, __fb_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 
    if (__fb_buffer == MAP_FAILED)
       return TFB_MMAP_FB_ERROR;
@@ -273,7 +280,7 @@ int tfb_acquire_fb(void)
 void tfb_release_fb(void)
 {
    if (__fb_buffer)
-      munmap(__fb_buffer, fb_size);
+      munmap(__fb_buffer, __fb_size);
 
    if (ttyfd != -1) {
       ioctl(ttyfd, KDSETMODE, KD_TEXT);
