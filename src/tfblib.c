@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <linux/fb.h>
 
 #include <tfblib/tfblib.h>
 #include "utils.h"
@@ -18,6 +19,8 @@ extern inline u32 tfb_screen_height(void);
 extern inline u32 tfb_win_width(void);
 extern inline u32 tfb_win_height(void);
 
+extern struct fb_var_screeninfo __fbi;
+
 void *__fb_buffer;
 size_t __fb_size;
 size_t __fb_pitch;
@@ -29,6 +32,8 @@ size_t __fb_pitch_div4; /*
                          * that we can skip by using __fb_pitch_div4.
                          */
 
+u32 __fb_screen_w;
+u32 __fb_screen_h;
 u32 __fb_win_w;
 u32 __fb_win_h;
 u32 __fb_off_x;

@@ -73,6 +73,9 @@ int tfb_acquire_fb(void)
    if (__fb_buffer == MAP_FAILED)
       return TFB_MMAP_FB_ERROR;
 
+   __fb_screen_w = __fbi.xres;
+   __fb_screen_h = __fbi.yres;
+
    if (tfb_set_window(0, 0, __fbi.xres, __fbi.yres) != TFB_SUCCESS)
       abort(); /* internal error */
 
