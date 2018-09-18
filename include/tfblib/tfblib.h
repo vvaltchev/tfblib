@@ -33,6 +33,17 @@ extern u32 __fb_off_y;
 extern u32 __fb_win_end_x;
 extern u32 __fb_win_end_y;
 
+/* Color-related variables */
+extern u32 __fb_r_mask;
+extern u32 __fb_g_mask;
+extern u32 __fb_b_mask;
+extern u8 __fb_r_mask_size;
+extern u8 __fb_g_mask_size;
+extern u8 __fb_b_mask_size;
+extern u8 __fb_r_pos;
+extern u8 __fb_g_pos;
+extern u8 __fb_b_pos;
+
 /* Initialization/setup functions */
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h);
 int tfb_set_center_window_size(u32 w, u32 h);
@@ -48,11 +59,11 @@ void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_clear_screen(u32 color);
 void tfb_clear_win(u32 color);
 
-inline u32 tfb_make_color(u8 red, u8 green, u8 blue)
+inline u32 tfb_make_color(u8 r, u8 g, u8 b)
 {
-   return red << __fbi.red.offset |
-          green << __fbi.green.offset |
-          blue << __fbi.blue.offset;
+   return ((r << __fb_r_pos) & __fb_r_mask) |
+          ((g << __fb_g_pos) & __fb_g_mask) |
+          ((b << __fb_b_pos) & __fb_b_mask);
 }
 
 inline void tfb_draw_pixel(u32 x, u32 y, u32 color)

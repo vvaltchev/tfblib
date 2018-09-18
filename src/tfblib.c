@@ -45,6 +45,17 @@ u32 __fb_off_y;
 u32 __fb_win_end_x;
 u32 __fb_win_end_y;
 
+u32 __fb_r_mask;
+u32 __fb_g_mask;
+u32 __fb_b_mask;
+u8 __fb_r_mask_size;
+u8 __fb_g_mask_size;
+u8 __fb_b_mask_size;
+u8 __fb_r_pos;
+u8 __fb_g_pos;
+u8 __fb_b_pos;
+
+
 static struct fb_fix_screeninfo fb_fixinfo;
 static size_t fb_size;
 static size_t fb_pitch;
@@ -59,8 +70,8 @@ int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
    if (y + h > __fbi.yres)
       return TFB_INVALID_WINDOW;
 
-   __fb_off_x = x;
-   __fb_off_y = y;
+   __fb_off_x = __fbi.xoffset + x;
+   __fb_off_y = __fbi.yoffset + y;
    __fb_win_w = w;
    __fb_win_h = h;
    __fb_win_end_x = __fb_off_x + __fb_win_w;
@@ -202,24 +213,9 @@ void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color)
 static bool check_fb_assumptions(void)
 {
    FB_ASSUMPTION(__fbi.bits_per_pixel == 32);
-
-   FB_ASSUMPTION((__fbi.red.offset % 8) == 0);
-   FB_ASSUMPTION((__fbi.green.offset % 8) == 0);
-   FB_ASSUMPTION((__fbi.blue.offset % 8) == 0);
-   FB_ASSUMPTION((__fbi.transp.offset % 8) == 0);
-
-   FB_ASSUMPTION(__fbi.red.length == 8);
-   FB_ASSUMPTION(__fbi.green.length == 8);
-   FB_ASSUMPTION(__fbi.blue.length == 8);
-   FB_ASSUMPTION(__fbi.transp.length == 0);
-
-   FB_ASSUMPTION(__fbi.xoffset == 0);
-   FB_ASSUMPTION(__fbi.yoffset == 0);
-
    FB_ASSUMPTION(__fbi.red.msb_right == 0);
    FB_ASSUMPTION(__fbi.green.msb_right == 0);
    FB_ASSUMPTION(__fbi.blue.msb_right == 0);
-
    return true;
 }
 
@@ -258,6 +254,18 @@ int tfb_acquire_fb(void)
 
    if (tfb_set_window(0, 0, __fbi.xres, __fbi.yres) != TFB_SUCCESS)
       abort(); /* internal error */
+
+   __fb_r_pos = __fbi.red.offset;
+   __fb_r_mask_size = __fbi.red.length;
+   __fb_r_mask = ((1 << __fb_r_mask_size) - 1) << __fb_r_pos;
+
+   __fb_g_pos = __fbi.green.offset;
+   __fb_g_mask_size = __fbi.green.length;
+   __fb_g_mask = ((1 << __fb_g_mask_size) - 1) << __fb_g_pos;
+
+   __fb_b_pos = __fbi.blue.offset;
+   __fb_b_mask_size = __fbi.blue.length;
+   __fb_b_mask = ((1 << __fb_b_mask_size) - 1) << __fb_b_pos;
 
    return TFB_SUCCESS;
 }
