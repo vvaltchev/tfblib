@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include <tfblib/tfblib.h>
+#include "utils.h"
 
 #define FB_DEVICE "/dev/fb0"
 #define TTY_DEVICE "/dev/tty"
@@ -28,6 +29,24 @@ struct fb_var_screeninfo __fbi;
 
 static int fbfd = -1;
 static int ttyfd = -1;
+
+int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
+{
+   if (x + w > __fb_screen_w)
+      return TFB_INVALID_WINDOW;
+
+   if (y + h > __fb_screen_h)
+      return TFB_INVALID_WINDOW;
+
+   __fb_off_x = __fbi.xoffset + x;
+   __fb_off_y = __fbi.yoffset + y;
+   __fb_win_w = w;
+   __fb_win_h = h;
+   __fb_win_end_x = __fb_off_x + __fb_win_w;
+   __fb_win_end_y = __fb_off_y + __fb_win_h;
+
+   return TFB_SUCCESS;
+}
 
 static bool check_fb_assumptions(void)
 {
@@ -76,8 +95,10 @@ int tfb_acquire_fb(void)
    __fb_screen_w = __fbi.xres;
    __fb_screen_h = __fbi.yres;
 
-   if (tfb_set_window(0, 0, __fbi.xres, __fbi.yres) != TFB_SUCCESS)
+   if (tfb_set_window(0, 0, __fb_screen_w, __fb_screen_h) != TFB_SUCCESS) {
+      fprintf(stderr, "[tfblib] Internal error: tfb_set_window() failed\n");
       abort(); /* internal error */
+   }
 
    __fb_r_pos = __fbi.red.offset;
    __fb_r_mask_size = __fbi.red.length;

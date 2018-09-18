@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
-#include <linux/fb.h>
 
 #include <tfblib/tfblib.h>
 #include "utils.h"
@@ -18,8 +17,6 @@ extern inline u32 tfb_screen_width(void);
 extern inline u32 tfb_screen_height(void);
 extern inline u32 tfb_win_width(void);
 extern inline u32 tfb_win_height(void);
-
-extern struct fb_var_screeninfo __fbi;
 
 void *__fb_buffer;
 size_t __fb_size;
@@ -51,41 +48,22 @@ u8 __fb_r_pos;
 u8 __fb_g_pos;
 u8 __fb_b_pos;
 
-
-int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
-{
-   if (x + w > __fbi.xres)
-      return TFB_INVALID_WINDOW;
-
-   if (y + h > __fbi.yres)
-      return TFB_INVALID_WINDOW;
-
-   __fb_off_x = __fbi.xoffset + x;
-   __fb_off_y = __fbi.yoffset + y;
-   __fb_win_w = w;
-   __fb_win_h = h;
-   __fb_win_end_x = __fb_off_x + __fb_win_w;
-   __fb_win_end_y = __fb_off_y + __fb_win_h;
-
-   return TFB_SUCCESS;
-}
-
 int tfb_set_center_window_size(u32 w, u32 h)
 {
-   return tfb_set_window(__fbi.xres / 2 - w / 2,
-                         __fbi.yres / 2 - h / 2,
+   return tfb_set_window(__fb_screen_w / 2 - w / 2,
+                         __fb_screen_h / 2 - h / 2,
                          w, h);
 }
 
 void tfb_clear_screen(u32 color)
 {
-   if (__fb_pitch == 4 * __fbi.xres) {
+   if (__fb_pitch == 4 * __fb_screen_w) {
       memset32(__fb_buffer, color, __fb_size >> 2);
       return;
    }
 
-   for (u32 y = 0; y < __fbi.yres; y++)
-      tfb_draw_hline(0, y, __fbi.xres, color);
+   for (u32 y = 0; y < __fb_screen_h; y++)
+      tfb_draw_hline(0, y, __fb_screen_w, color);
 }
 
 void tfb_clear_win(u32 color)
