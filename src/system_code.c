@@ -50,7 +50,6 @@ int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
 
 static bool check_fb_assumptions(void)
 {
-   FB_ASSUMPTION(__fbi.bits_per_pixel == 32);
    FB_ASSUMPTION(__fbi.red.msb_right == 0);
    FB_ASSUMPTION(__fbi.green.msb_right == 0);
    FB_ASSUMPTION(__fbi.blue.msb_right == 0);
@@ -75,6 +74,9 @@ int tfb_acquire_fb(void)
    __fb_pitch = fb_fixinfo.line_length;
    __fb_size = __fb_pitch * __fbi.yres;
    __fb_pitch_div4 = __fb_pitch >> 2;
+
+   if (__fbi.bits_per_pixel != 32)
+      return TFB_UNSUPPORTED_VIDEO_MODE;
 
    if (!check_fb_assumptions())
       return TFB_ASSUMPTION_FAILED;

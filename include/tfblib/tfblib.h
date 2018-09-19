@@ -15,6 +15,7 @@
 #define TFB_ASSUMPTION_FAILED        5
 #define TFB_MMAP_FB_ERROR            6
 #define TFB_INVALID_WINDOW           7
+#define TFB_UNSUPPORTED_VIDEO_MODE   8
 
 /*
  * Define these convenience types as macros, in order to allow at the end of the
