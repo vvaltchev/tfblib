@@ -32,7 +32,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 file (GLOB font_files "${CMAKE_CURRENT_SOURCE_DIR}/fonts/*")
 
 set(font_decls "")
-set(fonts_list_str "")
+set(fonts_list_str "0")
 
 foreach(file ${font_files})
 

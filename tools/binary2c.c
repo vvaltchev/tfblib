@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
+#include <libgen.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -41,7 +42,7 @@ bool check_var_name(const char *name)
    return true;
 }
 
-void bin2c(FILE *src, FILE *dst, const char *var_name)
+void bin2c(FILE *src, FILE *dst, const char *fn, const char *var_name)
 {
    static unsigned char readbuf[4096];
 
@@ -61,10 +62,12 @@ void bin2c(FILE *src, FILE *dst, const char *var_name)
    fs = statbuf.st_size;
 
    fprintf(dst, "const struct {\n\n");
+   fprintf(dst, "    const char *filename;\n");
    fprintf(dst, "    unsigned int data_size;\n");
    fprintf(dst, "    unsigned char data[];\n\n");
    fprintf(dst, "} %s = {\n\n", var_name);
-   fprintf(dst, "    %u, /* data size */\n\n", fs);
+   fprintf(dst, "    \"%s\", /* file name */\n", fn);
+   fprintf(dst, "    %u, /* file size */\n\n", fs);
    fprintf(dst, "    {");
 
    do {
@@ -117,7 +120,7 @@ int main(int argc, char **argv)
    }
 
    fprintf(dst, "/* file: %s */\n", argv[1]);
-   bin2c(src, dst, var_name);
+   bin2c(src, dst, basename(argv[1]), var_name);
 
 out:
 

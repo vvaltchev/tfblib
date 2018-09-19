@@ -1,9 +1,6 @@
 
-typedef struct {
-    unsigned int data_size;
-    unsigned char data[];
-} font_file;
+#include "@CMAKE_CURRENT_SOURCE_DIR@/src/font.h"
 
 @font_decls@
 
-font_file *fonts_list[] = { @fonts_list_str@ };
+font_file *font_file_list[] = { @fonts_list_str@ };
