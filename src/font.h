@@ -27,7 +27,7 @@ typedef struct {
    u8 bytes_per_glyph;
 } psf1_header;
 
-#define PSF2_FONT_MAGIC 0x864ab572
+#define PSF2_MAGIC 0x864ab572
 
 /* bits used in flags */
 #define PSF2_HAS_UNICODE_TABLE 0x01

@@ -7,7 +7,7 @@
 #include "utils.h"
 #include "font.h"
 
-static void *current_font;
+static void *curr_font;
 static u32 curr_font_w;
 static u32 curr_font_h;
 static u32 curr_font_w_bytes;
@@ -26,7 +26,7 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
       h1 = (void *)(*it)->data;
       h2 = (void *)(*it)->data;
 
-      if (h2->magic == PSF2_FONT_MAGIC) {
+      if (h2->magic == PSF2_MAGIC) {
 
          fi = (tfb_font_info) {
             .name = (*it)->filename,
@@ -55,41 +55,34 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
 
 int tfb_set_current_font(void *font_id)
 {
-   psf1_header *h1;
-   psf2_header *h2;
-   const font_file **it = tfb_font_file_list;
+   const font_file *ff = font_id;
+   psf1_header *h1 = (void *)ff->data;
+   psf2_header *h2 = (void *)ff->data;
 
-   for (it = tfb_font_file_list; *it; it++) {
-
-      if (*it == font_id) {
-
-         current_font = (void *)(*it)->data;
-         h1 = current_font;
-         h2 = current_font;
-
-         if (h2->magic == PSF2_FONT_MAGIC) {
-            curr_font_w = h2->width;
-            curr_font_h = h2->height;
-            curr_font_w_bytes = h2->bytes_per_glyph / h2->height;
-            curr_font_data = current_font + h2->header_size;
-            curr_font_bytes_per_glyph = h2->bytes_per_glyph;
-         } else {
-            curr_font_w = 8;
-            curr_font_h = h1->bytes_per_glyph;
-            curr_font_w_bytes = 1;
-            curr_font_data = current_font + sizeof(psf1_header);
-            curr_font_bytes_per_glyph = h1->bytes_per_glyph;
-         }
-         return TFB_SUCCESS;
-      }
+   if (h2->magic == PSF2_MAGIC) {
+      curr_font = h2;
+      curr_font_w = h2->width;
+      curr_font_h = h2->height;
+      curr_font_w_bytes = h2->bytes_per_glyph / h2->height;
+      curr_font_data = curr_font + h2->header_size;
+      curr_font_bytes_per_glyph = h2->bytes_per_glyph;
+   } else if (h1->magic == PSF1_MAGIC) {
+      curr_font = h1;
+      curr_font_w = 8;
+      curr_font_h = h1->bytes_per_glyph;
+      curr_font_w_bytes = 1;
+      curr_font_data = curr_font + sizeof(psf1_header);
+      curr_font_bytes_per_glyph = h1->bytes_per_glyph;
+   } else {
+      return TFB_INVALID_FONT_ID;
    }
 
-   return TFB_INVALID_FONT_ID;
+   return TFB_SUCCESS;
 }
 
 void tfb_draw_char(u32 x, u32 y, u32 color, u8 c)
 {
-   if (!current_font) {
+   if (!curr_font) {
       fprintf(stderr, "[tfblib] ERROR: no font currently selected\n");
       return;
    }
@@ -105,7 +98,7 @@ void tfb_draw_char(u32 x, u32 y, u32 color, u8 c)
 
 void tfb_draw_string(u32 x, u32 y, u32 color, const char *s)
 {
-   if (!current_font) {
+   if (!curr_font) {
       fprintf(stderr, "[tfblib] ERROR: no font currently selected\n");
       return;
    }
