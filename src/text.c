@@ -14,6 +14,12 @@ static u32 curr_font_w_bytes;
 static u32 curr_font_bytes_per_glyph;
 static u8 *curr_font_data;
 
+void tfb_set_default_font(void *font_id)
+{
+   if (!curr_font)
+      tfb_set_current_font(font_id);
+}
+
 void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
 {
    tfb_font_info fi;

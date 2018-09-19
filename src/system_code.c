@@ -15,6 +15,7 @@
 
 #include <tfblib/tfblib.h>
 #include "utils.h"
+#include "font.h"
 
 #define FB_DEVICE "/dev/fb0"
 #define TTY_DEVICE "/dev/tty"
@@ -113,6 +114,9 @@ int tfb_acquire_fb(void)
    __fb_b_pos = __fbi.blue.offset;
    __fb_b_mask_size = __fbi.blue.length;
    __fb_b_mask = ((1 << __fb_b_mask_size) - 1) << __fb_b_pos;
+
+   /* Just use as default font the first one */
+   tfb_set_default_font((void *)*tfb_font_file_list);
 
    return TFB_SUCCESS;
 }

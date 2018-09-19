@@ -102,9 +102,9 @@ bool font_iter_callback(tfb_font_info *fi, void *user_arg)
    return true;
 }
 
-bool font_iter_cb_select_font(tfb_font_info *fi, void *user_arg)
+bool font_iter_cb_select_font32x16(tfb_font_info *fi, void *user_arg)
 {
-   if (fi->width == 8) {
+   if (fi->width == 16 && fi->height == 32) {
 
       int rc = tfb_set_current_font(fi->font_id);
 
@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 
    printf("Available fonts:\n");
    tfb_iterate_over_fonts(font_iter_callback, NULL);
-   tfb_iterate_over_fonts(font_iter_cb_select_font, NULL);
+   tfb_iterate_over_fonts(font_iter_cb_select_font32x16, NULL);
 
    rc = tfb_acquire_fb();
 

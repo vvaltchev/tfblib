@@ -49,3 +49,5 @@ typedef struct {
     u32 height;          /* height in pixels */
     u32 width;           /* width in pixels */
 } psf2_header;
+
+void tfb_set_default_font(void *font_id);
