@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 
 #pragma once
+#include <stdint.h>
+#include <stdlib.h>
 
 #define INT_ABS(_x) ((_x) > 0 ? (_x) : (-(_x)))
 #define INT_MIN(x, y) ((x) <= (y) ? (x) : (y))
