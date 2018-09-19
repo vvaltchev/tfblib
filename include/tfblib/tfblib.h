@@ -16,6 +16,7 @@
 #define TFB_MMAP_FB_ERROR            6
 #define TFB_INVALID_WINDOW           7
 #define TFB_UNSUPPORTED_VIDEO_MODE   8
+#define TFB_INVALID_FONT_ID          9
 
 /*
  * Define these convenience types as macros, in order to allow at the end of the
@@ -58,12 +59,30 @@ int tfb_set_center_window_size(u32 w, u32 h);
 int tfb_acquire_fb(void);
 void tfb_release_fb(void);
 
+/* Text-related functions and definitions */
+
+typedef struct {
+
+   const char *name;
+   u32 width;
+   u32 height;
+   void *font_id;
+
+} tfb_font_info;
+
+typedef bool (*tfb_font_iter_func)(tfb_font_info *, void *);
+void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg);
+int tfb_set_current_font(void *font_id);
+
+
 /* Drawing functions */
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
 void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);
 void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
+void tfb_draw_char(u32 x, u32 y, u32 color, u8 c);
+void tfb_draw_string(u32 x, u32 y, u32 color, const char *s);
 void tfb_clear_screen(u32 color);
 void tfb_clear_win(u32 color);
 

@@ -9,6 +9,56 @@
 
 static psf2_header *current_font;
 
+void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
+{
+   tfb_font_info fi;
+   psf2_header *h;
+   const font_file **it;
+
+   for (it = tfb_font_file_list; *it; it++) {
+
+      h = (void *)(*it)->data;
+
+      if (h->magic != PSF2_FONT_MAGIC) {
+         fprintf(stderr,
+                 "[tfblib] Skipping non-psf2 font file '%s'\n",
+                 (*it)->filename);
+         continue;
+      }
+
+      fi = (tfb_font_info) {
+         .name = (*it)->filename,
+         .width = h->width,
+         .height = h->height,
+         .font_id = (void *)*it
+      };
+
+      if (!f(&fi, user_arg))
+         break;
+   }
+}
+
+int tfb_set_current_font(void *font_id)
+{
+   psf2_header *h;
+   const font_file **it = tfb_font_file_list;
+
+   for (it = tfb_font_file_list; *it; it++) {
+
+      if (*it == font_id) {
+
+         h = (void *)(*it)->data;
+
+         if (h->magic == PSF2_FONT_MAGIC) {
+            current_font = h;
+            return TFB_SUCCESS;
+         }
+      }
+   }
+
+   return TFB_INVALID_FONT_ID;
+}
+
 void tfb_draw_char(u32 x, u32 y, u32 color, u8 c)
 {
    psf2_header *h = current_font;

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <tfblib/tfblib.h>
 
 uint32_t red, green, blue, white, black, yellow, gray;
@@ -83,6 +84,8 @@ void draw_something2(void)
    uint32_t h = tfb_screen_height() / 2;
 
    tfb_clear_screen(black);
+   tfb_draw_string(20, 20, yellow, "Hello from the Tiny Framebuffer Lib!");
+
    tfb_set_center_window_size(w, h);
    tfb_clear_win(gray);
 
@@ -92,9 +95,36 @@ void draw_something2(void)
    tfb_fill_rect(w/2, h/2, w, h, green);
 }
 
+bool font_iter_callback(tfb_font_info *fi, void *user_arg)
+{
+   printf("    font (%s): %u x %u\n", fi->name, fi->width, fi->height);
+   return true;
+}
+
+bool font_iter_cb_select_font(tfb_font_info *fi, void *user_arg)
+{
+   if (fi->width == 16) {
+
+      int rc = tfb_set_current_font(fi->font_id);
+
+      if (rc != TFB_SUCCESS) {
+         fprintf(stderr, "tfb_set_current_font() failed with error: %d\n", rc);
+         abort();
+      }
+
+      return false; /* stop iterating over fonts */
+   }
+
+   return true;
+}
+
 int main(int argc, char **argv)
 {
    int rc;
+
+   printf("Available fonts:\n");
+   tfb_iterate_over_fonts(font_iter_callback, NULL);
+   tfb_iterate_over_fonts(font_iter_cb_select_font, NULL);
 
    rc = tfb_acquire_fb();
 
