@@ -56,9 +56,10 @@ foreach(file ${font_files})
          binary2c
    )
 
+   set(cvar "font_${basename}")
    list(APPEND c_font_files fonts/${basename}.c)
-   string(CONCAT font_decls "${font_decls}\nextern font_file ${basename};")
-   string(CONCAT fonts_list_str "&${basename}, ${fonts_list_str}")
+   string(CONCAT font_decls "${font_decls}\nextern const font_file ${cvar};")
+   string(CONCAT fonts_list_str "&${cvar}, ${fonts_list_str}")
 
 endforeach()
 
@@ -72,3 +73,8 @@ file(GLOB LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 add_library(tfb STATIC ${LIB_SOURCES} ${c_font_files} fonts/fonts_decls.c)
 
 add_subdirectory(examples)
+
+# Extra stuff in order to allow a full integration with Tilck's build system
+if (${CMAKE_PROJECT_NAME} STREQUAL "tilck")
+   tilck_add_extra_app(${CMAKE_CURRENT_BINARY_DIR}/examples/fb_hello)
+endif()
