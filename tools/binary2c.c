@@ -10,8 +10,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-unsigned char readbuf[4096];
-
 void show_help_and_exit(const char *appname)
 {
    printf("Usage:\n");
@@ -45,6 +43,8 @@ bool check_var_name(const char *name)
 
 void bin2c(FILE *src, FILE *dst, const char *var_name)
 {
+   static unsigned char readbuf[4096];
+
    size_t s;
    unsigned fs;
    unsigned bc = 0;

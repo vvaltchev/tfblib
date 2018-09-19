@@ -27,23 +27,41 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+add_executable(binary2c ${CMAKE_CURRENT_SOURCE_DIR}/tools/binary2c.c)
+
+file (GLOB font_files "${CMAKE_CURRENT_SOURCE_DIR}/fonts/*")
+
+foreach(file ${font_files})
+
+   get_filename_component(fn ${file} NAME)
+
+   string(REGEX MATCH "^(.*)\\.[^.]*$" ignored_output ${fn})
+   set(basename ${CMAKE_MATCH_1})
+
+   add_custom_command(
+
+      OUTPUT
+         fonts/${basename}.c
+
+      COMMAND
+         mkdir -p fonts
+
+      COMMAND
+         binary2c ${file} fonts/${basename}.c ${basename}
+
+      DEPENDS
+         binary2c
+   )
+
+   list(APPEND c_font_files fonts/${basename}.c)
+
+endforeach()
+
 file(GLOB LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
-add_library(tfb STATIC ${LIB_SOURCES})
+add_library(tfb STATIC ${LIB_SOURCES} ${c_font_files})
 
 add_executable(fb_hello "${CMAKE_CURRENT_SOURCE_DIR}/examples/fb_hello.c")
 target_link_libraries(fb_hello tfb)
-
-execute_process(
-   COMMAND
-      ${CMAKE_C_COMPILER} -dumpmachine
-   OUTPUT_VARIABLE
-   compiler_target_string
-)
-
-#string(REGEX MATCH "^[^-]+" TARGET_ARCH ${compiler_target_string})
-#message(STATUS "target string: ${compiler_target_string}")
-#message(STATUS "target arch: ${TARGET_ARCH}")
-#message(STATUS "CMAKE_PROJECT_NAME: ${CMAKE_PROJECT_NAME}")
 
 
 # Extra stuff in order to allow a full integration with Tilck's build system
