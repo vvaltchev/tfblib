@@ -97,13 +97,14 @@ void draw_something2(void)
 
 bool font_iter_callback(tfb_font_info *fi, void *user_arg)
 {
-   printf("    font (%s): %u x %u\n", fi->name, fi->width, fi->height);
+   printf("    font '%s', psf%u, %u x %u\n",
+          fi->name, fi->psf_version, fi->width, fi->height);
    return true;
 }
 
 bool font_iter_cb_select_font(tfb_font_info *fi, void *user_arg)
 {
-   if (fi->width == 16) {
+   if (fi->width == 8) {
 
       int rc = tfb_set_current_font(fi->font_id);
 
@@ -112,6 +113,7 @@ bool font_iter_cb_select_font(tfb_font_info *fi, void *user_arg)
          abort();
       }
 
+      printf("Selected font '%s'\n", fi->name);
       return false; /* stop iterating over fonts */
    }
 

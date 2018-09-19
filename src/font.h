@@ -11,6 +11,22 @@ typedef struct {
 
 extern const font_file **tfb_font_file_list;
 
+#define PSF1_MAGIC 0x0436
+
+#define PSF1_MODE512    0x01
+#define PSF1_MODEHASTAB 0x02
+#define PSF1_MODEHASSEQ 0x04
+#define PSF1_MAXMODE    0x05
+
+#define PSF1_SEPARATOR  0xFFFF
+#define PSF1_STARTSEQ   0xFFFE
+
+typedef struct {
+   u16 magic;
+   u8 mode;
+   u8 bytes_per_glyph;
+} psf1_header;
+
 #define PSF2_FONT_MAGIC 0x864ab572
 
 /* bits used in flags */

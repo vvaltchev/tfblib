@@ -66,6 +66,7 @@ typedef struct {
    const char *name;
    u32 width;
    u32 height;
+   u32 psf_version; /* 1 or 2 */
    void *font_id;
 
 } tfb_font_info;
