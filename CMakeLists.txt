@@ -25,9 +25,9 @@ else()
 
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_subdirectory(tools)
 
-add_executable(binary2c ${CMAKE_CURRENT_SOURCE_DIR}/tools/binary2c.c)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 file (GLOB font_files "${CMAKE_CURRENT_SOURCE_DIR}/fonts/*")
 
@@ -60,11 +60,4 @@ endforeach()
 file(GLOB LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 add_library(tfb STATIC ${LIB_SOURCES} ${c_font_files})
 
-add_executable(fb_hello "${CMAKE_CURRENT_SOURCE_DIR}/examples/fb_hello.c")
-target_link_libraries(fb_hello tfb)
-
-
-# Extra stuff in order to allow a full integration with Tilck's build system
-if (${CMAKE_PROJECT_NAME} STREQUAL "tilck")
-   tilck_add_extra_app("${CMAKE_CURRENT_BINARY_DIR}/fb_hello")
-endif()
+add_subdirectory(examples)
