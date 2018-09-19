@@ -31,6 +31,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 file (GLOB font_files "${CMAKE_CURRENT_SOURCE_DIR}/fonts/*")
 
+set(font_decls "")
+set(fonts_list_str "")
+
 foreach(file ${font_files})
 
    get_filename_component(fn ${file} NAME)
@@ -47,17 +50,25 @@ foreach(file ${font_files})
          mkdir -p fonts
 
       COMMAND
-         binary2c ${file} fonts/${basename}.c ${basename}
+         binary2c ${file} fonts/${basename}.c font_${basename}
 
       DEPENDS
          binary2c
    )
 
    list(APPEND c_font_files fonts/${basename}.c)
+   string(CONCAT font_decls "${font_decls}\nextern font_file ${basename};")
+   string(CONCAT fonts_list_str "&${basename}, ${fonts_list_str}")
 
 endforeach()
 
+configure_file(
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/fonts_decls_template
+   fonts/fonts_decls.c
+   @ONLY
+)
+
 file(GLOB LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
-add_library(tfb STATIC ${LIB_SOURCES} ${c_font_files})
+add_library(tfb STATIC ${LIB_SOURCES} ${c_font_files} fonts/fonts_decls.c)
 
 add_subdirectory(examples)

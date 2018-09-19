@@ -1,0 +1,9 @@
+
+typedef struct {
+    unsigned int data_size;
+    unsigned char data[];
+} font_file;
+
+@font_decls@
+
+font_file *fonts_list[] = { @fonts_list_str@ };
