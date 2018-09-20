@@ -17,6 +17,9 @@
 #define TFB_INVALID_WINDOW           7
 #define TFB_UNSUPPORTED_VIDEO_MODE   8
 #define TFB_INVALID_FONT_ID          9
+#define TFB_READ_FONT_FILE_FAILED   10
+#define TFB_OUT_OF_MEMORY           11
+#define TFB_NOT_A_DYN_LOADED_FONT   12
 
 /*
  * Define these convenience types as macros, in order to allow at the end of the
@@ -74,7 +77,8 @@ typedef struct {
 typedef bool (*tfb_font_iter_func)(tfb_font_info *, void *);
 void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg);
 int tfb_set_current_font(void *font_id);
-
+int tfb_dyn_load_font(const char *file, void **font_id /* out */);
+int tfb_dyn_unload_font(void *font_id);
 
 /* Drawing functions */
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);

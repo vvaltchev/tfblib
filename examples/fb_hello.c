@@ -129,6 +129,27 @@ int main(int argc, char **argv)
    tfb_iterate_over_fonts(font_iter_callback, NULL);
    tfb_iterate_over_fonts(font_iter_cb_select_font32x16, NULL);
 
+   if (argc == 2) {
+
+      void *font_id;
+      rc = tfb_dyn_load_font(argv[1], &font_id);
+
+      if (rc != TFB_SUCCESS) {
+         fprintf(stderr, "tfb_dyn_load_font(%s) failed with error: %d\n",
+                 argv[1], rc);
+
+         return 1;
+      }
+
+      printf("Setting the dynamically-loaded font '%s'\n", argv[1]);
+      rc = tfb_set_current_font(font_id);
+
+      if (rc != TFB_SUCCESS) {
+         fprintf(stderr, "tfb_set_current_font() failed with error: %d\n", rc);
+         return 1;
+      }
+   }
+
    rc = tfb_acquire_fb(NULL, NULL);
 
    if (rc != TFB_SUCCESS) {

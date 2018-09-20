@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <tfblib/tfblib.h>
 #include "utils.h"
@@ -14,10 +16,74 @@ static u32 curr_font_w_bytes;
 static u32 curr_font_bytes_per_glyph;
 static u8 *curr_font_data;
 
+/* Internal function */
 void tfb_set_default_font(void *font_id)
 {
    if (!curr_font)
       tfb_set_current_font(font_id);
+}
+
+int tfb_dyn_load_font(const char *file, void **font_id /* out */)
+{
+   struct stat statbuf;
+   size_t tot_read = 0;
+   font_file *ff;
+   size_t ret;
+   FILE *fh;
+   int rc;
+
+   *font_id = NULL;
+   rc = stat(file, &statbuf);
+
+   if (rc != 0)
+      return TFB_READ_FONT_FILE_FAILED;
+
+   ff = malloc(sizeof(font_file) + statbuf.st_size);
+
+   if (!ff)
+      return TFB_OUT_OF_MEMORY;
+
+   fh = fopen(file, "rb");
+
+   if (!fh)
+      return TFB_READ_FONT_FILE_FAILED;
+
+   ff->filename = malloc(strlen(file) + 1);
+
+   if (!ff->filename) {
+      fclose(fh);
+      free(ff);
+      return TFB_OUT_OF_MEMORY;
+   }
+
+   strcpy((char *)ff->filename, file);
+   ff->data_size = statbuf.st_size;
+
+   do {
+
+      ret = fread(ff->data + tot_read, 1, statbuf.st_size, fh);
+      tot_read += ret;
+
+   } while (ret);
+
+   fclose(fh);
+
+   *font_id = ff;
+   return TFB_SUCCESS;
+}
+
+int tfb_dyn_unload_font(void *font_id)
+{
+   font_file *ff = font_id;
+   const font_file **it;
+
+   for (it = tfb_font_file_list; *it; it++)
+      if (*it == font_id)
+         return TFB_NOT_A_DYN_LOADED_FONT;
+
+   free((void *)ff->filename);
+   free(ff);
+   return TFB_SUCCESS;
 }
 
 void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
