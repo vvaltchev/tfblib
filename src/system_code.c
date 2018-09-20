@@ -17,8 +17,8 @@
 #include "utils.h"
 #include "font.h"
 
-#define FB_DEVICE "/dev/fb0"
-#define TTY_DEVICE "/dev/tty"
+#define DEFAULT_FB_DEVICE "/dev/fb0"
+#define DEFAULT_TTY_DEVICE "/dev/tty"
 
 #define FB_ASSUMPTION(x)                                        \
    if (!(x)) {                                                  \
@@ -57,11 +57,17 @@ static bool check_fb_assumptions(void)
    return true;
 }
 
-int tfb_acquire_fb(void)
+int tfb_acquire_fb(const char *fb_device, const char *tty_device)
 {
    static struct fb_fix_screeninfo fb_fixinfo;
 
-   fbfd = open(FB_DEVICE, O_RDWR);
+   if (!fb_device)
+      fb_device = DEFAULT_FB_DEVICE;
+
+   if (!tty_device)
+      tty_device = DEFAULT_TTY_DEVICE;
+
+   fbfd = open(fb_device, O_RDWR);
 
    if (fbfd < 0)
       return TFB_ERROR_OPEN_FB;
@@ -82,7 +88,7 @@ int tfb_acquire_fb(void)
    if (!check_fb_assumptions())
       return TFB_ASSUMPTION_FAILED;
 
-   ttyfd = open(TTY_DEVICE, O_RDWR);
+   ttyfd = open(tty_device, O_RDWR);
 
    if (ttyfd < 0)
       return TFB_ERROR_OPEN_TTY;
@@ -90,18 +96,15 @@ int tfb_acquire_fb(void)
    if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0)
       return TFB_ERROR_TTY_GRAPHIC_MODE;
 
-   __fb_buffer = mmap(0, __fb_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
+   __fb_buffer = mmap(NULL, __fb_size,
+                      PROT_READ | PROT_WRITE,
+                      MAP_SHARED, fbfd, 0);
 
    if (__fb_buffer == MAP_FAILED)
       return TFB_MMAP_FB_ERROR;
 
    __fb_screen_w = __fbi.xres;
    __fb_screen_h = __fbi.yres;
-
-   if (tfb_set_window(0, 0, __fb_screen_w, __fb_screen_h) != TFB_SUCCESS) {
-      fprintf(stderr, "[tfblib] Internal error: tfb_set_window() failed\n");
-      abort(); /* internal error */
-   }
 
    __fb_r_pos = __fbi.red.offset;
    __fb_r_mask_size = __fbi.red.length;
@@ -115,8 +118,16 @@ int tfb_acquire_fb(void)
    __fb_b_mask_size = __fbi.blue.length;
    __fb_b_mask = ((1 << __fb_b_mask_size) - 1) << __fb_b_pos;
 
-   /* Just use as default font the first one */
-   tfb_set_default_font((void *)*tfb_font_file_list);
+
+   if (tfb_set_window(0, 0, __fb_screen_w, __fb_screen_h) != TFB_SUCCESS) {
+      fprintf(stderr, "[tfblib] Internal error: tfb_set_window() failed\n");
+      abort(); /* internal error */
+   }
+
+   /* Just use as default font the first one (if any) */
+
+   if (*tfb_font_file_list)
+      tfb_set_default_font((void *)*tfb_font_file_list);
 
    return TFB_SUCCESS;
 }

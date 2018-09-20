@@ -54,10 +54,10 @@ extern u8 __fb_g_pos;
 extern u8 __fb_b_pos;
 
 /* Initialization/setup functions */
+int tfb_acquire_fb(const char *fb_device, const char *tty_device);
+void tfb_release_fb(void);
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h);
 int tfb_set_center_window_size(u32 w, u32 h);
-int tfb_acquire_fb(void);
-void tfb_release_fb(void);
 
 /* Text-related functions and definitions */
 
