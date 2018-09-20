@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define INT_ABS(_x) ((_x) > 0 ? (_x) : (-(_x)))
+#define INT_ABS(x) ((x) > 0 ? (x) : (-(x)))
 #define INT_MIN(x, y) ((x) <= (y) ? (x) : (y))
 #define INT_MAX(x, y) ((x) > (y) ? (x) : (y))
 
@@ -22,14 +22,11 @@ static inline void *memset32(void *s, u32 val, size_t n)
 
 #if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 
-   unsigned unused;
-
    __asm__ volatile ("rep stosl"
-                     : "=D" (unused), "=a" (val), "=c" (n)
+                     : "=D" (s), "=a" (val), "=c" (n)
                      :  "D" (s), "a" (val), "c" (n)
                      : "cc", "memory");
 #else
-
 
    for (size_t i = 0; i < n; i++)
       ((volatile u32 *)s)[i] = val;

@@ -86,23 +86,40 @@ int tfb_set_current_font(void *font_id)
    return TFB_SUCCESS;
 }
 
-void tfb_draw_char(u32 x, u32 y, u32 color, u8 c)
+void tfb_draw_char(u32 x, u32 y, u32 fg_color, u32 bg_color, u8 c)
 {
    if (!curr_font) {
       fprintf(stderr, "[tfblib] ERROR: no font currently selected\n");
       return;
    }
 
-   u8 *data = curr_font_data + curr_font_bytes_per_glyph * c;
+   u8 *d = curr_font_data + curr_font_bytes_per_glyph * c;
 
-   for (u32 row = 0; row < curr_font_h; row++)
+   /*
+    * NOTE: the following algorithm is certainly not the fastest way to draw
+    * a character on-screen, but its performance is pretty good, in particular
+    * for text that does not have to change continuosly (like a console).
+    * Actually, this algorithm is used by Tilck[1]'s framebuffer console in a
+    * fail-safe case for drawing characters on-screen: on low resolutions,
+    * its performance is pretty acceptable on modern machines, even when used
+    * by a console to full-redraw a screen with text. Therefore, for the
+    * purposes of this library the following implementation is absolutely
+    * good-enough.
+    *
+    * -------------------------------------------------
+    * [1] Tilck [A Tiny Linux-Compatible Kernel]
+    *     https://github.com/vvaltchev/tilck
+    */
+
+   for (u32 row = 0; row < curr_font_h; row++, d += curr_font_w_bytes)
       for (u32 b = 0; b < curr_font_w_bytes; b++)
          for (u32 bit = 0; bit < 8; bit++)
-            if ((data[b + curr_font_w_bytes * row] & (1 << bit)))
-               tfb_draw_pixel(x + (b << 3) + 8 - bit - 1, y + row, color);
+            tfb_draw_pixel(x + (b << 3) + 8 - bit - 1,
+                           y + row,
+                           (d[b] & (1 << bit)) ? fg_color : bg_color);
 }
 
-void tfb_draw_string(u32 x, u32 y, u32 color, const char *s)
+void tfb_draw_string(u32 x, u32 y, u32 fg_color, u32 bg_color, const char *s)
 {
    if (!curr_font) {
       fprintf(stderr, "[tfblib] ERROR: no font currently selected\n");
@@ -110,7 +127,7 @@ void tfb_draw_string(u32 x, u32 y, u32 color, const char *s)
    }
 
    while (*s) {
-      tfb_draw_char(x, y, color, *s);
+      tfb_draw_char(x, y, fg_color, bg_color, *s);
       x += curr_font_w;
       s++;
    }

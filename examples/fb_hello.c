@@ -84,7 +84,8 @@ void draw_something2(void)
    uint32_t h = tfb_screen_height() / 2;
 
    tfb_clear_screen(black);
-   tfb_draw_string(20, 20, yellow, "Hello from the Tiny Framebuffer Lib!");
+   tfb_draw_string(20, 20,
+                   yellow, gray, "Hello from the Tiny Framebuffer Lib!");
 
    tfb_set_center_window_size(w, h);
    tfb_clear_win(gray);

@@ -82,8 +82,8 @@ void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);
 void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
-void tfb_draw_char(u32 x, u32 y, u32 color, u8 c);
-void tfb_draw_string(u32 x, u32 y, u32 color, const char *s);
+void tfb_draw_char(u32 x, u32 y, u32 fg_color, u32 bg_color, u8 c);
+void tfb_draw_string(u32 x, u32 y, u32 fg_color, u32 bg_color, const char *s);
 void tfb_clear_screen(u32 color);
 void tfb_clear_win(u32 color);
 
