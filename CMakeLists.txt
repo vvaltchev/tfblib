@@ -5,6 +5,14 @@ if (NOT "${CMAKE_PROJECT_NAME}" STREQUAL "tilck")
 
    project(tfblib C)
 
+   if (NOT CMAKE_BUILD_TYPE)
+     set(CMAKE_BUILD_TYPE Debug)
+   endif()
+
+   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
+   endif()
+
 else()
 
    # We're not using the project() command here because CMake does not handle
@@ -24,6 +32,8 @@ else()
    message(STATUS "Building tfblib as part of Tilck")
 
 endif()
+
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 add_subdirectory(tools)
 
