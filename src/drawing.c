@@ -80,7 +80,7 @@ void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color)
    if (y >= __fb_win_end_y)
       return;
 
-   len = INT_MIN((int)len, INT_MAX(0, (int)__fb_win_end_x - (int)x));
+   len = MIN((int)len, MAX(0, (int)__fb_win_end_x - (int)x));
    memset32(__fb_buffer + y * __fb_pitch + (x << 2), color, len);
 }
 
@@ -90,7 +90,7 @@ void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color)
 
    x += __fb_off_x;
    y += __fb_off_y;
-   yend = INT_MIN(y + len, __fb_win_end_y);
+   yend = MIN(y + len, __fb_win_end_y);
 
    volatile u32 *buf =
       ((volatile u32 *) __fb_buffer) + y * __fb_pitch_div4 + x;
@@ -106,8 +106,8 @@ void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
    x += __fb_off_x;
    y += __fb_off_y;
 
-   w = INT_MIN((int)w, INT_MAX(0, (int)__fb_win_end_x - (int)x));
-   yend = INT_MIN(y + h, __fb_win_end_y);
+   w = MIN((int)w, MAX(0, (int)__fb_win_end_x - (int)x));
+   yend = MIN(y + h, __fb_win_end_y);
 
    for (u32 cy = y; cy < yend; cy++)
       memset32(__fb_buffer + cy * __fb_pitch + (x << 2), color, w);
@@ -161,10 +161,10 @@ midpoint_line(int x, int y, int x1, int y1, u32 color, bool swap_xy)
 
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color)
 {
-   x0 = INT_MIN(x0 + __fb_off_x, __fb_win_end_x);
-   y0 = INT_MIN(y0 + __fb_off_y, __fb_win_end_y);
-   x1 = INT_MIN(x1 + __fb_off_x, __fb_win_end_x);
-   y1 = INT_MIN(y1 + __fb_off_y, __fb_win_end_y);
+   x0 = MIN(x0 + __fb_off_x, __fb_win_end_x);
+   y0 = MIN(y0 + __fb_off_y, __fb_win_end_y);
+   x1 = MIN(x1 + __fb_off_x, __fb_win_end_x);
+   y1 = MIN(y1 + __fb_off_y, __fb_win_end_y);
 
    const int dx = INT_ABS((int)x1 - (int)x0);
    const int dy = INT_ABS((int)y1 - (int)y0);

@@ -5,8 +5,16 @@
 #include <stdlib.h>
 
 #define INT_ABS(x) ((x) > 0 ? (x) : (-(x)))
-#define INT_MIN(x, y) ((x) <= (y) ? (x) : (y))
-#define INT_MAX(x, y) ((x) > (y) ? (x) : (y))
+
+#define MIN(x, y) \
+   ({ __typeof__ (x) _x = (x); \
+      __typeof__ (y) _y = (y); \
+      _x <= _y ? _x : _y; })
+
+#define MAX(x, y) \
+   ({ __typeof__ (x) _x = (x); \
+      __typeof__ (y) _y = (y); \
+      _x > _y ? _x : _y; })
 
 /* Here in our internal header, it's save to typedef our convenience types */
 typedef uint8_t u8;

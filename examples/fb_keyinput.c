@@ -7,6 +7,16 @@
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_kb.h>
 
+#define MIN(x, y) \
+   ({ __typeof__ (x) _x = (x); \
+      __typeof__ (y) _y = (y); \
+      _x <= _y ? _x : _y; })
+
+#define MAX(x, y) \
+   ({ __typeof__ (x) _x = (x); \
+      __typeof__ (y) _y = (y); \
+      _x > _y ? _x : _y; })
+
 uint32_t red, green, blue, white, black, yellow, gray;
 
 void init_colors(void)
@@ -22,11 +32,11 @@ void init_colors(void)
 
 void loop(void)
 {
-   uint32_t w = tfb_screen_width();
-   uint32_t h = tfb_screen_height();
+   uint32_t w = MAX(tfb_screen_width()/2, 640);
+   uint32_t h = MAX(tfb_screen_height()/2, 480);
    uint64_t k = 0;
 
-   if (tfb_set_center_window_size(w/2, h/2) != TFB_SUCCESS) {
+   if (tfb_set_center_window_size(w, h) != TFB_SUCCESS) {
       fprintf(stderr, "Unable to set window to %ux%u\n", w, h);
       return;
    }
@@ -49,7 +59,7 @@ void loop(void)
       // erase the rect
       tfb_fill_rect(x, y, w/4, h/4, black);
 
-      tfb_draw_string(5, 5, green, black, "                                 ");
+      tfb_draw_string(5, 5, green, black, "                      ");
 
       if (isprint(k & 0xff)) {
 
@@ -122,7 +132,7 @@ int main(int argc, char **argv)
    int rc;
 
    tfb_iterate_over_fonts(font_iter_cb_select_font32x16, NULL);
-   rc = tfb_acquire_fb(TFB_FL_NO_TTY_KD_GRAPHICS, NULL, NULL);
+   rc = tfb_acquire_fb(0, NULL, NULL);
 
    if (rc != TFB_SUCCESS) {
       fprintf(stderr, "tfb_acquire_fb() failed with error code: %d\n", rc);
