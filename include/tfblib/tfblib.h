@@ -20,6 +20,9 @@
 #define TFB_READ_FONT_FILE_FAILED   10
 #define TFB_OUT_OF_MEMORY           11
 #define TFB_NOT_A_DYN_LOADED_FONT   12
+#define TFB_KB_WRONG_MODE           13
+#define TFB_KB_MODE_GET_FAILED      14
+#define TFB_KB_MODE_SET_FAILED      15
 
 /*
  * Define these convenience types as macros, in order to allow at the end of the
@@ -79,6 +82,10 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg);
 int tfb_set_current_font(void *font_id);
 int tfb_dyn_load_font(const char *file, void **font_id /* out */);
 int tfb_dyn_unload_font(void *font_id);
+
+/* KB input functions */
+int tfb_set_kb_raw_mode(void);
+int tfb_restore_kb_mode(void);
 
 /* Drawing functions */
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);

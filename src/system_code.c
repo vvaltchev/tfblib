@@ -12,6 +12,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include <tfblib/tfblib.h>
 #include "utils.h"
@@ -27,6 +28,9 @@
    }
 
 struct fb_var_screeninfo __fbi;
+
+static struct termios orig_termios;
+static bool tfb_kb_raw_mode;
 
 static int fbfd = -1;
 static int ttyfd = -1;
@@ -144,4 +148,37 @@ void tfb_release_fb(void)
 
    if (fbfd != -1)
       close(fbfd);
+}
+
+int tfb_set_kb_raw_mode(void)
+{
+   struct termios t;
+
+   if (tfb_kb_raw_mode)
+      return TFB_KB_WRONG_MODE;
+
+   if (tcgetattr(0, &orig_termios) != 0)
+      return TFB_KB_MODE_GET_FAILED;
+
+   t = orig_termios;
+   t.c_iflag &= ~(BRKINT | INPCK | ISTRIP | IXON);
+   t.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+
+   if (tcsetattr(0, TCSAFLUSH, &t) != 0)
+      return TFB_KB_MODE_SET_FAILED;
+
+   tfb_kb_raw_mode = true;
+   return TFB_SUCCESS;
+}
+
+int tfb_restore_kb_mode(void)
+{
+   if (!tfb_kb_raw_mode)
+      return TFB_KB_WRONG_MODE;
+
+   if (tcsetattr(0, TCSAFLUSH, &orig_termios) != 0)
+      return TFB_KB_MODE_SET_FAILED;
+
+   tfb_kb_raw_mode = false;
+   return TFB_SUCCESS;
 }
