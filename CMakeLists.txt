@@ -5,12 +5,14 @@ if (NOT "${CMAKE_PROJECT_NAME}" STREQUAL "tilck")
 
    project(tfblib C)
 
+   set(CMAKE_C_FLAGS_DEBUG "-g")
+   set(CMAKE_C_FLAGS_MINSIZEREL "-Os")
+   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O3 -g")
+   set(CMAKE_C_FLAGS_RELEASE "-O3")
+
    if (NOT CMAKE_BUILD_TYPE)
      set(CMAKE_BUILD_TYPE Debug)
-   endif()
-
-   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
+     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG}")
    endif()
 
 else()
