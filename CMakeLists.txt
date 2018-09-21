@@ -77,4 +77,5 @@ add_subdirectory(examples)
 # Extra stuff in order to allow a full integration with Tilck's build system
 if (${CMAKE_PROJECT_NAME} STREQUAL "tilck")
    tilck_add_extra_app(${CMAKE_CURRENT_BINARY_DIR}/examples/fb_hello)
+   tilck_add_extra_app(${CMAKE_CURRENT_BINARY_DIR}/examples/fb_keyinput)
 endif()
