@@ -68,8 +68,7 @@ void tfb_clear_screen(u32 color)
 
 void tfb_clear_win(u32 color)
 {
-   for (u32 y = 0; y < __fb_win_h; y++)
-      tfb_draw_hline(0, y, __fb_win_w, color);
+   tfb_fill_rect(0, 0, __fb_win_w, __fb_win_h, color);
 }
 
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color)
@@ -102,6 +101,7 @@ void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color)
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
 {
    u32 yend;
+   void *dest;
 
    x += __fb_off_x;
    y += __fb_off_y;
@@ -109,8 +109,10 @@ void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
    w = MIN((int)w, MAX(0, (int)__fb_win_end_x - (int)x));
    yend = MIN(y + h, __fb_win_end_y);
 
-   for (u32 cy = y; cy < yend; cy++)
-      memset32(__fb_buffer + cy * __fb_pitch + (x << 2), color, w);
+   dest = __fb_buffer + y * __fb_pitch + (x << 2);
+
+   for (u32 cy = y; cy < yend; cy++, dest += __fb_pitch)
+      memset32(dest, color, w);
 }
 
 void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
