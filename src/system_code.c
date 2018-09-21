@@ -189,10 +189,10 @@ int tfb_restore_kb_mode(void)
 static uint64_t read_esc_seq(void)
 {
    char c;
-   int len;
-   uint64_t ret = 0;
+   int len = 0;
+   char buf[8] = { 0 };
 
-   ret |= '\033';
+   buf[len++] = '\033';
 
    if (read(0, &c, 1) <= 0)
       return 0;
@@ -200,26 +200,23 @@ static uint64_t read_esc_seq(void)
    if (c != '[')
       return 0; /* unknown escape sequence */
 
-   ret |= (c << 8);
-   len = 2;
+   buf[len++] = c;
 
    while (1) {
 
       if (read(0, &c, 1) <= 0)
          return 0;
 
-      ret |= ((uint64_t)c << (8 * len));
+      buf[len++] = c;
 
       if (0x40 <= c && c <= 0x7E && c != '[')
          break;
 
       if (len == 8)
          return 0; /* no more space in our 64-bit int (seq too long) */
-
-      len++;
    }
 
-   return ret;
+   return *(uint64_t *)buf;
 }
 
 uint64_t tfb_read_keypress(void)
