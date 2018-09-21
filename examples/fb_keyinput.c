@@ -2,7 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <tfblib/tfblib.h>
+#include <tfblib/tfb_kb.h>
 
 uint32_t red, green, blue, white, black, yellow, gray;
 
@@ -17,13 +19,41 @@ void init_colors(void)
    gray = tfb_make_color(50, 50, 50);
 }
 
-void draw_something()
+void loop(void)
 {
-   uint32_t w = tfb_screen_width();
-   uint32_t h = tfb_screen_height();
+   uint64_t k;
 
-   tfb_clear_screen(black);
-   tfb_fill_rect(w/8, h/8 - h/16, w/4, h/4, red);
+   tfb_set_center_window_size(640, 480);
+
+   uint32_t w = tfb_win_width();
+   uint32_t h = tfb_win_height();
+   uint32_t x = w/8, y = h/8 - h/16;
+
+   do {
+
+      tfb_clear_win(black);
+      tfb_draw_rect(0, 0, w, h, white);
+      tfb_fill_rect(x, y, w/4, h/4, red);
+
+      k = tfb_read_keypress();
+
+      if (k == TFB_KEY_RIGHT) {
+         x += 10;
+
+      } else if (k == TFB_KEY_DOWN) {
+
+         y += 10;
+
+      } else if (k == TFB_KEY_UP) {
+
+         if (y > 10) y -= 10;
+
+      } else if (k == TFB_KEY_LEFT) {
+
+         if (x > 10) x -= 10;
+      }
+
+   } while (k != TFB_KEY_ENTER);
 }
 
 int main(int argc, char **argv)
@@ -44,8 +74,7 @@ int main(int argc, char **argv)
    if (rc != TFB_SUCCESS)
       fprintf(stderr, "tfb_set_kb_raw_mode() failed with err: %d", rc);
 
-   draw_something();
-   getchar();
+   loop();
 
    tfb_restore_kb_mode();
    tfb_release_fb();

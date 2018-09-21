@@ -86,6 +86,7 @@ int tfb_dyn_unload_font(void *font_id);
 /* KB input functions */
 int tfb_set_kb_raw_mode(void);
 int tfb_restore_kb_mode(void);
+uint64_t tfb_read_keypress(void);
 
 /* Drawing functions */
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
