@@ -61,7 +61,7 @@ static bool check_fb_assumptions(void)
    return true;
 }
 
-int tfb_acquire_fb(const char *fb_device, const char *tty_device)
+int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
 {
    static struct fb_fix_screeninfo fb_fixinfo;
 
@@ -92,13 +92,16 @@ int tfb_acquire_fb(const char *fb_device, const char *tty_device)
    if (!check_fb_assumptions())
       return TFB_ASSUMPTION_FAILED;
 
-   ttyfd = open(tty_device, O_RDWR);
+   if (!(flags & TFB_FL_NO_TTY_KD_GRAPHICS)) {
 
-   if (ttyfd < 0)
-      return TFB_ERROR_OPEN_TTY;
+      ttyfd = open(tty_device, O_RDWR);
 
-   if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0)
-      return TFB_ERROR_TTY_GRAPHIC_MODE;
+      if (ttyfd < 0)
+         return TFB_ERROR_OPEN_TTY;
+
+      if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0)
+         return TFB_ERROR_TTY_GRAPHIC_MODE;
+   }
 
    __fb_buffer = mmap(NULL, __fb_size,
                       PROT_READ | PROT_WRITE,
@@ -191,9 +194,28 @@ static uint64_t read_esc_seq(void)
    uint64_t ret = 0;
 
    ret |= '\033';
+   //printf("read ESC\n");
 
    if (read(0, &c, 1) <= 0)
       return 0;
+
+   // printf("after ESC c = %c\n", c);
+
+   // if (c == 'O') {
+
+   //    printf("c == O\n");
+
+   //    ret |= (c << 8);
+
+   //    if (read(0, &c, 1) <= 0)
+   //       return 0;
+
+   //    printf("next C == %c\n", c);
+   //    ret |= (c << 16);
+
+   //    printf("ret\n");
+   //    return ret;
+   // }
 
    if (c != '[')
       return 0; /* unknown escape sequence */

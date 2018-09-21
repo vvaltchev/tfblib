@@ -21,9 +21,12 @@ void init_colors(void)
 
 void loop(void)
 {
-   uint64_t k;
+   uint64_t k = 0;
 
-   tfb_set_center_window_size(640, 480);
+   if (tfb_set_center_window_size(640, 480) != TFB_SUCCESS) {
+      fprintf(stderr, "Unable to set window to 640x480\n");
+      return;
+   }
 
    uint32_t w = tfb_win_width();
    uint32_t h = tfb_win_height();
@@ -35,23 +38,32 @@ void loop(void)
       tfb_draw_rect(0, 0, w, h, white);
       tfb_fill_rect(x, y, w/4, h/4, red);
 
+      tfb_draw_string(5, 5, green, black, "                                 ");
+
+      if (k == TFB_KEY_F1) {
+         tfb_draw_string(5, 5, green, black, "Pressed key: F1");
+      } else if (k == TFB_KEY_F2) {
+         tfb_draw_string(5, 5, green, black, "Pressed key: F2");
+      } else if (k == TFB_KEY_F3) {
+         tfb_draw_string(5, 5, green, black, "Pressed key: F3");
+      } else if (k == TFB_KEY_F4) {
+         tfb_draw_string(5, 5, green, black, "Pressed key: F4");
+      } else if (k == 'a') {
+         tfb_draw_string(5, 5, green, black, "Pressed key: a");
+      }
+
       k = tfb_read_keypress();
 
       if (k == TFB_KEY_RIGHT) {
          x += 10;
-
       } else if (k == TFB_KEY_DOWN) {
-
          y += 10;
-
       } else if (k == TFB_KEY_UP) {
-
          if (y > 10) y -= 10;
-
       } else if (k == TFB_KEY_LEFT) {
-
          if (x > 10) x -= 10;
       }
+
 
    } while (k != TFB_KEY_ENTER);
 }
@@ -59,7 +71,7 @@ void loop(void)
 int main(int argc, char **argv)
 {
    int rc;
-   rc = tfb_acquire_fb(NULL, NULL);
+   rc = tfb_acquire_fb(0, NULL, NULL);
 
    if (rc != TFB_SUCCESS) {
       fprintf(stderr, "tfb_acquire_fb() failed with error code: %d\n", rc);
