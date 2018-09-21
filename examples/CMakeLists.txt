@@ -6,3 +6,6 @@ target_link_libraries(fb_hello tfb)
 
 add_executable(fb_keyinput fb_keyinput.c)
 target_link_libraries(fb_keyinput tfb)
+
+add_executable(fb_text fb_text.c)
+target_link_libraries(fb_text tfb)

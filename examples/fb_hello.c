@@ -31,7 +31,7 @@ void draw_something()
    tfb_fill_rect(w/8, h/8 - h/16, w/4, h/4, red);
 
    // empty rect
-   tfb_draw_rect(w/2, h/8 - h/16, w/4, h/4, red);
+   tfb_draw_rect(w - w/4 - w/8, h/8 - h/16, w/4, h/4, red);
 
    // Lines
 
@@ -83,10 +83,6 @@ void draw_something2(void)
    uint32_t w = tfb_screen_width() / 2;
    uint32_t h = tfb_screen_height() / 2;
 
-   tfb_clear_screen(black);
-   tfb_draw_string(20, 20,
-                   yellow, gray, "Hello from the Tiny Framebuffer Lib!");
-
    tfb_set_center_window_size(w, h);
    tfb_clear_win(gray);
 
@@ -96,60 +92,9 @@ void draw_something2(void)
    tfb_fill_rect(w/2, h/2, w, h, green);
 }
 
-bool font_iter_callback(tfb_font_info *fi, void *user_arg)
-{
-   printf("    font '%s', psf%u, %u x %u\n",
-          fi->name, fi->psf_version, fi->width, fi->height);
-   return true;
-}
-
-bool font_iter_cb_select_font32x16(tfb_font_info *fi, void *user_arg)
-{
-   if (fi->width == 16 && fi->height == 32) {
-
-      int rc = tfb_set_current_font(fi->font_id);
-
-      if (rc != TFB_SUCCESS) {
-         fprintf(stderr, "tfb_set_current_font() failed with error: %d\n", rc);
-         abort();
-      }
-
-      printf("Selected font '%s'\n", fi->name);
-      return false; /* stop iterating over fonts */
-   }
-
-   return true;
-}
-
 int main(int argc, char **argv)
 {
    int rc;
-
-   printf("Available fonts:\n");
-   tfb_iterate_over_fonts(font_iter_callback, NULL);
-   tfb_iterate_over_fonts(font_iter_cb_select_font32x16, NULL);
-
-   if (argc == 2) {
-
-      void *font_id;
-      rc = tfb_dyn_load_font(argv[1], &font_id);
-
-      if (rc != TFB_SUCCESS) {
-         fprintf(stderr, "tfb_dyn_load_font(%s) failed with error: %d\n",
-                 argv[1], rc);
-
-         return 1;
-      }
-
-      printf("Setting the dynamically-loaded font '%s'\n", argv[1]);
-      rc = tfb_set_current_font(font_id);
-
-      if (rc != TFB_SUCCESS) {
-         fprintf(stderr, "tfb_set_current_font() failed with error: %d\n", rc);
-         return 1;
-      }
-   }
-
    rc = tfb_acquire_fb(NULL, NULL);
 
    if (rc != TFB_SUCCESS) {
