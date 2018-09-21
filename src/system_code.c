@@ -186,7 +186,6 @@ int tfb_restore_kb_mode(void)
    return TFB_SUCCESS;
 }
 
-
 static uint64_t read_esc_seq(void)
 {
    char c;
@@ -194,28 +193,9 @@ static uint64_t read_esc_seq(void)
    uint64_t ret = 0;
 
    ret |= '\033';
-   //printf("read ESC\n");
 
    if (read(0, &c, 1) <= 0)
       return 0;
-
-   // printf("after ESC c = %c\n", c);
-
-   // if (c == 'O') {
-
-   //    printf("c == O\n");
-
-   //    ret |= (c << 8);
-
-   //    if (read(0, &c, 1) <= 0)
-   //       return 0;
-
-   //    printf("next C == %c\n", c);
-   //    ret |= (c << 16);
-
-   //    printf("ret\n");
-   //    return ret;
-   // }
 
    if (c != '[')
       return 0; /* unknown escape sequence */
@@ -228,13 +208,15 @@ static uint64_t read_esc_seq(void)
       if (read(0, &c, 1) <= 0)
          return 0;
 
-      ret |= (c << (8 * len));
+      ret |= ((uint64_t)c << (8 * len));
 
-     if (0x40 <= c && c <= 0x7E)
-        break;
+      if (0x40 <= c && c <= 0x7E && c != '[')
+         break;
 
       if (len == 8)
          return 0; /* no more space in our 64-bit int (seq too long) */
+
+      len++;
    }
 
    return ret;
