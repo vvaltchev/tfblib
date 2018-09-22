@@ -32,8 +32,12 @@ void init_colors(void)
 
 void loop(void)
 {
+   char buf[64];
    uint32_t w = MAX(tfb_screen_width()/2, 640);
    uint32_t h = MAX(tfb_screen_height()/2, 480);
+   uint32_t step = 10;
+   int n;
+
    uint64_t k = 0;
 
    if (tfb_set_center_window_size(w, h) != TFB_SUCCESS) {
@@ -52,59 +56,33 @@ void loop(void)
    do {
 
       k = tfb_read_keypress();
-
-      // win border
-      tfb_draw_rect(0, 0, w, h, white);
-
-      // erase the rect
-      tfb_fill_rect(x, y, w/4, h/4, black);
-
-      tfb_draw_string(5, 5, green, black, "                      ");
+      tfb_clear_win(black);
 
       if (isprint(k & 0xff)) {
 
-         char buf[64];
          sprintf(buf, "Pressed key: %c", (char)k);
          tfb_draw_string(5, 5, green, black, buf);
 
-      } else if (k == TFB_KEY_F1) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F1");
-      } else if (k == TFB_KEY_F2) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F2");
-      } else if (k == TFB_KEY_F3) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F3");
-      } else if (k == TFB_KEY_F4) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F4");
-      } else if (k == TFB_KEY_F5) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F5");
-      } else if (k == TFB_KEY_F6) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F6");
-      } else if (k == TFB_KEY_F7) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F7");
-      } else if (k == TFB_KEY_F8) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F8");
-      } else if (k == TFB_KEY_F9) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F9");
-      } else if (k == TFB_KEY_F10) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F10");
-      } else if (k == TFB_KEY_F11) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F11");
-      } else if (k == TFB_KEY_F12) {
-         tfb_draw_string(5, 5, green, black, "Pressed key: F12");
-      }
+      } else if ((n = tfb_get_fn_key_num(k))) {
 
-      if (k == TFB_KEY_RIGHT) {
-         x += 10;
+         sprintf(buf, "Pressed key: F%d", n);
+         tfb_draw_string(5, 5, green, black, buf);
+
+      } else if (k == TFB_KEY_RIGHT) {
+         x += step;
       } else if (k == TFB_KEY_DOWN) {
-         y += 10;
+         y += step;
       } else if (k == TFB_KEY_UP) {
-         if (y > 10) y -= 10;
+         y -= y >= step ? step : y;
       } else if (k == TFB_KEY_LEFT) {
-         if (x > 10) x -= 10;
+         x -= x >= step ? step : x;
       }
 
       // redraw the rect
       tfb_fill_rect(x, y, w/4, h/4, red);
+
+      // win border
+      tfb_draw_rect(0, 0, w, h, white);
 
    } while (k != TFB_KEY_ENTER);
 }
