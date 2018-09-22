@@ -86,19 +86,49 @@ unsigned char (*pieces[])[5][5] =
    &piece_z,
 };
 
-void draw_piece(u32 x, u32 y, int p, u32 color)
+u32 *piece_colors[] =
+{
+   &red,
+   &yellow,
+   &green,
+   &magenta,
+   &blue,
+   &cyan,
+   &white
+};
+
+bool is_tile_set(u32 p, u32 i, u32 j, u32 rotation)
+{
+   switch (rotation % 4) {
+
+      case 0:
+         return (*pieces[p])[j][i];
+
+      case 1:
+         return (*pieces[p])[i][5-j-1];
+
+      case 2:
+         return (*pieces[p])[5-j-1][5-i-1];
+
+      case 3:
+         return (*pieces[p])[5-i-1][j];
+
+   }
+
+   __builtin_unreachable();
+}
+
+void draw_piece(u32 piece, u32 x, u32 y, u32 color, u32 rotation)
 {
    for (u32 i = 0; i < 5; i++) {
       for (u32 j = 0; j < 5; j++) {
 
-         if ((*pieces[p])[j][i]) {
+         if (is_tile_set(piece, i, j, rotation))
             tfb_fill_rect(x + i * tw + 1,
                           y + j * th + 1,
                           tw - 2,
                           th - 2,
                           color);
-         }
-
       }
    }
 }
@@ -119,13 +149,16 @@ void game_loop(void)
 
    tfb_clear_win(black);
 
-   draw_piece(20 + 0 * tw * 4, 20, 0, red);
-   draw_piece(20 + 1 * tw * 4 + tw, 20, 1, yellow);
-   draw_piece(20 + 2 * tw * 4 + tw, 20, 2, green);
-   draw_piece(20 + 3 * tw * 4 + tw, 20, 3, magenta);
-   draw_piece(20 + 4 * tw * 4 + tw, 20, 4, blue);
-   draw_piece(20 + 5 * tw * 4 + tw, 20, 5, cyan);
-   draw_piece(20 + 6 * tw * 4 + tw, 20, 6, white);
+   for (u32 rot = 0; rot < 4; rot++) {
+
+      for (u32 p = 0; p < 7; p++)
+         draw_piece(p,
+                    10 + p * tw * 4 + (p>0?tw:0),
+                    10 + rot * th * 5 + th,
+                    *piece_colors[p],
+                    rot);
+
+   }
 
    tfb_draw_rect(0, 0, w, h, white);
    k = tfb_read_keypress();
