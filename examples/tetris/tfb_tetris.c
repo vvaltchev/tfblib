@@ -193,21 +193,24 @@ bool is_row_full(int row)
    return true;
 }
 
+void do_tetris(int full_row)
+{
+   for (int r = full_row + 1; r < rows; r++)
+      for (int c = 0; c < cols; c++)
+         tiles[r - 1][c] = tiles[r][c];
+}
+
 void consolidate_curr_piece(void)
 {
-   for (int r = 0; r < 4; r++) {
-      for (int c = 0; c < 4; c++) {
-         if (is_tile_set(curr_piece, r, c, cp_rot)) {
+   for (int r = 0; r < 4; r++)
+      for (int c = 0; c < 4; c++)
+         if (is_tile_set(curr_piece, r, c, cp_rot))
             tiles[cp_row + r][cp_col + c] = curr_piece + 1;
 
-            if (is_row_full(cp_row + r)) {
-
-               // tetris!!
-               for (int r2 = cp_row + r + 1; r2 < rows; r2++)
-                  for (int c2 = 0; c2 < cols; c2++)
-                     tiles[r2 - 1][c2] = tiles[r2][c2];
-            }
-         }
+   for (int r = 0; r < rows; r++) {
+      if (is_row_full(r)) {
+         do_tetris(r);
+         r--; /* stay on the same row! */
       }
    }
 }
