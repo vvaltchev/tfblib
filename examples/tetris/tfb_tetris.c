@@ -10,10 +10,13 @@
 
 #include "utils.h"
 
-uint32_t tw = 40; /* single tile width */
-uint32_t th = 40; /* single tile height */
+u32 tw = 30; /* single tile width */
+u32 th = 30; /* single tile height */
 
-unsigned char tiles[12][12];
+u32 rows = 16;
+u32 cols = 12;
+
+unsigned char tiles[20][40];
 
 int curr_piece;
 int cp_row;
@@ -126,7 +129,7 @@ void draw_tile_xy(int x, int y, u32 color)
 
 void draw_tile(int row, int col, u32 color)
 {
-   draw_tile_xy(col * tw, (12 - row - 1) * th, color);
+   draw_tile_xy(col * tw, (rows - row - 1) * th, color);
 }
 
 void draw_piece(int piece, int row, int col, u32 color, u32 rotation)
@@ -149,8 +152,8 @@ void redraw_scene(void)
               *piece_colors[curr_piece],
               cp_rot);
 
-   for (u32 row = 0; row < 12; row++) {
-      for (u32 col = 0; col < 12; col++) {
+   for (u32 row = 0; row < rows; row++) {
+      for (u32 col = 0; col < cols; col++) {
 
          int p = tiles[row][col] - 1;
 
@@ -165,7 +168,7 @@ void redraw_scene(void)
    tfb_draw_rect(0, 0, w, h, white);
 
    // tetris area / info area separation line
-   tfb_draw_vline(480, 0, h, white);
+   tfb_draw_vline(tw * cols, 0, h, white);
 }
 
 bool will_cp_collide(int new_row, int new_col, int rot)
@@ -177,7 +180,7 @@ bool will_cp_collide(int new_row, int new_col, int rot)
             if (new_row + r < 0)
                return true;
 
-            if (new_col + c < 0 || new_col + c > 11)
+            if (new_col + c < 0 || new_col + c >= cols)
                return true;
 
             if (tiles[new_row + r][new_col + c] > 0)
@@ -210,8 +213,8 @@ void game_loop(void)
    h = tfb_win_height();
 
    curr_piece = rand() % 7;
-   cp_row = 12;
-   cp_col = 5;
+   cp_row = rows;
+   cp_col = cols/2;
    cp_rot = 0;
 
    while (true) {
@@ -244,8 +247,8 @@ void game_loop(void)
             consolidate_curr_piece();
 
             curr_piece = rand() % 7;
-            cp_row = 12;
-            cp_col = 5;
+            cp_row = rows;
+            cp_col = cols/2;
             cp_rot = 0;
 
          } else {
