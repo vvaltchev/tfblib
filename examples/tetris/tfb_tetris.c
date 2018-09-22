@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_kb.h>
@@ -15,6 +16,9 @@ u32 th = 30; /* single tile height */
 
 u32 rows = 16;
 u32 cols = 12;
+
+int tetris_row = -1;
+u32 off_y = 0; /* temporary offset used for the tetris effect */
 
 unsigned char tiles[20][40];
 
@@ -127,9 +131,10 @@ void draw_tile_xy(int x, int y, u32 color)
       tfb_fill_rect(x + 1, y + 1, tw - 2, th - 2, color);
 }
 
-void draw_tile(int row, int col, u32 color)
+void draw_tile(int r, int c, u32 color)
 {
-   draw_tile_xy(col * tw, (rows - row - 1) * th, color);
+   int off = (tetris_row >= 0 && r > tetris_row) ? off_y : 0;
+   draw_tile_xy(c * tw, (rows - r - 1) * th + off, color);
 }
 
 void draw_piece(int piece, int row, int col, u32 color, u32 rotation)
@@ -146,11 +151,13 @@ void redraw_scene(void)
    u32 w = tfb_win_width();
    u32 h = tfb_win_height();
 
-   draw_piece(curr_piece,
-              cp_row,
-              cp_col,
-              *piece_colors[curr_piece],
-              cp_rot);
+   if (tetris_row == -1) {
+      draw_piece(curr_piece,
+                 cp_row,
+                 cp_col,
+                 *piece_colors[curr_piece],
+                 cp_rot);
+   }
 
    for (u32 row = 0; row < rows; row++)
       for (u32 col = 0; col < cols; col++)
@@ -195,6 +202,19 @@ bool is_row_full(int row)
 
 void do_tetris(int full_row)
 {
+   for (int c = 0; c < cols; c++)
+      tiles[full_row][c] = 0;
+
+   tetris_row = full_row;
+   for (off_y = 0; off_y < th; off_y += 2) {
+      tfb_clear_win(black);
+      redraw_scene();
+      usleep(10 * 1000);
+   }
+
+   off_y = 0;
+   tetris_row = -1;
+
    for (int r = full_row + 1; r < rows; r++)
       for (int c = 0; c < cols; c++)
          tiles[r - 1][c] = tiles[r][c];
