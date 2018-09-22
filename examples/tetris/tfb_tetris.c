@@ -152,17 +152,11 @@ void redraw_scene(void)
               *piece_colors[curr_piece],
               cp_rot);
 
-   for (u32 row = 0; row < rows; row++) {
-      for (u32 col = 0; col < cols; col++) {
+   for (u32 row = 0; row < rows; row++)
+      for (u32 col = 0; col < cols; col++)
+         if (tiles[row][col] > 0)
+            draw_tile(row, col, *piece_colors[tiles[row][col] - 1]);
 
-         int p = tiles[row][col] - 1;
-
-         if (p < 0)
-            continue;
-
-         draw_tile(row, col, *piece_colors[p]);
-      }
-   }
 
    // window border
    tfb_draw_rect(0, 0, w, h, white);
@@ -190,32 +184,61 @@ bool will_cp_collide(int new_row, int new_col, int rot)
    return false;
 }
 
-void consolidate_curr_piece(void)
+bool is_row_full(int row)
 {
-   for (int r = 0; r < 4; r++)
-      for (int c = 0; c < 4; c++)
-         if (is_tile_set(curr_piece, r, c, cp_rot))
-            tiles[cp_row + r][cp_col + c] = curr_piece + 1;
+   for (int c = 0; c < cols; c++)
+      if (!tiles[row][c])
+         return false;
+
+   return true;
 }
 
-void game_loop(void)
+void consolidate_curr_piece(void)
 {
-   uint32_t w = MAX(tfb_screen_width()/2, 640);
-   uint32_t h = MAX(tfb_screen_height()/2, 480);
+   for (int r = 0; r < 4; r++) {
+      for (int c = 0; c < 4; c++) {
+         if (is_tile_set(curr_piece, r, c, cp_rot)) {
+            tiles[cp_row + r][cp_col + c] = curr_piece + 1;
+
+            if (is_row_full(cp_row + r)) {
+
+               // tetris!!
+               for (int r2 = cp_row + r + 1; r2 < rows; r2++)
+                  for (int c2 = 0; c2 < cols; c2++)
+                     tiles[r2 - 1][c2] = tiles[r2][c2];
+            }
+         }
+      }
+   }
+}
+
+int get_random_piece(void)
+{
+   return rand() % 7;
+}
+
+void setup_new_piece(void)
+{
+   curr_piece = get_random_piece();
+   cp_row = rows;
+   cp_col = cols/2;
+   cp_rot = 0;
+}
+
+int game_loop(void)
+{
+   uint32_t w = 640;
+   uint32_t h = 480;
    uint64_t k = 0;
 
    if (tfb_set_center_window_size(w, h) != TFB_SUCCESS) {
-      fprintf(stderr, "Unable to set window to %ux%u\n", w, h);
-      return;
+      return 1;
    }
 
    w = tfb_win_width();
    h = tfb_win_height();
 
-   curr_piece = rand() % 7;
-   cp_row = rows;
-   cp_col = cols/2;
-   cp_rot = 0;
+   setup_new_piece();
 
    while (true) {
 
@@ -245,11 +268,7 @@ void game_loop(void)
          if (will_cp_collide(cp_row - 1, cp_col, cp_rot)) {
 
             consolidate_curr_piece();
-
-            curr_piece = rand() % 7;
-            cp_row = rows;
-            cp_col = cols/2;
-            cp_rot = 0;
+            setup_new_piece();
 
          } else {
             cp_row--;
@@ -265,6 +284,8 @@ void game_loop(void)
       if (k == 'q')
          break;
    }
+
+   return 0;
 }
 
 
@@ -290,9 +311,14 @@ int main(int argc, char **argv)
    if (rc != TFB_SUCCESS)
       fprintf(stderr, "tfb_set_kb_raw_mode() failed with err: %d", rc);
 
-   game_loop();
+   rc = game_loop();
 
    tfb_restore_kb_mode();
    tfb_release_fb();
+
+   if (rc) {
+      fprintf(stderr, "game_loop() failed with error code: %d\n", rc);
+   }
+
    return 0;
 }
