@@ -12,70 +12,63 @@
 uint32_t tw = 20; /* single tile width */
 uint32_t th = 20; /* single tile height */
 
-unsigned char piece_i[5][5] =
+unsigned char piece_i[4][4] =
 {
-   {0, 0, 0, 0, 0},
-   {0, 0, 0, 0, 0},
-   {1, 1, 1, 1, 0},
-   {0, 0, 0, 0, 0},
-   {0, 0, 0, 0, 0}
+   {0, 1, 0, 0},
+   {0, 1, 0, 0},
+   {0, 1, 0, 0},
+   {0, 1, 0, 0}
 };
 
-unsigned char piece_j[5][5] =
+unsigned char piece_j[4][4] =
 {
-   {0, 0, 0, 0, 0},
-   {0, 0, 0, 0, 0},
-   {1, 1, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 0, 0, 0}
+   {0, 0, 1, 0},
+   {0, 0, 1, 0},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0}
 };
 
-unsigned char piece_l[5][5] =
+unsigned char piece_l[4][4] =
 {
-   {0, 0, 0, 0, 0},
-   {0, 0, 1, 0, 0},
-   {1, 1, 1, 0, 0},
-   {0, 0, 0, 0, 0},
-   {0, 0, 0, 0, 0}
+   {0, 1, 0, 0},
+   {0, 1, 0, 0},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0}
 };
 
-unsigned char piece_o[5][5] =
+unsigned char piece_o[4][4] =
 {
-   {0, 0, 0, 0, 0},
-   {0, 0, 0, 0, 0},
-   {0, 1, 1, 0, 0},
-   {0, 1, 1, 0, 0},
-   {0, 0, 0, 0, 0}
+   {0, 0, 0, 0},
+   {0, 1, 1, 0},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0}
 };
 
-unsigned char piece_s[5][5] =
+unsigned char piece_s[4][4] =
 {
-   {0, 0, 0, 0, 0},
-   {0, 0, 0, 0, 0},
-   {0, 0, 1, 1, 0},
-   {0, 1, 1, 0, 0},
-   {0, 0, 0, 0, 0}
+   {0, 0, 0, 0},
+   {0, 0, 1, 1},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0}
 };
 
-unsigned char piece_t[5][5] =
+unsigned char piece_t[4][4] =
 {
-   {0, 0, 0, 0, 0},
-   {0, 0, 0, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 1, 1, 1, 0},
-   {0, 0, 0, 0, 0}
+   {0, 0, 0, 0},
+   {0, 0, 1, 0},
+   {0, 1, 1, 1},
+   {0, 0, 0, 0},
 };
 
-unsigned char piece_z[5][5] =
+unsigned char piece_z[4][4] =
 {
-   {0, 0, 0, 0, 0},
-   {0, 0, 0, 0, 0},
-   {0, 1, 1, 0, 0},
-   {0, 0, 1, 1, 0},
-   {0, 0, 0, 0, 0}
+   {0, 0, 0, 0},
+   {0, 1, 1, 0},
+   {0, 0, 1, 1},
+   {0, 0, 0, 0}
 };
 
-unsigned char (*pieces[])[5][5] =
+unsigned char (*pieces[])[4][4] =
 {
    &piece_i,
    &piece_j,
@@ -105,13 +98,13 @@ bool is_tile_set(u32 p, u32 i, u32 j, u32 rotation)
          return (*pieces[p])[j][i];
 
       case 1:
-         return (*pieces[p])[i][5-j-1];
+         return (*pieces[p])[i][4-j-1];
 
       case 2:
-         return (*pieces[p])[5-j-1][5-i-1];
+         return (*pieces[p])[4-j-1][4-i-1];
 
       case 3:
-         return (*pieces[p])[5-i-1][j];
+         return (*pieces[p])[4-i-1][j];
 
    }
 
@@ -120,8 +113,8 @@ bool is_tile_set(u32 p, u32 i, u32 j, u32 rotation)
 
 void draw_piece(u32 piece, u32 x, u32 y, u32 color, u32 rotation)
 {
-   for (u32 i = 0; i < 5; i++) {
-      for (u32 j = 0; j < 5; j++) {
+   for (u32 i = 0; i < 4; i++) {
+      for (u32 j = 0; j < 4; j++) {
 
          if (is_tile_set(piece, i, j, rotation))
             tfb_fill_rect(x + i * tw + 1,
