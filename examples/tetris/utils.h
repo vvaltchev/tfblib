@@ -10,6 +10,11 @@
       __typeof__ (y) _y = (y); \
       _x > _y ? _x : _y; })
 
-extern uint32_t red, green, blue, white, black, yellow, gray;
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+
+extern u32 red, green, blue, white, black, yellow, gray, magenta, cyan;
 
 void init_colors(void);
+void set_fb_font(void);
