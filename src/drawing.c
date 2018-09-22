@@ -19,6 +19,7 @@ extern inline u32 tfb_win_width(void);
 extern inline u32 tfb_win_height(void);
 
 void *__fb_buffer;
+void *__fb_real_buffer;
 size_t __fb_size;
 size_t __fb_pitch;
 size_t __fb_pitch_div4; /*

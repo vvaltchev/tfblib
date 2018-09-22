@@ -34,6 +34,7 @@
 #define u32 uint32_t
 
 extern void *__fb_buffer;
+extern void *__fb_real_buffer;
 extern u32 __fb_screen_w;
 extern u32 __fb_screen_h;
 extern size_t __fb_size;
@@ -62,6 +63,7 @@ extern u8 __fb_b_pos;
 /* Initialization/setup functions and definitions */
 
 #define TFB_FL_NO_TTY_KD_GRAPHICS   (1 << 0)
+#define TFB_FL_USE_SHADOW_BUFFER    (1 << 1)
 
 int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device);
 void tfb_release_fb(void);
@@ -101,6 +103,7 @@ void tfb_draw_char(u32 x, u32 y, u32 fg_color, u32 bg_color, u8 c);
 void tfb_draw_string(u32 x, u32 y, u32 fg_color, u32 bg_color, const char *s);
 void tfb_clear_screen(u32 color);
 void tfb_clear_win(u32 color);
+void tfb_flush_window(void);
 
 inline u32 tfb_make_color(u8 r, u8 g, u8 b)
 {
