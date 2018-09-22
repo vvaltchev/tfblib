@@ -164,12 +164,13 @@ void redraw_scene(void)
          if (tiles[row][col] > 0)
             draw_tile(row, col, *piece_colors[tiles[row][col] - 1]);
 
-
    // window border
    tfb_draw_rect(0, 0, w, h, white);
 
    // tetris area / info area separation line
    tfb_draw_vline(tw * cols, 0, h, white);
+
+   tfb_flush_window();
 }
 
 bool will_cp_collide(int new_row, int new_col, int rot)
@@ -319,7 +320,7 @@ int main(int argc, char **argv)
    srand(time(NULL));
 
    set_fb_font();
-   rc = tfb_acquire_fb(0, NULL, NULL);
+   rc = tfb_acquire_fb(TFB_FL_USE_SHADOW_BUFFER, NULL, NULL);
 
    if (rc != TFB_SUCCESS) {
       fprintf(stderr, "tfb_acquire_fb() failed with error code: %d\n", rc);
