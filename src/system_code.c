@@ -187,18 +187,30 @@ void tfb_release_fb(void)
       close(fbfd);
 }
 
-void tfb_flush_window(void)
+void tfb_flush_rect(u32 x, u32 y, u32 w, u32 h)
 {
    if (__fb_buffer == __fb_real_buffer)
       return;
 
-   size_t offset = __fb_off_y * __fb_pitch + (__fb_off_x << 2);
+   u32 yend;
+   x += __fb_off_x;
+   y += __fb_off_y;
+
+   w = MIN((int)w, MAX(0, (int)__fb_win_end_x - (int)x));
+   yend = MIN(y + h, __fb_win_end_y);
+
+   size_t offset = y * __fb_pitch + (__fb_off_x << 2);
    void *dest = __fb_real_buffer + offset;
    void *src = __fb_buffer + offset;
-   u32 win_pitch = __fb_win_w << 2;
+   u32 rect_pitch = w << 2;
 
-   for (u32 h = 0; h < __fb_win_h; h++, dest += __fb_pitch, src += __fb_pitch)
-      memcpy(dest, src, win_pitch);
+   for (u32 cy = y; cy < yend; cy++, src += __fb_pitch, dest += __fb_pitch)
+      memcpy(dest, src, rect_pitch);
+}
+
+void tfb_flush_window(void)
+{
+   tfb_flush_rect(0, 0, __fb_win_w, __fb_win_h);
 }
 
 int tfb_set_kb_raw_mode(void)

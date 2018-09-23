@@ -105,6 +105,7 @@ void tfb_draw_center_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s);
 void tfb_clear_screen(u32 color);
 void tfb_clear_win(u32 color);
 void tfb_flush_window(void);
+void tfb_flush_rect(u32 x, u32 y, u32 w, u32 h);
 
 inline u32 tfb_make_color(u8 r, u8 g, u8 b)
 {
