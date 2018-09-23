@@ -25,7 +25,7 @@ void init_colors(void)
 
 static bool font_iter_cb_select_font(tfb_font_info *fi, void *user_arg)
 {
-   if (fi->height == (uint32_t)user_arg) {
+   if (fi->height == (size_t)user_arg) {
 
       int rc = tfb_set_current_font(fi->font_id);
 

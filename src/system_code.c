@@ -192,15 +192,13 @@ void tfb_flush_window(void)
    if (__fb_buffer == __fb_real_buffer)
       return;
 
-   u32 *dest = __fb_real_buffer + __fb_off_y * __fb_pitch + (__fb_off_x << 2);
-   u32 *src = __fb_buffer + __fb_off_y * __fb_pitch + (__fb_off_x << 2);
+   size_t offset = __fb_off_y * __fb_pitch + (__fb_off_x << 2);
+   void *dest = __fb_real_buffer + offset;
+   void *src = __fb_buffer + offset;
    u32 win_pitch = __fb_win_w << 2;
 
-   for (u32 h = 0; h < __fb_win_h; h++) {
+   for (u32 h = 0; h < __fb_win_h; h++, dest += __fb_pitch, src += __fb_pitch)
       memcpy(dest, src, win_pitch);
-      dest += __fb_pitch_div4;
-      src += __fb_pitch_div4;
-   }
 }
 
 int tfb_set_kb_raw_mode(void)
