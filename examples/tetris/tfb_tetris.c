@@ -11,16 +11,19 @@
 
 #include "utils.h"
 
-u32 tw = 30; /* single tile width */
-u32 th = 30; /* single tile height */
+#define MAX_ROWS 40
+#define MAX_COLS 40
 
-u32 rows = 16;
-u32 cols = 12;
+u32 tw = 20; /* single tile width */
+u32 th = 20; /* single tile height */
+
+u32 rows;
+u32 cols;
 
 int tetris_row = -1;
 u32 off_y = 0; /* temporary offset used for the tetris effect */
 
-unsigned char tiles[20][40];
+unsigned char tiles[MAX_ROWS][MAX_COLS];
 
 int curr_piece;
 int cp_row;
@@ -110,16 +113,16 @@ bool is_tile_set(u32 p, int r, int c, u32 rotation)
    switch (rotation % 4) {
 
       case 0:
-         return (*pieces[p])[4-r-1][c];
-
-      case 1:
          return (*pieces[p])[c][r];
 
-      case 2:
+      case 1:
          return (*pieces[p])[r][4-c-1];
 
-      case 3:
+      case 2:
          return (*pieces[p])[4-c-1][4-r-1];
+
+      case 3:
+         return (*pieces[p])[4-r-1][c];
    }
 
    __builtin_unreachable();
@@ -142,7 +145,7 @@ void draw_piece(int piece, int row, int col, u32 color, u32 rotation)
    for (int r = 0; r < 4; r++)
       for (int c = 0; c < 4; c++)
          if (is_tile_set(piece, r, c, rotation))
-            draw_tile(row + r, col + c, color);
+            draw_tile(row + 4 - r - 1, col + c, color);
 }
 
 
@@ -183,13 +186,13 @@ bool will_cp_collide(int new_row, int new_col, int rot)
       for (int c = 0; c < 4; c++)
          if (is_tile_set(curr_piece, r, c, rot)) {
 
-            if (new_row + r < 0)
+            if (new_row + 4 - r - 1 < 0)
                return true;
 
             if (new_col + c < 0 || new_col + c >= cols)
                return true;
 
-            if (tiles[new_row + r][new_col + c] > 0)
+            if (tiles[new_row + 4 - r - 1][new_col + c] > 0)
                return true;
          }
 
@@ -230,7 +233,7 @@ void consolidate_curr_piece(void)
    for (int r = 0; r < 4; r++)
       for (int c = 0; c < 4; c++)
          if (is_tile_set(curr_piece, r, c, cp_rot))
-            tiles[cp_row + r][cp_col + c] = curr_piece + 1;
+            tiles[cp_row + 4 - r - 1][cp_col + c] = curr_piece + 1;
 
    for (int r = 0; r < rows; r++) {
       if (is_row_full(r)) {
@@ -265,6 +268,9 @@ int game_loop(void)
 
    w = tfb_win_width();
    h = tfb_win_height();
+
+   rows = h / th;
+   cols = (w * 4 / 10) / tw;
 
    setup_new_piece();
 
