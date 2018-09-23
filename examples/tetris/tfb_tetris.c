@@ -164,6 +164,10 @@ void redraw_scene(void)
          if (tiles[row][col] > 0)
             draw_tile(row, col, *piece_colors[tiles[row][col] - 1]);
 
+   tfb_draw_center_string(tw * cols + (w - tw * cols) / 2,
+                          20, yellow, black,
+                          "A Tiny Framebuffer Tetris");
+
    // window border
    tfb_draw_rect(0, 0, w, h, white);
 

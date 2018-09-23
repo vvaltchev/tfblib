@@ -23,9 +23,9 @@ void init_colors(void)
    cyan = tfb_make_color(0, 255, 255);
 }
 
-static bool font_iter_cb_select_font32x16(tfb_font_info *fi, void *user_arg)
+static bool font_iter_cb_select_font(tfb_font_info *fi, void *user_arg)
 {
-   if (fi->width == 16 && fi->height == 32) {
+   if (fi->height == (uint32_t)user_arg) {
 
       int rc = tfb_set_current_font(fi->font_id);
 
@@ -41,5 +41,5 @@ static bool font_iter_cb_select_font32x16(tfb_font_info *fi, void *user_arg)
 
 void set_fb_font(void)
 {
-   tfb_iterate_over_fonts(font_iter_cb_select_font32x16, NULL);
+   tfb_iterate_over_fonts(font_iter_cb_select_font, (void *)16);
 }
