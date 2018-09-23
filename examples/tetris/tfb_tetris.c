@@ -113,16 +113,16 @@ bool is_tile_set(u32 p, int r, int c, u32 rotation)
    switch (rotation % 4) {
 
       case 0:
-         return (*pieces[p])[c][r];
+         return (*pieces[p])[r][c];
 
       case 1:
-         return (*pieces[p])[r][4-c-1];
+         return (*pieces[p])[4-c-1][r];
 
       case 2:
-         return (*pieces[p])[4-c-1][4-r-1];
+         return (*pieces[p])[4-r-1][4-c-1];
 
       case 3:
-         return (*pieces[p])[4-r-1][c];
+         return (*pieces[p])[c][4-r-1];
    }
 
    __builtin_unreachable();
@@ -270,7 +270,7 @@ int game_loop(void)
    h = tfb_win_height();
 
    rows = h / th;
-   cols = (w * 4 / 10) / tw;
+   cols = (w * 5 / 10) / tw;
 
    setup_new_piece();
 
