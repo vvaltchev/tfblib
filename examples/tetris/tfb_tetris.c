@@ -326,10 +326,13 @@ int game_loop(void)
 int main(int argc, char **argv)
 {
    int rc;
-
    srand(time(NULL));
 
-   set_fb_font();
+   if (tfb_set_font_by_size(8, TFB_FONT_ANY_HEIGHT) != TFB_SUCCESS) {
+      fprintf(stderr, "Unable to select a font with width = 8\n");
+      return 1;
+   }
+
    rc = tfb_acquire_fb(TFB_FL_USE_SHADOW_BUFFER, NULL, NULL);
 
    if (rc != TFB_SUCCESS) {

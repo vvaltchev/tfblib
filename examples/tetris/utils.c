@@ -23,23 +23,3 @@ void init_colors(void)
    cyan = tfb_make_color(0, 255, 255);
 }
 
-static bool font_iter_cb_select_font(tfb_font_info *fi, void *user_arg)
-{
-   if (fi->height == (size_t)user_arg) {
-
-      int rc = tfb_set_current_font(fi->font_id);
-
-      if (rc != TFB_SUCCESS) {
-         fprintf(stderr, "tfb_set_current_font() failed with error: %d\n", rc);
-      }
-
-      return false; /* stop iterating over fonts */
-   }
-
-   return true;
-}
-
-void set_fb_font(void)
-{
-   tfb_iterate_over_fonts(font_iter_cb_select_font, (void *)16);
-}

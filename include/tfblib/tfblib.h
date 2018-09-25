@@ -23,6 +23,7 @@
 #define TFB_KB_WRONG_MODE           13
 #define TFB_KB_MODE_GET_FAILED      14
 #define TFB_KB_MODE_SET_FAILED      15
+#define TFB_FONT_NOT_FOUND          16
 
 /*
  * Define these convenience types as macros, in order to allow at the end of the
@@ -72,6 +73,9 @@ int tfb_set_center_window_size(u32 w, u32 h);
 
 /* Text-related functions and definitions */
 
+#define TFB_FONT_ANY_WIDTH   0
+#define TFB_FONT_ANY_HEIGHT  0
+
 typedef struct {
 
    const char *name;
@@ -87,6 +91,7 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg);
 int tfb_set_current_font(void *font_id);
 int tfb_dyn_load_font(const char *file, void **font_id /* out */);
 int tfb_dyn_unload_font(void *font_id);
+int tfb_set_font_by_size(int w, int h);
 
 /* KB input functions */
 int tfb_set_kb_raw_mode(void);

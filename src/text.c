@@ -125,6 +125,47 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
    }
 }
 
+typedef struct {
+
+   int w;
+   int h;
+   bool found;
+
+} desired_font_size;
+
+static bool tfb_sel_font_cb(tfb_font_info *fi, void *arg)
+{
+   desired_font_size *dfs = arg;
+   bool good = true;
+
+   if (dfs->w > 0)
+      good = good && (fi->width == dfs->w);
+
+   if (dfs->h > 0)
+      good = good && (fi->height == dfs->h);
+
+   if (good) {
+
+      if (tfb_set_current_font(fi->font_id) == TFB_SUCCESS)
+         dfs->found = true;
+
+      return false; /* stop iteration */
+   }
+
+   return true; /* continue iteration */
+}
+
+int tfb_set_font_by_size(int w, int h)
+{
+   desired_font_size dfs = { w, h, false };
+   tfb_iterate_over_fonts(tfb_sel_font_cb, &dfs);
+
+   if (!dfs.found)
+      return TFB_FONT_NOT_FOUND;
+
+   return TFB_SUCCESS;
+}
+
 int tfb_set_current_font(void *font_id)
 {
    const font_file *ff = font_id;
@@ -169,8 +210,8 @@ void tfb_draw_char(u32 x, u32 y, u32 fg_color, u32 bg_color, u8 c)
     * fail-safe case for drawing characters on-screen: on low resolutions,
     * its performance is pretty acceptable on modern machines, even when used
     * by a console to full-redraw a screen with text. Therefore, for the
-    * purposes of this library the following implementation is absolutely
-    * good-enough.
+    * purposes of this library (mostly to show static text on-screen), the
+    * following implementation is absolutely good-enough.
     *
     * -------------------------------------------------
     * [1] Tilck [A Tiny Linux-Compatible Kernel]
