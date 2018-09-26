@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <unistd.h>
+#include <math.h>
 
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_kb.h>
@@ -29,6 +30,8 @@ int curr_piece;
 int cp_row;
 int cp_col;
 int cp_rot;
+double fp_cp_row;
+double row_dec_speed;
 
 unsigned char piece_i[4][4] =
 {
@@ -254,6 +257,22 @@ void setup_new_piece(void)
    cp_row = rows;
    cp_col = cols/2;
    cp_rot = 0;
+
+   fp_cp_row = cp_row;
+}
+
+void move_curr_piece_down(double dec)
+{
+   int p_row = fp_cp_row - dec;
+
+   if (will_cp_collide(p_row, cp_col, cp_rot)) {
+
+      consolidate_curr_piece();
+      setup_new_piece();
+
+   } else {
+      fp_cp_row -= dec;
+   }
 }
 
 int game_loop(void)
@@ -261,6 +280,7 @@ int game_loop(void)
    uint32_t w = 640;
    uint32_t h = 480;
    uint64_t k = 0;
+   row_dec_speed = 0.05;
 
    if (tfb_set_center_window_size(w, h) != TFB_SUCCESS) {
       return 1;
@@ -276,7 +296,11 @@ int game_loop(void)
 
    while (true) {
 
-      if (k == TFB_KEY_UP) {
+      if (k == 'q') {
+
+         break;
+
+      } else if (k == TFB_KEY_UP) {
 
          if (!will_cp_collide(cp_row, cp_col, cp_rot + 1))
             cp_rot++;
@@ -295,28 +319,26 @@ int game_loop(void)
 
          if (!will_cp_collide(cp_row, cp_col + 1, cp_rot))
             cp_col++;
+
+      } else if (k == ' ') {
+
+         move_curr_piece_down(1.0);
+
+      } else if (k == 0) {
+
+         move_curr_piece_down(row_dec_speed);
       }
 
-      if (k == ' ') {
-
-         if (will_cp_collide(cp_row - 1, cp_col, cp_rot)) {
-
-            consolidate_curr_piece();
-            setup_new_piece();
-
-         } else {
-            cp_row--;
-         }
+      if (k || ((int)fp_cp_row != cp_row)) {
+         cp_row = fp_cp_row;
+         tfb_clear_win(black);
+         redraw_scene();
       }
 
+      k = tfb_read_keypress_nonblock();
 
-      tfb_clear_win(black);
-      redraw_scene();
-
-      k = tfb_read_keypress();
-
-      if (k == 'q')
-         break;
+      if (!k)
+         usleep(25*1000);
    }
 
    return 0;
