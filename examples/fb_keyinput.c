@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 
    init_colors();
 
-   rc = tfb_set_kb_raw_mode();
+   rc = tfb_set_kb_raw_mode(0);
 
    if (rc != TFB_SUCCESS)
       fprintf(stderr, "tfb_set_kb_raw_mode() failed with err: %d", rc);

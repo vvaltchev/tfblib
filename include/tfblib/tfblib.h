@@ -97,10 +97,11 @@ int tfb_set_font_by_size(int w, int h);
 
 typedef uint64_t tfb_key_t;
 
-int tfb_set_kb_raw_mode(void);
+#define TFB_FL_KB_NONBLOCK (1 << 2)
+
+int tfb_set_kb_raw_mode(u32 flags);
 int tfb_restore_kb_mode(void);
 tfb_key_t tfb_read_keypress(void);
-tfb_key_t tfb_read_keypress_nonblock(void);
 
 /* Drawing functions */
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
@@ -152,5 +153,6 @@ inline u32 tfb_screen_height(void) { return __fb_screen_h; }
 inline u32 tfb_win_width(void) { return __fb_win_w; }
 inline u32 tfb_win_height(void) { return __fb_win_h; }
 
+/* undef the the convenience types defined above */
 #undef u8
 #undef u32

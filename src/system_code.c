@@ -32,6 +32,8 @@ struct fb_var_screeninfo __fbi;
 
 static struct termios orig_termios;
 static bool tfb_kb_raw_mode;
+static bool tfb_kb_nonblock;
+static u32 tfb_kb_saved_fcntl_flags;
 
 static int fbfd = -1;
 static int ttyfd = -1;
@@ -214,9 +216,10 @@ void tfb_flush_window(void)
    tfb_flush_rect(0, 0, __fb_win_w, __fb_win_h);
 }
 
-int tfb_set_kb_raw_mode(void)
+int tfb_set_kb_raw_mode(u32 flags)
 {
    struct termios t;
+   int rc;
 
    if (tfb_kb_raw_mode)
       return TFB_KB_WRONG_MODE;
@@ -232,11 +235,46 @@ int tfb_set_kb_raw_mode(void)
       return TFB_KB_MODE_SET_FAILED;
 
    tfb_kb_raw_mode = true;
+
+   if (flags & TFB_FL_KB_NONBLOCK) {
+
+      rc = fcntl(0, F_GETFL, 0);
+
+      if (rc < 0) {
+         tfb_restore_kb_mode();
+         return TFB_KB_MODE_GET_FAILED;
+      }
+
+      tfb_kb_saved_fcntl_flags  = rc;
+
+      rc = fcntl(0, F_SETFL, tfb_kb_saved_fcntl_flags | O_NONBLOCK);
+
+      if (rc < 0) {
+         tfb_restore_kb_mode();
+         return TFB_KB_MODE_SET_FAILED;
+      }
+
+      tfb_kb_nonblock = true;
+   }
+
    return TFB_SUCCESS;
 }
 
 int tfb_restore_kb_mode(void)
 {
+   if (tfb_kb_nonblock) {
+
+      // Restore the original flags
+      fcntl(0, F_SETFL, tfb_kb_saved_fcntl_flags);
+
+      /*
+       * NOTE: ignoring any eventual error from fcntl() since we have to try
+       * anyway to restore the tty in canonical mode.
+       */
+
+      tfb_kb_nonblock = false;
+   }
+
    if (!tfb_kb_raw_mode)
       return TFB_KB_WRONG_MODE;
 
@@ -245,48 +283,6 @@ int tfb_restore_kb_mode(void)
 
    tfb_kb_raw_mode = false;
    return TFB_SUCCESS;
-}
-
-tfb_key_t tfb_read_keypress(void)
-{
-   int rc;
-   char c;
-   int len = 0;
-   char buf[8] = { 0 };
-
-   rc = read(0, &c, 1);
-
-   if (rc <= 0)
-      return 0;
-
-   if (c != '\033')
-      return c;
-
-   buf[len++] = '\033';
-
-   if (read(0, &c, 1) <= 0)
-      return 0;
-
-   if (c != '[')
-      return 0; /* unknown escape sequence */
-
-   buf[len++] = c;
-
-   while (1) {
-
-      if (read(0, &c, 1) <= 0)
-         return 0;
-
-      buf[len++] = c;
-
-      if (0x40 <= c && c <= 0x7E && c != '[')
-         break;
-
-      if (len == 8)
-         return 0; /* no more space in our 64-bit int (seq too long) */
-   }
-
-   return *(tfb_key_t *)buf;
 }
 
 static struct {
@@ -298,11 +294,14 @@ static struct {
    } state;
 
    int len;
+   int readbuf_len;
 
    union {
       tfb_key_t key;
-      char buf[8];
+      char buf[sizeof(tfb_key_t)];
    };
+
+   char readbuf[sizeof(tfb_key_t)];
 
 } nb_ctx;
 
@@ -385,68 +384,52 @@ static tfb_key_t nb_handle_after_open_bracket_state(int rc, char c)
    return 0;
 }
 
-static tfb_key_t tfb_read_keypress_nonblock_int(void)
+static tfb_key_t tfb_switch_state_read(int rc, char c)
 {
-   tfb_key_t ret;
-   int rc;
-   char c;
+   switch (nb_ctx.state) {
 
-   for (u32 i = 0; i < sizeof(tfb_key_t); i++) {
+      case NB_INITIAL_STATE:
+         return nb_handle_initial_state(rc, c);
 
-      rc = read(0, &c, 1);
+      case NB_AFTER_ESC_READ:
+         return nb_handle_after_esc_state(rc, c);
 
-      switch (nb_ctx.state) {
-
-         case NB_INITIAL_STATE:
-            ret = nb_handle_initial_state(rc, c);
-            break;
-
-         case NB_AFTER_ESC_READ:
-            ret = nb_handle_after_esc_state(rc, c);
-            break;
-
-         case NB_AFTER_OPEN_BRACKET_READ:
-            ret = nb_handle_after_open_bracket_state(rc, c);
-            break;
-      }
-
-      if (ret != 0)
-         return ret;
+      case NB_AFTER_OPEN_BRACKET_READ:
+         return nb_handle_after_open_bracket_state(rc, c);
    }
 
    return 0;
 }
 
-tfb_key_t tfb_read_keypress_nonblock(void)
+tfb_key_t tfb_read_keypress(void)
 {
-   int rc, saved_flags;
-   tfb_key_t ret;
+   tfb_key_t ret = 0;
+   int rc;
+   char c;
 
-   rc = fcntl(0, F_GETFL, 0);
+   for (u32 i = 0; i < sizeof(tfb_key_t); i++) {
 
-   if (rc < 0)
-      goto fcntl_failed;
+      if (!nb_ctx.readbuf_len) {
 
-   saved_flags = rc;
+         rc = read(0, nb_ctx.readbuf, sizeof(nb_ctx.readbuf));
 
-   rc = fcntl(0, F_SETFL, saved_flags | O_NONBLOCK);
+         if (rc <= 0)
+            break;
 
-   if (rc < 0)
-      goto fcntl_failed;
+         nb_ctx.readbuf_len = rc;
+      }
 
-   ret = tfb_read_keypress_nonblock_int();
+      c = nb_ctx.readbuf[0];
+      memmove(nb_ctx.readbuf, nb_ctx.readbuf + 1, sizeof(nb_ctx.readbuf) - 1);
+      nb_ctx.readbuf_len--;
 
-   // Restore the original flags
-   rc = fcntl(0, F_SETFL, saved_flags);
+      ret = tfb_switch_state_read(rc, c);
 
-   if (rc < 0)
-      goto fcntl_failed;
+      if (ret != 0)
+         break;
+   }
 
    return ret;
-
-fcntl_failed:
-   fprintf(stderr, "[tfblib] fcntl() failed: %s\n", strerror(errno));
-   return 0;
 }
 
 static char tfb_fn_key_seq_char[12][8] =

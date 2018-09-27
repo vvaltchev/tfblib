@@ -335,7 +335,7 @@ int game_loop(void)
          redraw_scene();
       }
 
-      k = tfb_read_keypress_nonblock();
+      k = tfb_read_keypress();
 
       if (!k)
          usleep(25*1000);
@@ -365,7 +365,7 @@ int main(int argc, char **argv)
 
    init_colors();
 
-   rc = tfb_set_kb_raw_mode();
+   rc = tfb_set_kb_raw_mode(TFB_FL_KB_NONBLOCK);
 
    if (rc != TFB_SUCCESS)
       fprintf(stderr, "tfb_set_kb_raw_mode() failed with err: %d", rc);
