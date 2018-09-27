@@ -102,13 +102,13 @@ unsigned char (*pieces[])[4][4] =
 
 u32 *piece_colors[] =
 {
-   &red,
+   &cyan,
+   &blue,
+   &orange,
    &yellow,
    &green,
-   &magenta,
-   &blue,
-   &cyan,
-   &white
+   &purple,
+   &red
 };
 
 bool is_tile_set(u32 p, int r, int c, u32 rotation)

@@ -8,7 +8,7 @@
 
 #include "utils.h"
 
-uint32_t red, green, blue, white, black, yellow, gray, magenta, cyan;
+u32 red, green, blue, white, black, yellow, gray, magenta, cyan, orange, purple;
 
 void init_colors(void)
 {
@@ -21,5 +21,7 @@ void init_colors(void)
    gray = tfb_make_color(50, 50, 50);
    magenta = tfb_make_color(255, 0, 255);
    cyan = tfb_make_color(0, 255, 255);
+   orange = tfb_make_color(0xff, 0xa7, 0x00);
+   purple = tfb_make_color(0x8c, 0x00, 0x81);
 }
 
