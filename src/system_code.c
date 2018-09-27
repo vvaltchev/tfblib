@@ -33,6 +33,7 @@ struct fb_var_screeninfo __fbi;
 static struct termios orig_termios;
 static bool tfb_kb_raw_mode;
 static bool tfb_kb_nonblock;
+static int tfb_saved_kdmode;
 static u32 tfb_kb_saved_fcntl_flags;
 
 static int fbfd = -1;
@@ -224,6 +225,14 @@ int tfb_set_kb_raw_mode(u32 flags)
    if (tfb_kb_raw_mode)
       return TFB_KB_WRONG_MODE;
 
+   if (ioctl(0, KDGKBMODE, &tfb_saved_kdmode) != 0)
+      return TFB_KB_MODE_GET_FAILED;
+
+   if (tfb_saved_kdmode != K_XLATE) {
+      if (ioctl(0, KDSKBMODE, K_XLATE) != 0)
+         return TFB_KB_MODE_SET_FAILED;
+   }
+
    if (tcgetattr(0, &orig_termios) != 0)
       return TFB_KB_MODE_GET_FAILED;
 
@@ -264,19 +273,21 @@ int tfb_restore_kb_mode(void)
 {
    if (tfb_kb_nonblock) {
 
-      // Restore the original flags
-      fcntl(0, F_SETFL, tfb_kb_saved_fcntl_flags);
-
       /*
+       * Restore the original flags.
        * NOTE: ignoring any eventual error from fcntl() since we have to try
-       * anyway to restore the tty in canonical mode.
+       * anyway to restore the tty in canonical mode (with tcsetattr() below).
        */
 
+      fcntl(0, F_SETFL, tfb_kb_saved_fcntl_flags);
       tfb_kb_nonblock = false;
    }
 
-   if (!tfb_kb_raw_mode)
+  if (!tfb_kb_raw_mode)
       return TFB_KB_WRONG_MODE;
+
+   /* Restore the original kb mode. Note: ignoring any failure */
+  ioctl(0, KDSKBMODE, &tfb_saved_kdmode);
 
    if (tcsetattr(0, TCSAFLUSH, &orig_termios) != 0)
       return TFB_KB_MODE_SET_FAILED;
@@ -406,6 +417,14 @@ tfb_key_t tfb_read_keypress(void)
    tfb_key_t ret = 0;
    int rc;
    char c;
+
+   if (!tfb_kb_raw_mode) {
+      /*
+       * tfb_read_keypress() is supposed to be used only after a successful
+       * call to tfb_set_kb_raw_mode().
+       */
+      return 0;
+   }
 
    for (u32 i = 0; i < sizeof(tfb_key_t); i++) {
 

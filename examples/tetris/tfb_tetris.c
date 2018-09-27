@@ -6,6 +6,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
+#include <errno.h>
 
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_kb.h>
@@ -354,7 +355,7 @@ static int game_loop(void)
 
 int main(int argc, char **argv)
 {
-   int rc;
+   int rc, saved_errno = 0;
    srand(time(NULL));
 
    if (tfb_set_font_by_size(16, TFB_FONT_ANY_HEIGHT) != TFB_SUCCESS) {
@@ -374,16 +375,26 @@ int main(int argc, char **argv)
 
    rc = tfb_set_kb_raw_mode(TFB_FL_KB_NONBLOCK);
 
-   if (rc != TFB_SUCCESS)
-      fprintf(stderr, "tfb_set_kb_raw_mode() failed with err: %d", rc);
+   if (rc != TFB_SUCCESS) {
+      fprintf(stderr, "tfb_set_kb_raw_mode() failed with err: %d\n", rc);
+      saved_errno = errno;
+      goto end;
+   }
 
    rc = game_loop();
 
+end:
    tfb_restore_kb_mode();
    tfb_release_fb();
 
    if (rc) {
-      fprintf(stderr, "game_loop() failed with error code: %d\n", rc);
+
+      if (saved_errno)
+         errno = saved_errno;
+
+      fprintf(stderr,
+              "tfblib error: %d, errno: %d (%s)\n",
+              rc, errno, strerror(errno));
    }
 
    return 0;

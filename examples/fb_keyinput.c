@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_kb.h>
@@ -126,12 +127,19 @@ int main(int argc, char **argv)
 
    rc = tfb_set_kb_raw_mode(0);
 
-   if (rc != TFB_SUCCESS)
-      fprintf(stderr, "tfb_set_kb_raw_mode() failed with err: %d", rc);
+   if (rc != TFB_SUCCESS) {
+      fprintf(stderr, "tfb_set_kb_raw_mode() failed with err: %d\n", rc);
+      goto end;
+   }
 
    loop();
 
+end:
    tfb_restore_kb_mode();
    tfb_release_fb();
+
+   if (rc)
+      fprintf(stderr, "tfblib error: %d", rc);
+
    return 0;
 }
