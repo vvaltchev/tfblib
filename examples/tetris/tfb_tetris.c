@@ -15,8 +15,8 @@
 #define MAX_ROWS 40
 #define MAX_COLS 40
 
-u32 tw = 20; /* single tile width */
-u32 th = 20; /* single tile height */
+u32 tw = 2 * 20; /* single tile width */
+u32 th = 2 * 20; /* single tile height */
 
 u32 rows;
 u32 cols;
@@ -277,13 +277,22 @@ void move_curr_piece_down(double dec)
 
 int game_loop(void)
 {
-   uint32_t w = 640;
-   uint32_t h = 480;
+   uint32_t w = 2 * 480;
+   uint32_t h = 2 * 480;
    uint64_t k = 0;
    row_dec_speed = 0.05;
 
    if (tfb_set_center_window_size(w, h) != TFB_SUCCESS) {
-      return 1;
+
+      w /= 2;
+      h /= 2;
+      tw /= 2;
+      th /= 2;
+
+      if (tfb_set_center_window_size(w, h) != TFB_SUCCESS)
+         return 1;
+
+      tfb_set_font_by_size(8, TFB_FONT_ANY_HEIGHT);
    }
 
    w = tfb_win_width();
@@ -350,8 +359,8 @@ int main(int argc, char **argv)
    int rc;
    srand(time(NULL));
 
-   if (tfb_set_font_by_size(8, TFB_FONT_ANY_HEIGHT) != TFB_SUCCESS) {
-      fprintf(stderr, "Unable to select a font with width = 8\n");
+   if (tfb_set_font_by_size(16, TFB_FONT_ANY_HEIGHT) != TFB_SUCCESS) {
+      fprintf(stderr, "Unable to select a font with width = 16\n");
       return 1;
    }
 
