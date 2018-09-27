@@ -15,25 +15,25 @@
 #define MAX_ROWS 40
 #define MAX_COLS 40
 
-u32 tw = 2 * 20; /* single tile width */
-u32 th = 2 * 20; /* single tile height */
+static u32 tw = 2 * 20; /* single tile width */
+static u32 th = 2 * 20; /* single tile height */
 
-u32 rows;
-u32 cols;
+static u32 rows;
+static u32 cols;
 
-int tetris_row = -1;
-u32 off_y = 0; /* temporary offset used for the tetris effect */
+static int tetris_row = -1;
+static u32 off_y = 0; /* temporary offset used for the tetris effect */
 
-unsigned char tiles[MAX_ROWS][MAX_COLS];
+static unsigned char tiles[MAX_ROWS][MAX_COLS];
 
-int curr_piece;
-int cp_row;
-int cp_col;
-int cp_rot;
-double fp_cp_row;
-double row_dec_speed;
+static int curr_piece;
+static int cp_row;
+static int cp_col;
+static int cp_rot;
+static double fp_cp_row;
+static double row_dec_speed;
 
-unsigned char piece_i[4][4] =
+static const unsigned char piece_i[4][4] =
 {
    {0, 1, 0, 0},
    {0, 1, 0, 0},
@@ -41,7 +41,7 @@ unsigned char piece_i[4][4] =
    {0, 1, 0, 0}
 };
 
-unsigned char piece_j[4][4] =
+static const unsigned char piece_j[4][4] =
 {
    {0, 0, 0, 0},
    {0, 0, 1, 0},
@@ -49,7 +49,7 @@ unsigned char piece_j[4][4] =
    {0, 1, 1, 0}
 };
 
-unsigned char piece_l[4][4] =
+static const unsigned char piece_l[4][4] =
 {
    {0, 0, 0, 0},
    {0, 1, 0, 0},
@@ -57,7 +57,7 @@ unsigned char piece_l[4][4] =
    {0, 1, 1, 0}
 };
 
-unsigned char piece_o[4][4] =
+static const unsigned char piece_o[4][4] =
 {
    {0, 0, 0, 0},
    {0, 1, 1, 0},
@@ -65,7 +65,7 @@ unsigned char piece_o[4][4] =
    {0, 0, 0, 0}
 };
 
-unsigned char piece_s[4][4] =
+static const unsigned char piece_s[4][4] =
 {
    {0, 0, 0, 0},
    {0, 0, 1, 1},
@@ -73,7 +73,7 @@ unsigned char piece_s[4][4] =
    {0, 0, 0, 0}
 };
 
-unsigned char piece_t[4][4] =
+static const unsigned char piece_t[4][4] =
 {
    {0, 0, 0, 0},
    {0, 0, 1, 0},
@@ -81,7 +81,7 @@ unsigned char piece_t[4][4] =
    {0, 0, 0, 0},
 };
 
-unsigned char piece_z[4][4] =
+static const unsigned char piece_z[4][4] =
 {
    {0, 0, 0, 0},
    {0, 1, 1, 0},
@@ -89,7 +89,7 @@ unsigned char piece_z[4][4] =
    {0, 0, 0, 0}
 };
 
-unsigned char (*pieces[])[4][4] =
+static const unsigned char (*pieces[])[4][4] =
 {
    &piece_i,
    &piece_j,
@@ -100,7 +100,7 @@ unsigned char (*pieces[])[4][4] =
    &piece_z,
 };
 
-u32 *piece_colors[] =
+static u32 *piece_colors[] =
 {
    &cyan,
    &blue,
@@ -111,7 +111,7 @@ u32 *piece_colors[] =
    &red
 };
 
-bool is_tile_set(u32 p, int r, int c, u32 rotation)
+static bool is_tile_set(u32 p, int r, int c, u32 rotation)
 {
    switch (rotation % 4) {
 
@@ -131,19 +131,19 @@ bool is_tile_set(u32 p, int r, int c, u32 rotation)
    __builtin_unreachable();
 }
 
-void draw_tile_xy(int x, int y, u32 color)
+static inline void draw_tile_xy(int x, int y, u32 color)
 {
    if (x >= 0 && y >= 0)
       tfb_fill_rect(x + 1, y + 1, tw - 2, th - 2, color);
 }
 
-void draw_tile(int r, int c, u32 color)
+static inline void draw_tile(int r, int c, u32 color)
 {
    int off = (tetris_row >= 0 && r > tetris_row) ? off_y : 0;
    draw_tile_xy(c * tw, (rows - r - 1) * th + off, color);
 }
 
-void draw_piece(int piece, int row, int col, u32 color, u32 rotation)
+static void draw_piece(int piece, int row, int col, u32 color, u32 rotation)
 {
    for (int r = 0; r < 4; r++)
       for (int c = 0; c < 4; c++)
@@ -151,8 +151,7 @@ void draw_piece(int piece, int row, int col, u32 color, u32 rotation)
             draw_tile(row + 4 - r - 1, col + c, color);
 }
 
-
-void redraw_scene(void)
+static void redraw_scene(void)
 {
    u32 w = tfb_win_width();
    u32 h = tfb_win_height();
@@ -183,7 +182,7 @@ void redraw_scene(void)
    tfb_flush_window();
 }
 
-bool will_cp_collide(int new_row, int new_col, int rot)
+static bool will_cp_collide(int new_row, int new_col, int rot)
 {
    for (int r = 0; r < 4; r++)
       for (int c = 0; c < 4; c++)
@@ -202,7 +201,7 @@ bool will_cp_collide(int new_row, int new_col, int rot)
    return false;
 }
 
-bool is_row_full(int row)
+static bool is_row_full(int row)
 {
    for (int c = 0; c < cols; c++)
       if (!tiles[row][c])
@@ -211,7 +210,7 @@ bool is_row_full(int row)
    return true;
 }
 
-void do_tetris(int full_row)
+static void do_tetris(int full_row)
 {
    for (int c = 0; c < cols; c++)
       tiles[full_row][c] = 0;
@@ -231,7 +230,7 @@ void do_tetris(int full_row)
          tiles[r - 1][c] = tiles[r][c];
 }
 
-void consolidate_curr_piece(void)
+static void consolidate_curr_piece(void)
 {
    for (int r = 0; r < 4; r++)
       for (int c = 0; c < 4; c++)
@@ -246,12 +245,12 @@ void consolidate_curr_piece(void)
    }
 }
 
-int get_random_piece(void)
+static inline int get_random_piece(void)
 {
    return rand() % 7;
 }
 
-void setup_new_piece(void)
+static void setup_new_piece(void)
 {
    curr_piece = get_random_piece();
    cp_row = rows;
@@ -261,7 +260,7 @@ void setup_new_piece(void)
    fp_cp_row = cp_row;
 }
 
-void move_curr_piece_down(double dec)
+static void move_curr_piece_down(double dec)
 {
    int p_row = fp_cp_row - dec;
 
@@ -275,7 +274,7 @@ void move_curr_piece_down(double dec)
    }
 }
 
-int game_loop(void)
+static int game_loop(void)
 {
    uint32_t w = 2 * 480;
    uint32_t h = 2 * 480;
@@ -352,7 +351,6 @@ int game_loop(void)
 
    return 0;
 }
-
 
 int main(int argc, char **argv)
 {
