@@ -28,6 +28,7 @@ static u32 off_y = 0; /* temporary offset used for the tetris effect */
 static unsigned char tiles[MAX_ROWS][MAX_COLS];
 
 static int curr_piece;
+static int next_piece = -1;
 static int cp_row;
 static int cp_col;
 static int cp_rot;
@@ -77,8 +78,8 @@ static const unsigned char piece_s[4][4] =
 static const unsigned char piece_t[4][4] =
 {
    {0, 0, 0, 0},
-   {0, 0, 1, 0},
-   {0, 1, 1, 1},
+   {0, 1, 0, 0},
+   {1, 1, 1, 0},
    {0, 0, 0, 0},
 };
 
@@ -152,10 +153,21 @@ static void draw_piece(int piece, int row, int col, u32 color, u32 rotation)
             draw_tile(row + 4 - r - 1, col + c, color);
 }
 
+static void draw_piece_xy(int piece, int x, int y, u32 color, u32 rotation)
+{
+   for (int r = 0; r < 4; r++)
+      for (int c = 0; c < 4; c++)
+         if (is_tile_set(piece, r, c, rotation))
+            draw_tile_xy(x + (4 - r - 1) * tw, y + c * th, color);
+}
+
+
 static void redraw_scene(void)
 {
    u32 w = tfb_win_width();
    u32 h = tfb_win_height();
+   u32 center_w = tw * cols + (w - tw * cols) / 2;
+   int xoff = 0, yoff = 0;
 
    if (tetris_row == -1) {
       draw_piece(curr_piece,
@@ -170,9 +182,24 @@ static void redraw_scene(void)
          if (tiles[row][col] > 0)
             draw_tile(row, col, *piece_colors[tiles[row][col] - 1]);
 
-   tfb_draw_center_string(tw * cols + (w - tw * cols) / 2,
+   tfb_draw_center_string(center_w,
                           20, yellow, black,
                           "A Tiny Framebuffer Tetris");
+
+   if (next_piece == 0 || next_piece == 5)
+      xoff = tw / 2;
+
+   if (next_piece > 2)
+      yoff = th;
+
+   draw_piece_xy(next_piece,
+                 center_w - 2 * tw + xoff,
+                 20 + th + yoff,
+                 *piece_colors[next_piece], 3);
+
+   tfb_draw_center_string(center_w,
+                          20 + th + 4 * th + 10,
+                          white, black, "Coming next");
 
    // window border
    tfb_draw_rect(0, 0, w, h, white);
@@ -253,7 +280,11 @@ static inline int get_random_piece(void)
 
 static void setup_new_piece(void)
 {
-   curr_piece = get_random_piece();
+   if (next_piece < 0)
+      next_piece = get_random_piece();
+
+   curr_piece = next_piece;
+   next_piece = get_random_piece();
    cp_row = rows;
    cp_col = cols/2;
    cp_rot = 0;
