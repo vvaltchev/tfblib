@@ -245,3 +245,13 @@ void tfb_draw_center_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s)
    size_t len = strlen(s);
    tfb_draw_string(cx - curr_font_w * len / 2, y, fg, bg, s);
 }
+
+int tfb_get_curr_font_width(void)
+{
+   return curr_font_w;
+}
+
+int tfb_get_curr_font_height(void)
+{
+   return curr_font_h;
+}

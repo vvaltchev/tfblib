@@ -92,6 +92,9 @@ int tfb_set_current_font(void *font_id);
 int tfb_dyn_load_font(const char *file, void **font_id /* out */);
 int tfb_dyn_unload_font(void *font_id);
 int tfb_set_font_by_size(int w, int h);
+int tfb_get_curr_font_width(void);
+int tfb_get_curr_font_height(void);
+
 
 /* KB input functions and definitions */
 
