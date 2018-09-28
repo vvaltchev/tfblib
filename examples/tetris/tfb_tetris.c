@@ -28,6 +28,7 @@ static u32 off_y = 0; /* temporary offset used for the tetris effect */
 static unsigned char tiles[MAX_ROWS][MAX_COLS];
 
 static bool game_over;
+static bool game_paused;
 static int curr_piece;
 static int next_piece = -1;
 static int cp_row;
@@ -190,6 +191,8 @@ static void redraw_scene(void)
 
    if (game_over) {
       tfb_draw_center_string(center_w1, h / 2, yellow, black, "GAME OVER");
+   } else if (game_paused) {
+      tfb_draw_center_string(center_w1, h / 2, yellow, black, "GAME PAUSED");
    }
 
    tfb_draw_center_string(center_w2,
@@ -397,12 +400,12 @@ static int game_loop(void)
 
    setup_new_piece();
 
-   while (true) {
+   do {
 
-      if (k == 'q')
-         break;
+      if (k == 'p')
+         game_paused = !game_paused;
 
-      if (!game_over && !handle_piece_move_rot(k)) {
+      if (!game_paused && !game_over && !handle_piece_move_rot(k)) {
 
          if (k == ' ')
             move_curr_piece_down(1.0);
@@ -423,7 +426,8 @@ static int game_loop(void)
 
       if (!k)
          usleep(25*1000);
-   }
+
+   } while (k != 'q');
 
    return 0;
 }
