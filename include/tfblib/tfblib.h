@@ -115,6 +115,12 @@ void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_draw_char(u32 x, u32 y, u32 fg_color, u32 bg_color, u8 c);
 void tfb_draw_string(u32 x, u32 y, u32 fg_color, u32 bg_color, const char *s);
 void tfb_draw_center_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s);
+void tfb_draw_char_scaled(u32 x, u32 y, u32 fg, u32 bg,
+                          u32 xscale, u32 yscale, u8 c);
+void tfb_draw_string_scaled(u32 x, u32 y, u32 fg, u32 bg,
+                            u32 xscale, u32 yscale, const char *s);
+void tfb_draw_center_string_scaled(u32 cx, u32 y, u32 fg, u32 bg,
+                                   u32 xscale, u32 yscale, const char *s);
 void tfb_clear_screen(u32 color);
 void tfb_clear_win(u32 color);
 void tfb_flush_window(void);

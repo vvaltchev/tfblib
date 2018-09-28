@@ -226,6 +226,35 @@ void tfb_draw_char(u32 x, u32 y, u32 fg_color, u32 bg_color, u8 c)
                            (d[b] & (1 << bit)) ? fg_color : bg_color);
 }
 
+void tfb_draw_char_scaled(u32 x, u32 y,
+                          u32 fg, u32 bg, u32 xscale, u32 yscale, u8 c)
+{
+   if (!curr_font) {
+      fprintf(stderr, "[tfblib] ERROR: no font currently selected\n");
+      return;
+   }
+
+   u8 *d = curr_font_data + curr_font_bytes_per_glyph * c;
+
+   /*
+    * NOTE: this algorithm is clearly much slower than the simpler variant
+    * used in tfb_draw_char(), but it is still pretty good for static text.
+    * In case better performance is needed, just a scaled font should be used
+    * instead of the *_scaled draw text functions.
+    */
+
+   for (u32 row = 0; row < curr_font_h; row++, d += curr_font_w_bytes)
+      for (u32 b = 0; b < curr_font_w_bytes; b++)
+         for (u32 bit = 0; bit < 8; bit++) {
+
+            u32 xoff = xscale * ((b << 3) + 8 - bit - 1);
+            u32 yoff = yscale * row;
+            u32 color = (d[b] & (1 << bit)) ? fg : bg;
+
+            tfb_fill_rect(x + xoff, y + yoff, xscale, yscale, color);
+         }
+}
+
 void tfb_draw_string(u32 x, u32 y, u32 fg_color, u32 bg_color, const char *s)
 {
    if (!curr_font) {
@@ -240,10 +269,35 @@ void tfb_draw_string(u32 x, u32 y, u32 fg_color, u32 bg_color, const char *s)
    }
 }
 
+void tfb_draw_string_scaled(u32 x, u32 y,
+                            u32 fg, u32 bg,
+                            u32 xscale, u32 yscale, const char *s)
+{
+   if (!curr_font) {
+      fprintf(stderr, "[tfblib] ERROR: no font currently selected\n");
+      return;
+   }
+
+   while (*s) {
+      tfb_draw_char_scaled(x, y, fg, bg, xscale, yscale, *s);
+      x += xscale * curr_font_w;
+      s++;
+   }
+}
+
 void tfb_draw_center_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s)
 {
    size_t len = strlen(s);
    tfb_draw_string(cx - curr_font_w * len / 2, y, fg, bg, s);
+}
+
+void tfb_draw_center_string_scaled(u32 cx, u32 y,
+                                   u32 fg, u32 bg,
+                                   u32 xscale, u32 yscale, const char *s)
+{
+   size_t len = strlen(s);
+   tfb_draw_string_scaled(cx - xscale * curr_font_w * len / 2,
+                          y, fg, bg, xscale, yscale, s);
 }
 
 int tfb_get_curr_font_width(void)
