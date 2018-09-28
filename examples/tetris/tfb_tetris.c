@@ -189,17 +189,26 @@ static void redraw_scene(void)
          if (tiles[row][col] > 0)
             draw_tile(row, col, *piece_colors[tiles[row][col] - 1]);
 
-   if (game_over) {
-      tfb_draw_center_string(center_w1, h / 2, yellow, black, "GAME OVER");
-   } else if (game_paused) {
-      tfb_draw_center_string(center_w1, h / 2, yellow, black, "GAME PAUSED");
+   if (game_over || game_paused) {
+      tfb_draw_center_string_scaled(center_w1,
+                                    h / 2 - tfb_get_curr_font_height(),
+                                    yellow, black, 2, 2,
+                                    game_paused ? "GAME PAUSED" : "GAME OVER");
    }
 
-   tfb_draw_center_string(center_w2,
-                          20, yellow, black,
-                          "A Tiny Framebuffer Tetris");
+   cy = 20;
 
-   cy = 20 + th;
+   tfb_draw_center_string(center_w2,
+                          cy, white, black,
+                          "A Tiny Framebuffer");
+
+   cy += tfb_get_curr_font_height() + 5;
+
+   tfb_draw_center_string_scaled(center_w2,
+                                 cy, yellow, black, 2, 2,
+                                 "Tetris");
+
+   cy += th * 2;
 
    if (next_piece == 0 || next_piece == 5)
       xoff = tw / 2;
@@ -217,14 +226,19 @@ static void redraw_scene(void)
    tfb_draw_center_string(center_w2, cy,
                           white, black, "Coming next");
 
-   cy += tfb_get_curr_font_height() * 2;
+   cy += tfb_get_curr_font_height() * 4;
+   sprintf(buf, "%d", game_level);
+   tfb_draw_center_string_scaled(center_w2, cy, cyan, black, 3, 3, buf);
 
-   sprintf(buf, "Level: %d", game_level);
-   tfb_draw_center_string(center_w2, cy, cyan, black, buf);
+   cy += tfb_get_curr_font_height() * 3;
+   tfb_draw_center_string(center_w2, cy, white, black, "Level");
+
+   cy += tfb_get_curr_font_height() * 5;
+   sprintf(buf, "%06d", game_score);
+   tfb_draw_center_string_scaled(center_w2, cy, magenta, black, 2, 2, buf);
 
    cy += tfb_get_curr_font_height() * 2;
-   sprintf(buf, "Score: %06d", game_score);
-   tfb_draw_center_string(center_w2, cy, magenta, black, buf);
+   tfb_draw_center_string(center_w2, cy, white, black, "Score");
 
    // window border
    tfb_draw_rect(0, 0, w, h, white);
