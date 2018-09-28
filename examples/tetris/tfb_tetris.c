@@ -169,12 +169,22 @@ static void draw_piece_xy(int piece, int x, int y, u32 color, u32 rotation)
 
 static void redraw_scene(void)
 {
+   static bool title_and_labels_drawn;
+   static int saved_next_piece = -1;
+   static int saved_level = -1;
+   static int saved_score = -1;
+
    u32 w = tfb_win_width();
    u32 h = tfb_win_height();
    u32 center_w1 = tw * cols / 2;
    u32 center_w2 = tw * cols + (w - tw * cols) / 2;
    int xoff = 0, yoff = 0, cy;
    char buf[64];
+
+   bool full_flush = false;
+
+   /* Clear only the left side of the window */
+   tfb_fill_rect(1, 1, cols * tw - 2, rows * th - 2, black);
 
    if (tetris_row == -1) {
       draw_piece(curr_piece,
@@ -198,15 +208,17 @@ static void redraw_scene(void)
 
    cy = 20;
 
-   tfb_draw_center_string(center_w2,
-                          cy, white, black,
-                          "A Tiny Framebuffer");
+   if (!title_and_labels_drawn) {
+      tfb_draw_center_string(center_w2, cy, white, black, "A Tiny Framebuffer");
+      full_flush = true;
+   }
 
    cy += tfb_get_curr_font_height() + 5;
 
-   tfb_draw_center_string_scaled(center_w2,
-                                 cy, yellow, black, 2, 2,
-                                 "Tetris");
+   if (!title_and_labels_drawn) {
+      tfb_draw_center_string_scaled(center_w2,cy,yellow,black,2,2,"Tetris");
+      full_flush = true;
+   }
 
    cy += th * 2;
 
@@ -216,37 +228,72 @@ static void redraw_scene(void)
    if (next_piece > 2)
       yoff = th;
 
-   draw_piece_xy(next_piece,
-                 center_w2 - 2 * tw + xoff,
-                 cy + yoff,
-                 *piece_colors[next_piece], 3);
+   if (next_piece != saved_next_piece) {
+
+      tfb_fill_rect(center_w2 - 2 * tw, cy, 4 * tw, 4 * th, black);
+
+      draw_piece_xy(next_piece,
+                    center_w2 - 2 * tw + xoff,
+                    cy + yoff,
+                    *piece_colors[next_piece], 3);
+
+      saved_next_piece = next_piece;
+      full_flush = true;
+   }
 
    cy += 4 * th + 10;
 
-   tfb_draw_center_string(center_w2, cy,
-                          white, black, "Coming next");
+   if (!title_and_labels_drawn) {
+      tfb_draw_center_string(center_w2, cy, white, black, "Coming next");
+      full_flush = true;
+   }
 
    cy += tfb_get_curr_font_height() * 4;
-   sprintf(buf, "%d", game_level);
-   tfb_draw_center_string_scaled(center_w2, cy, cyan, black, 3, 3, buf);
+
+   if (game_level != saved_level) {
+      sprintf(buf, "%02d", game_level);
+      tfb_draw_center_string_scaled(center_w2, cy, cyan, black, 3, 3, buf);
+      saved_level = game_level;
+      full_flush = true;
+   }
 
    cy += tfb_get_curr_font_height() * 3;
-   tfb_draw_center_string(center_w2, cy, white, black, "Level");
+
+   if (!title_and_labels_drawn) {
+      tfb_draw_center_string(center_w2, cy, white, black, "Level");
+      full_flush = true;
+   }
 
    cy += tfb_get_curr_font_height() * 5;
-   sprintf(buf, "%06d", game_score);
-   tfb_draw_center_string_scaled(center_w2, cy, magenta, black, 2, 2, buf);
+
+   if (game_score != saved_score) {
+      sprintf(buf, "%06d", game_score);
+      tfb_draw_center_string_scaled(center_w2, cy, magenta, black, 2, 2, buf);
+      saved_score = game_score;
+      full_flush = true;
+   }
 
    cy += tfb_get_curr_font_height() * 2;
-   tfb_draw_center_string(center_w2, cy, white, black, "Score");
 
-   // window border
-   tfb_draw_rect(0, 0, w, h, white);
+   if (!title_and_labels_drawn) {
 
-   // tetris area / info area separation line
-   tfb_draw_vline(tw * cols, 0, h, white);
+      tfb_draw_center_string(center_w2, cy, white, black, "Score");
 
-   tfb_flush_window();
+      // window border
+      tfb_draw_rect(0, 0, w, h, white);
+
+      // tetris area / info area separation line
+      tfb_draw_vline(tw * cols, 0, h, white);
+
+      full_flush = true;
+   }
+
+   if (full_flush)
+      tfb_flush_window();
+   else
+      tfb_flush_rect(1, 1, cols * tw - 2, rows * th - 2);
+
+   title_and_labels_drawn = true;
 }
 
 static bool will_cp_collide(int new_row, int new_col, int rot)
@@ -284,7 +331,6 @@ static void do_tetris(int full_row)
 
    tetris_row = full_row;
    for (off_y = 0; off_y < th; off_y += 2) {
-      tfb_clear_win(black);
       redraw_scene();
       usleep(10 * 1000);
    }
@@ -406,6 +452,7 @@ static int game_loop(void)
       tfb_set_font_by_size(8, TFB_FONT_ANY_HEIGHT);
    }
 
+   tfb_clear_win(black);
    w = tfb_win_width();
    h = tfb_win_height();
 
@@ -428,8 +475,8 @@ static int game_loop(void)
       }
 
       if (k || ((int)fp_cp_row != cp_row) || game_over_state != game_over) {
+
          cp_row = fp_cp_row;
-         tfb_clear_win(black);
          redraw_scene();
 
          if (game_over)

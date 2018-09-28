@@ -2,5 +2,10 @@
     "editor.tabSize": 3,
     "files.trimTrailingWhitespace": true,
     "editor.detectIndentation": false,
-    "editor.rulers": [80]
+   "editor.rulers": [
+      80
+   ],
+   "editor.autoClosingBrackets": "never",
+   "editor.autoClosingQuotes": "never",
+   "editor.autoSurround": "never"
 }
