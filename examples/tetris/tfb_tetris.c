@@ -32,6 +32,9 @@ static int next_piece = -1;
 static int cp_row;
 static int cp_col;
 static int cp_rot;
+static int game_level = 1;
+static int game_score;
+static int cleared_rows;
 static double fp_cp_row;
 static double row_dec_speed;
 
@@ -167,7 +170,8 @@ static void redraw_scene(void)
    u32 w = tfb_win_width();
    u32 h = tfb_win_height();
    u32 center_w = tw * cols + (w - tw * cols) / 2;
-   int xoff = 0, yoff = 0;
+   int xoff = 0, yoff = 0, cy;
+   char buf[64];
 
    if (tetris_row == -1) {
       draw_piece(curr_piece,
@@ -186,6 +190,8 @@ static void redraw_scene(void)
                           20, yellow, black,
                           "A Tiny Framebuffer Tetris");
 
+   cy = 20 + th;
+
    if (next_piece == 0 || next_piece == 5)
       xoff = tw / 2;
 
@@ -194,12 +200,24 @@ static void redraw_scene(void)
 
    draw_piece_xy(next_piece,
                  center_w - 2 * tw + xoff,
-                 20 + th + yoff,
+                 cy + yoff,
                  *piece_colors[next_piece], 3);
 
-   tfb_draw_center_string(center_w,
-                          20 + th + 4 * th + 10,
+   cy += 4 * th + 10;
+
+   tfb_draw_center_string(center_w, cy,
                           white, black, "Coming next");
+
+   cy += tfb_get_curr_font_height() * 2;
+
+   sprintf(buf, "Level: %d", game_level);
+   tfb_draw_center_string(center_w, cy, cyan, black, buf);
+
+   cy += tfb_get_curr_font_height() * 2;
+   sprintf(buf, "Score: %06d", game_score);
+   tfb_draw_center_string(center_w, cy, magenta, black, buf);
+
+
 
    // window border
    tfb_draw_rect(0, 0, w, h, white);
@@ -265,9 +283,15 @@ static void consolidate_curr_piece(void)
          if (is_tile_set(curr_piece, r, c, cp_rot))
             tiles[cp_row + 4 - r - 1][cp_col + c] = curr_piece + 1;
 
+   int multiplier = 1;
+
    for (int r = 0; r < rows; r++) {
       if (is_row_full(r)) {
          do_tetris(r);
+         game_score += 12 * multiplier * int_pow(1.2, game_level);
+         multiplier++;
+         cleared_rows++;
+         game_level = cleared_rows / 10;
          r--; /* stay on the same row! */
       }
    }

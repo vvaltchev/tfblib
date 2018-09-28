@@ -19,3 +19,4 @@ u32 red, green, blue, white, black, yellow, gray, magenta, cyan, orange, purple;
 
 void init_colors(void);
 void set_fb_font(void);
+double int_pow(double b, int p);

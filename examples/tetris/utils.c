@@ -25,3 +25,12 @@ void init_colors(void)
    purple = tfb_make_color(0x8c, 0x00, 0x81);
 }
 
+double int_pow(double b, int p)
+{
+   double ret = 1.0;
+
+   for (int i = 0; i < p; i++)
+      ret *= b;
+
+   return ret;
+}
