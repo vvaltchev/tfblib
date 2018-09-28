@@ -27,6 +27,7 @@ static u32 off_y = 0; /* temporary offset used for the tetris effect */
 
 static unsigned char tiles[MAX_ROWS][MAX_COLS];
 
+static bool game_over;
 static int curr_piece;
 static int next_piece = -1;
 static int cp_row;
@@ -169,7 +170,8 @@ static void redraw_scene(void)
 {
    u32 w = tfb_win_width();
    u32 h = tfb_win_height();
-   u32 center_w = tw * cols + (w - tw * cols) / 2;
+   u32 center_w1 = tw * cols / 2;
+   u32 center_w2 = tw * cols + (w - tw * cols) / 2;
    int xoff = 0, yoff = 0, cy;
    char buf[64];
 
@@ -186,7 +188,11 @@ static void redraw_scene(void)
          if (tiles[row][col] > 0)
             draw_tile(row, col, *piece_colors[tiles[row][col] - 1]);
 
-   tfb_draw_center_string(center_w,
+   if (game_over) {
+      tfb_draw_center_string(center_w1, h / 2, yellow, black, "GAME OVER");
+   }
+
+   tfb_draw_center_string(center_w2,
                           20, yellow, black,
                           "A Tiny Framebuffer Tetris");
 
@@ -199,25 +205,23 @@ static void redraw_scene(void)
       yoff = th;
 
    draw_piece_xy(next_piece,
-                 center_w - 2 * tw + xoff,
+                 center_w2 - 2 * tw + xoff,
                  cy + yoff,
                  *piece_colors[next_piece], 3);
 
    cy += 4 * th + 10;
 
-   tfb_draw_center_string(center_w, cy,
+   tfb_draw_center_string(center_w2, cy,
                           white, black, "Coming next");
 
    cy += tfb_get_curr_font_height() * 2;
 
    sprintf(buf, "Level: %d", game_level);
-   tfb_draw_center_string(center_w, cy, cyan, black, buf);
+   tfb_draw_center_string(center_w2, cy, cyan, black, buf);
 
    cy += tfb_get_curr_font_height() * 2;
    sprintf(buf, "Score: %06d", game_score);
-   tfb_draw_center_string(center_w, cy, magenta, black, buf);
-
-
+   tfb_draw_center_string(center_w2, cy, magenta, black, buf);
 
    // window border
    tfb_draw_rect(0, 0, w, h, white);
@@ -291,7 +295,8 @@ static void consolidate_curr_piece(void)
          game_score += 12 * multiplier * int_pow(1.2, game_level);
          multiplier++;
          cleared_rows++;
-         game_level = cleared_rows / 10;
+         game_level = MIN(cleared_rows / 10 + 1, 20);
+         row_dec_speed = game_level / 40.0;
          r--; /* stay on the same row! */
       }
    }
@@ -314,6 +319,9 @@ static void setup_new_piece(void)
    cp_rot = 0;
 
    fp_cp_row = cp_row;
+
+   if (will_cp_collide(cp_row, cp_col, cp_rot))
+      game_over = true;
 }
 
 static void move_curr_piece_down(double dec)
@@ -330,12 +338,43 @@ static void move_curr_piece_down(double dec)
    }
 }
 
+static bool handle_piece_move_rot(uint64_t k)
+{
+   if (k == TFB_KEY_UP) {
+
+      if (!will_cp_collide(cp_row, cp_col, cp_rot + 1))
+         cp_rot++;
+
+   } else if (k == TFB_KEY_DOWN) {
+
+      if (!will_cp_collide(cp_row, cp_col, cp_rot - 1))
+         cp_rot--;
+
+   } else if (k == TFB_KEY_LEFT) {
+
+      if (!will_cp_collide(cp_row, cp_col - 1, cp_rot))
+         cp_col--;
+
+   } else if (k == TFB_KEY_RIGHT) {
+
+      if (!will_cp_collide(cp_row, cp_col + 1, cp_rot))
+         cp_col++;
+
+   } else {
+
+      return false;
+   }
+
+   return true;
+}
+
 static int game_loop(void)
 {
    uint32_t w = 2 * 480;
    uint32_t h = 2 * 480;
    uint64_t k = 0;
    row_dec_speed = 0.05;
+   bool game_over_state = false;
 
    if (tfb_set_center_window_size(w, h) != TFB_SUCCESS) {
 
@@ -360,43 +399,24 @@ static int game_loop(void)
 
    while (true) {
 
-      if (k == 'q') {
-
+      if (k == 'q')
          break;
 
-      } else if (k == TFB_KEY_UP) {
+      if (!game_over && !handle_piece_move_rot(k)) {
 
-         if (!will_cp_collide(cp_row, cp_col, cp_rot + 1))
-            cp_rot++;
-
-      } else if (k == TFB_KEY_DOWN) {
-
-         if (!will_cp_collide(cp_row, cp_col, cp_rot - 1))
-            cp_rot--;
-
-      } else if (k == TFB_KEY_LEFT) {
-
-         if (!will_cp_collide(cp_row, cp_col - 1, cp_rot))
-            cp_col--;
-
-      } else if (k == TFB_KEY_RIGHT) {
-
-         if (!will_cp_collide(cp_row, cp_col + 1, cp_rot))
-            cp_col++;
-
-      } else if (k == ' ') {
-
-         move_curr_piece_down(1.0);
-
-      } else if (k == 0) {
-
-         move_curr_piece_down(row_dec_speed);
+         if (k == ' ')
+            move_curr_piece_down(1.0);
+         else if (k == 0)
+            move_curr_piece_down(row_dec_speed);
       }
 
-      if (k || ((int)fp_cp_row != cp_row)) {
+      if (k || ((int)fp_cp_row != cp_row) || game_over_state != game_over) {
          cp_row = fp_cp_row;
          tfb_clear_win(black);
          redraw_scene();
+
+         if (game_over)
+            game_over_state = true;
       }
 
       k = tfb_read_keypress();
