@@ -7,5 +7,10 @@
    ],
    "editor.autoClosingBrackets": "never",
    "editor.autoClosingQuotes": "never",
-   "editor.autoSurround": "never"
+   "editor.autoSurround": "never",
+   "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "doxydoc/**": true
+    }
 }
