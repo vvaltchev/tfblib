@@ -1,5 +1,10 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 
+/**
+ * @file tfblib.h
+ * @brief The library's main header file
+ */
+
 #pragma once
 #define _TFBLIB_H_
 
@@ -7,8 +12,15 @@
 #include <string.h>
 #include <stdint.h>
 
-/* Error codes */
+/**
+ * \addtogroup ErrorCodes Error Codes
+ * @{
+ */
+
+/// The call completed successfully without any errors.
 #define TFB_SUCCESS                  0
+
+/// The open() syscall failed while trying to open the framebuffer device
 #define TFB_ERROR_OPEN_FB            1
 #define TFB_ERROR_IOCTL_FB           2
 #define TFB_ERROR_OPEN_TTY           3
@@ -25,6 +37,7 @@
 #define TFB_KB_MODE_GET_FAILED      14
 #define TFB_KB_MODE_SET_FAILED      15
 #define TFB_FONT_NOT_FOUND          16
+/** @} */
 
 /*
  * Define these convenience types as macros, in order to allow at the end of the
@@ -41,7 +54,34 @@
 #define TFB_FL_NO_TTY_KD_GRAPHICS   (1 << 0)
 #define TFB_FL_USE_SHADOW_BUFFER    (1 << 1)
 
+/**
+ * The main initialization function of Tfblib
+ *
+ * A successful call to tfb_acquire_fb() is mandatory before calling any drawing
+ * functions, including the tfb_clear_* and tfb_flush_* functions.
+ *
+ * @param fb_device     The framebuffer device file (optional).
+ *                      Defaults to /dev/fb0.
+ *
+ * @param tty_device    The tty device file to use for setting tty in graphics
+ *                      mode. Defaults to /dev/tty. Ignored when flags bit mask
+ *                      contains TFB_FL_NO_TTY_KD_GRAPHICS.
+ *
+ * @return              TFB_SUCCESS in case of success or one of the errors
+ *                      defined as TFB_ERROR_*.
+ *
+ * \note This function does not affect the kb mode. tfb_set_kb_raw_mode() can
+ *       be called before or after tfb_acquire_fb().
+ */
 int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device);
+
+
+/**
+ * Release the framebuffer.
+ *
+ * It must be called before exiting, otherwise the tty will remain in graphics
+ * mode and be unusable.
+ */
 void tfb_release_fb(void);
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h);
 int tfb_set_center_window_size(u32 w, u32 h);
@@ -84,16 +124,15 @@ tfb_key_t tfb_read_keypress(void);
 /* Drawing functions */
 
 /**
- * Fastest (but unsafe) draw pixel function
+ * The Fastest low-level draw pixel function
  *
- * WARNING: using this function is UNSAFE.
- *
- *    - the caller have to offset (x,y) by (__fbi.xoffset, __fbi.yoffset)
- *      in case one of the offsets is != 0.
- *
- *    - the caller takes the full responsibility to avoid using coordinates
- *      outside of the screen boundaries. Doing that would cause an undefined
- *      behavior.
+ * \warning
+ *      Using this function is UNSAFE:
+ *        - the caller have to offset (x,y) by (__fbi.xoffset, __fbi.yoffset)
+ *          in case one of the offsets is != 0.
+ *        - the caller takes the full responsibility to avoid using coordinates
+ *          outside of the screen boundaries. Doing that would cause an
+ *          undefined behavior.
  */
 inline void tfb_draw_pixel_raw(u32 x, u32 y, u32 color);
 inline void tfb_draw_pixel(u32 x, u32 y, u32 color);

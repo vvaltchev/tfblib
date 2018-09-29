@@ -3,6 +3,7 @@
 #error Never include tfb_inline_funcs.h directly. Include <tfblib/tfblib.h>.
 #endif
 
+/* Essential variables */
 extern void *__fb_buffer;
 extern void *__fb_real_buffer;
 extern u32 __fb_screen_w;
