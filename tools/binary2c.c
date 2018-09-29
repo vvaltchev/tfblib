@@ -37,7 +37,7 @@ bool check_var_name(const char *name)
 
       }
 
-      *p++;
+      p++;
    }
    return true;
 }

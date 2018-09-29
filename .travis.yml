@@ -11,6 +11,11 @@ matrix:
       sudo: false
       language: generic
       env:
+    - os: linux
+      dist: trusty
+      sudo: false
+      language: generic
+      env: CC=clang
 
 before_install:
   - cmake .
