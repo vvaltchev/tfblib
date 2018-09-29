@@ -27,7 +27,8 @@ size_t __fb_pitch_div4; /*
                          * If we had to use __fb_pitch, we'd had to write:
                          *    *(u32 *)(__fb_buffer + (x << 2) + y * __fb_pitch)
                          * which clearly requires an additional shift operation
-                         * that we can skip by using __fb_pitch_div4.
+                         * that we can skip by using __fb_pitch_div4 + an early
+                         * cast to u32.
                          */
 
 u32 __fb_screen_w;
