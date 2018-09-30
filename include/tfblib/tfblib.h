@@ -20,32 +20,57 @@
 /// The call completed successfully without any errors.
 #define TFB_SUCCESS                  0
 
-/// The open() syscall failed while trying to open the framebuffer device
+/// open() failed on the framebuffer device
 #define TFB_ERROR_OPEN_FB            1
+
+/// ioctl() failed on the framebuffer device file descriptor
 #define TFB_ERROR_IOCTL_FB           2
+
+/// open() failed on the tty device
 #define TFB_ERROR_OPEN_TTY           3
+
+/// ioctl() on the tty failed while trying to set tty in graphic mode
 #define TFB_ERROR_TTY_GRAPHIC_MODE   4
-#define TFB_ASSUMPTION_FAILED        5
+
+/// mmap() on the framebuffer file description failed
 #define TFB_MMAP_FB_ERROR            6
+
+/// Invalid window position/size
 #define TFB_INVALID_WINDOW           7
+
+/// Unsupported video mode
 #define TFB_UNSUPPORTED_VIDEO_MODE   8
+
+/// The supplied font_id is invalid
 #define TFB_INVALID_FONT_ID          9
+
+/// Unable to open/read/load the supplied font file
 #define TFB_READ_FONT_FILE_FAILED   10
+
+/// Out of memory (malloc() returned 0)
 #define TFB_OUT_OF_MEMORY           11
+
+/// The supplied font_id is does not belog to a dynamically loaded font
 #define TFB_NOT_A_DYN_LOADED_FONT   12
+
+/// The keyboard input is not in the expected mode (e.g. already in raw mode)
 #define TFB_KB_WRONG_MODE           13
+
+/// Unable to get a keyboard input paramater with ioctl()
 #define TFB_KB_MODE_GET_FAILED      14
+
+/// Unable to set a keyboard input paramater with ioctl()
 #define TFB_KB_MODE_SET_FAILED      15
+
+/// Unable to find a font matching the criteria
 #define TFB_FONT_NOT_FOUND          16
 /** @} */
 
-/*
- * Define these convenience types as macros, in order to allow at the end of the
- * header to just #undef them. Their only purpose is to make the signatures much
- * shorter.
- */
 
+/// Convenience macro used to make the signatures shorter. Undefined at the end.
 #define u8 uint8_t
+
+/// Convenience macro used to make the signatures shorter. Undefined at the end.
 #define u32 uint32_t
 
 

@@ -57,14 +57,6 @@ int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
    return TFB_SUCCESS;
 }
 
-static bool check_fb_assumptions(void)
-{
-   FB_ASSUMPTION(__fbi.red.msb_right == 0);
-   FB_ASSUMPTION(__fbi.green.msb_right == 0);
-   FB_ASSUMPTION(__fbi.blue.msb_right == 0);
-   return true;
-}
-
 int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
 {
    static struct fb_fix_screeninfo fb_fixinfo;
@@ -103,8 +95,8 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
       goto out;
    }
 
-   if (!check_fb_assumptions()) {
-      ret = TFB_ASSUMPTION_FAILED;
+   if (__fbi.red.msb_right || __fbi.green.msb_right || __fbi.blue.msb_right) {
+      ret = TFB_UNSUPPORTED_VIDEO_MODE;
       goto out;
    }
 
