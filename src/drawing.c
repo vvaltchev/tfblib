@@ -12,7 +12,6 @@
 
 extern inline u32 tfb_make_color(u8 red, u8 green, u8 blue);
 extern inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
-extern inline void tfb_draw_pixel_raw(u32 x, u32 y, u32 color);
 extern inline u32 tfb_screen_width(void);
 extern inline u32 tfb_screen_height(void);
 extern inline u32 tfb_win_width(void);
@@ -49,6 +48,11 @@ u8 __fb_b_mask_size;
 u8 __fb_r_pos;
 u8 __fb_g_pos;
 u8 __fb_b_pos;
+
+static inline void tfb_draw_pixel_raw(u32 x, u32 y, u32 color)
+{
+   ((volatile u32 *)__fb_buffer)[x + y * __fb_pitch_div4] = color;
+}
 
 int tfb_set_center_window_size(u32 w, u32 h)
 {

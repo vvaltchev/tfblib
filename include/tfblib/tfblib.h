@@ -12,60 +12,7 @@
 #include <string.h>
 #include <stdint.h>
 
-/**
- * \addtogroup ErrorCodes Error Codes
- * @{
- */
-
-/// The call completed successfully without any errors.
-#define TFB_SUCCESS                       0
-
-/// open() failed on the framebuffer device
-#define TFB_ERR_OPEN_FB                   1
-
-/// ioctl() failed on the framebuffer device file descriptor
-#define TFB_ERR_IOCTL_FB                  2
-
-/// open() failed on the tty device
-#define TFB_ERR_OPEN_TTY                  3
-
-/// ioctl() on the tty failed while trying to set tty in graphic mode
-#define TFB_ERR_TTY_GRAPHIC_MODE          4
-
-/// mmap() on the framebuffer file description failed
-#define TFB_ERR_MMAP_FB                   6
-
-/// Invalid window position/size
-#define TFB_ERR_INVALID_WINDOW            7
-
-/// Unsupported video mode
-#define TFB_ERR_UNSUPPORTED_VIDEO_MODE    8
-
-/// The supplied font_id is invalid
-#define TFB_ERR_INVALID_FONT_ID           9
-
-/// Unable to open/read/load the supplied font file
-#define TFB_ERR_READ_FONT_FILE_FAILED    10
-
-/// Out of memory (malloc() returned 0)
-#define TFB_ERR_OUT_OF_MEMORY            11
-
-/// The supplied font_id is does not belog to a dynamically loaded font
-#define TFB_ERR_NOT_A_DYN_LOADED_FONT    12
-
-/// The keyboard input is not in the expected mode (e.g. already in raw mode)
-#define TFB_ERR_KB_WRONG_MODE            13
-
-/// Unable to get a keyboard input paramater with ioctl()
-#define TFB_ERR_KB_MODE_GET_FAILED       14
-
-/// Unable to set a keyboard input paramater with ioctl()
-#define TFB_ERR_KB_MODE_SET_FAILED       15
-
-/// Unable to find a font matching the criteria
-#define TFB_ERR_FONT_NOT_FOUND           16
-/** @} */
-
+#include "tfb_errors.h"
 
 /// Convenience macro used to shorten the signatures. Undefined at the end.
 #define u8 uint8_t
@@ -86,25 +33,46 @@
  * @{
  */
 
+/**
+ * Do NOT put TTY in graphics mode.
+ *
+ * Passing this flag to tfb_acquire_fb() will
+ * allow to use the framebuffer and to see stdout on TTY as well. That usually
+ * is undesirable because the text written to TTY will overwrite the graphics.
+ */
 #define TFB_FL_NO_TTY_KD_GRAPHICS   (1 << 0)
-#define TFB_FL_USE_SHADOW_BUFFER    (1 << 1)
+
+/**
+ * Do NOT write directly onto the framebuffer.
+ *
+ * Passing this flag to tfb_acquire_fb() will make it allocate a regular memory
+ * buffer where all the writes (while drawing) will be directed to. The changes
+ * will appear on-screen only after manually called tfb_flush_rect() or
+ * tfb_flush_rect(). This flag is useful for applications needing to clean and
+ * redraw the whole screen (or part of it) very often (e.g. games) in order to
+ * avoid the annoying flicker effect.
+ */
+#define TFB_FL_USE_DOUBLE_BUFFER    (1 << 1)
 
 /** @} */
 
 /**
- * The main initialization function of Tfblib
+ * Opens and maps the framebuffer device in the current address space
  *
  * A successful call to tfb_acquire_fb() is mandatory before calling any drawing
  * functions, including the tfb_clear_* and tfb_flush_* functions.
  *
- * @param fb_device     The framebuffer device file (optional).
- *                      Defaults to /dev/fb0.
+ * @param[in] flags        One or more (OR-ed) among: TFB_FL_NO_TTY_KD_GRAPHICS,
+ *                         TFB_FL_USE_DOUBLE_BUFFER.
  *
- * @param tty_device    The tty device file to use for setting tty in graphics
- *                      mode. Defaults to /dev/tty.
+ * @param[in] fb_device    The framebuffer device file. Can be NULL.
+ *                         Defaults to /dev/fb0.
  *
- * @return              TFB_SUCCESS in case of success or one of the errors
- *                      defined above. See \ref ErrorCodes.
+ * @param[in] tty_device   The tty device file to use for setting tty in
+ *                         graphics mode. Can be NULL. Defaults to /dev/tty.
+ *
+ * @return                 TFB_SUCCESS in case of success or one of the errors
+ *                         defined in tfb_errors.h. See \ref ErrorCodes.
  *
  * \note This function does not affect the kb mode. tfb_set_kb_raw_mode() can
  *       be called before or after tfb_acquire_fb().
@@ -113,7 +81,7 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device);
 
 
 /**
- * Release the framebuffer.
+ * Release the framebuffer device
  *
  * \note    The function **must** be called before exiting, otherwise the tty
  *          will remain in graphics mode and be unusable.
@@ -123,7 +91,38 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device);
  *          kb mode to its original value.
  */
 void tfb_release_fb(void);
+
+/**
+ * Limit the drawing to a window at (x, y) having size (w, h)
+ *
+ * In case the application does not want to use the whole screen, it can call
+ * this function to get the coordinate system shifted by (+x, +y) and everything
+ * outside of it just cut off. Using windows smaller than then screen could
+ * improve application's performance.
+ *
+ * @param[in] x      X coordinate of the window, in pixels
+ * @param[in] y      Y coordinate of the window, in pixels
+ * @param[in] w      Width of the window, in pixels
+ * @param[in] h      Height of the window, in pixels
+ *
+ * @return           TFB_SUCCESS in case of success or one of the errors
+ *                   defined in tfb_errors.h. See \ref ErrorCodes.
+ */
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h);
+
+/**
+ * Limit the drawing to a window having size (w, h) at the center of the screen
+ *
+ * tfb_set_center_window_size() is a wrapper of tfb_set_window() which just
+ * calculates the (x, y) coordinates of the window in order it to be at the
+ * center of the screen.
+ *
+ * @param[in] w      Width of the window, in pixels
+ * @param[in] h      Height of the window, in pixels
+ *
+ * @return           TFB_SUCCESS in case of success or one of the errors
+ *                   defined in tfb_errors.h. See \ref ErrorCodes.
+ */
 int tfb_set_center_window_size(u32 w, u32 h);
 
 
@@ -136,8 +135,15 @@ int tfb_set_center_window_size(u32 w, u32 h);
  * ----------------------------------------------------------------------------
  */
 
+/**
+ * \addtogroup flags Flags
+ * @{
+ */
+
 #define TFB_FONT_ANY_WIDTH   0
 #define TFB_FONT_ANY_HEIGHT  0
+
+/** @} */
 
 typedef struct {
 
@@ -186,20 +192,7 @@ tfb_key_t tfb_read_keypress(void);
  * ----------------------------------------------------------------------------
  */
 
-/**
- * The fastest low-level draw pixel function available
- *
- * \warning
- *      Using this function is UNSAFE:
- *        - the caller have to offset (x,y) by (__fbi.xoffset, __fbi.yoffset)
- *          in case one of the offsets is != 0.
- *        - the caller takes the full responsibility to avoid using coordinates
- *          outside of the screen boundaries. Doing that would cause an
- *          undefined behavior.
- */
-inline void tfb_draw_pixel_raw(u32 x, u32 y, u32 color);
 inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
-
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
 void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);

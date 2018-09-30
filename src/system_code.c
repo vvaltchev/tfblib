@@ -124,7 +124,7 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
       goto out;
    }
 
-   if (flags & TFB_FL_USE_SHADOW_BUFFER) {
+   if (flags & TFB_FL_USE_DOUBLE_BUFFER) {
 
       __fb_buffer = malloc(__fb_size);
 

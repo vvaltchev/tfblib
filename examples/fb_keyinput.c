@@ -115,7 +115,7 @@ int main(int argc, char **argv)
    int rc;
 
    tfb_iterate_over_fonts(font_iter_cb_select_font32x16, NULL);
-   rc = tfb_acquire_fb(TFB_FL_USE_SHADOW_BUFFER, NULL, NULL);
+   rc = tfb_acquire_fb(TFB_FL_USE_DOUBLE_BUFFER, NULL, NULL);
 
    if (rc != TFB_SUCCESS) {
       fprintf(stderr, "tfb_acquire_fb() failed with error code: %d\n", rc);
