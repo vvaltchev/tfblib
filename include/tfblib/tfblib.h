@@ -67,17 +67,29 @@
 /** @} */
 
 
-/// Convenience macro used to make the signatures shorter. Undefined at the end.
+/// Convenience macro used to shorten the signatures. Undefined at the end.
 #define u8 uint8_t
 
-/// Convenience macro used to make the signatures shorter. Undefined at the end.
+/// Convenience macro used to shorten the signatures. Undefined at the end.
 #define u32 uint32_t
 
+/*
+ * ----------------------------------------------------------------------------
+ *
+ * Initialization/setup functions and definitions
+ *
+ * ----------------------------------------------------------------------------
+ */
 
-/* Initialization/setup functions and definitions */
+/**
+ * \addtogroup flags Flags
+ * @{
+ */
 
 #define TFB_FL_NO_TTY_KD_GRAPHICS   (1 << 0)
 #define TFB_FL_USE_SHADOW_BUFFER    (1 << 1)
+
+/** @} */
 
 /**
  * The main initialization function of Tfblib
@@ -92,7 +104,7 @@
  *                      mode. Defaults to /dev/tty.
  *
  * @return              TFB_SUCCESS in case of success or one of the errors
- *                      defined as TFB_ERROR_*.
+ *                      defined above. See \ref ErrorCodes.
  *
  * \note This function does not affect the kb mode. tfb_set_kb_raw_mode() can
  *       be called before or after tfb_acquire_fb().
