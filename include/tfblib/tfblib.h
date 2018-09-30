@@ -89,8 +89,7 @@
  *                      Defaults to /dev/fb0.
  *
  * @param tty_device    The tty device file to use for setting tty in graphics
- *                      mode. Defaults to /dev/tty. Ignored when flags bit mask
- *                      contains TFB_FL_NO_TTY_KD_GRAPHICS.
+ *                      mode. Defaults to /dev/tty.
  *
  * @return              TFB_SUCCESS in case of success or one of the errors
  *                      defined as TFB_ERROR_*.

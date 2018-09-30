@@ -81,7 +81,7 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
       goto out;
    }
 
-   if (ioctl (fbfd, FBIOGET_VSCREENINFO, &__fbi) != 0) {
+   if (ioctl(fbfd, FBIOGET_VSCREENINFO, &__fbi) != 0) {
       ret = TFB_ERROR_IOCTL_FB;
       goto out;
    }
@@ -100,14 +100,14 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
       goto out;
    }
 
+   ttyfd = open(tty_device, O_RDWR);
+
+   if (ttyfd < 0) {
+      ret = TFB_ERROR_OPEN_TTY;
+      goto out;
+   }
+
    if (!(flags & TFB_FL_NO_TTY_KD_GRAPHICS)) {
-
-      ttyfd = open(tty_device, O_RDWR);
-
-      if (ttyfd < 0) {
-         ret = TFB_ERROR_OPEN_TTY;
-         goto out;
-      }
 
       if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0) {
          ret = TFB_ERROR_TTY_GRAPHIC_MODE;
@@ -217,29 +217,29 @@ int tfb_set_kb_raw_mode(u32 flags)
    if (tfb_kb_raw_mode)
       return TFB_KB_WRONG_MODE;
 
-   if (ioctl(0, KDGKBMODE, &tfb_saved_kdmode) != 0)
+   if (ioctl(ttyfd, KDGKBMODE, &tfb_saved_kdmode) != 0)
       return TFB_KB_MODE_GET_FAILED;
 
    if (tfb_saved_kdmode != K_XLATE) {
-      if (ioctl(0, KDSKBMODE, K_XLATE) != 0)
+      if (ioctl(ttyfd, KDSKBMODE, K_XLATE) != 0)
          return TFB_KB_MODE_SET_FAILED;
    }
 
-   if (tcgetattr(0, &orig_termios) != 0)
+   if (tcgetattr(ttyfd, &orig_termios) != 0)
       return TFB_KB_MODE_GET_FAILED;
 
    t = orig_termios;
    t.c_iflag &= ~(BRKINT | INPCK | ISTRIP | IXON);
    t.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
 
-   if (tcsetattr(0, TCSAFLUSH, &t) != 0)
+   if (tcsetattr(ttyfd, TCSAFLUSH, &t) != 0)
       return TFB_KB_MODE_SET_FAILED;
 
    tfb_kb_raw_mode = true;
 
    if (flags & TFB_FL_KB_NONBLOCK) {
 
-      rc = fcntl(0, F_GETFL, 0);
+      rc = fcntl(ttyfd, F_GETFL, 0);
 
       if (rc < 0) {
          tfb_restore_kb_mode();
@@ -248,7 +248,7 @@ int tfb_set_kb_raw_mode(u32 flags)
 
       tfb_kb_saved_fcntl_flags  = rc;
 
-      rc = fcntl(0, F_SETFL, tfb_kb_saved_fcntl_flags | O_NONBLOCK);
+      rc = fcntl(ttyfd, F_SETFL, tfb_kb_saved_fcntl_flags | O_NONBLOCK);
 
       if (rc < 0) {
          tfb_restore_kb_mode();
@@ -271,7 +271,7 @@ int tfb_restore_kb_mode(void)
        * anyway to restore the tty in canonical mode (with tcsetattr() below).
        */
 
-      fcntl(0, F_SETFL, tfb_kb_saved_fcntl_flags);
+      fcntl(ttyfd, F_SETFL, tfb_kb_saved_fcntl_flags);
       tfb_kb_nonblock = false;
    }
 
@@ -279,9 +279,9 @@ int tfb_restore_kb_mode(void)
       return TFB_KB_WRONG_MODE;
 
    /* Restore the original kb mode. Note: ignoring any failure */
-  ioctl(0, KDSKBMODE, &tfb_saved_kdmode);
+  ioctl(ttyfd, KDSKBMODE, &tfb_saved_kdmode);
 
-   if (tcsetattr(0, TCSAFLUSH, &orig_termios) != 0)
+   if (tcsetattr(ttyfd, TCSAFLUSH, &orig_termios) != 0)
       return TFB_KB_MODE_SET_FAILED;
 
    tfb_kb_raw_mode = false;
@@ -422,7 +422,7 @@ tfb_key_t tfb_read_keypress(void)
 
       if (!nb_ctx.readbuf_len) {
 
-         rc = read(0, nb_ctx.readbuf, sizeof(nb_ctx.readbuf));
+         rc = read(ttyfd, nb_ctx.readbuf, sizeof(nb_ctx.readbuf));
 
          if (rc <= 0)
             break;
