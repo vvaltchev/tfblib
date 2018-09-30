@@ -36,24 +36,24 @@ int tfb_dyn_load_font(const char *file, void **font_id /* out */)
    rc = stat(file, &statbuf);
 
    if (rc != 0)
-      return TFB_READ_FONT_FILE_FAILED;
+      return TFB_ERR_READ_FONT_FILE_FAILED;
 
    ff = malloc(sizeof(font_file) + statbuf.st_size);
 
    if (!ff)
-      return TFB_OUT_OF_MEMORY;
+      return TFB_ERR_OUT_OF_MEMORY;
 
    fh = fopen(file, "rb");
 
    if (!fh)
-      return TFB_READ_FONT_FILE_FAILED;
+      return TFB_ERR_READ_FONT_FILE_FAILED;
 
    ff->filename = malloc(strlen(file) + 1);
 
    if (!ff->filename) {
       fclose(fh);
       free(ff);
-      return TFB_OUT_OF_MEMORY;
+      return TFB_ERR_OUT_OF_MEMORY;
    }
 
    strcpy((char *)ff->filename, file);
@@ -79,7 +79,7 @@ int tfb_dyn_unload_font(void *font_id)
 
    for (it = tfb_font_file_list; *it; it++)
       if (*it == font_id)
-         return TFB_NOT_A_DYN_LOADED_FONT;
+         return TFB_ERR_NOT_A_DYN_LOADED_FONT;
 
    free((void *)ff->filename);
    free(ff);
@@ -161,7 +161,7 @@ int tfb_set_font_by_size(int w, int h)
    tfb_iterate_over_fonts(tfb_sel_font_cb, &dfs);
 
    if (!dfs.found)
-      return TFB_FONT_NOT_FOUND;
+      return TFB_ERR_FONT_NOT_FOUND;
 
    return TFB_SUCCESS;
 }
@@ -187,7 +187,7 @@ int tfb_set_current_font(void *font_id)
       curr_font_data = curr_font + sizeof(psf1_header);
       curr_font_bytes_per_glyph = h1->bytes_per_glyph;
    } else {
-      return TFB_INVALID_FONT_ID;
+      return TFB_ERR_INVALID_FONT_ID;
    }
 
    return TFB_SUCCESS;

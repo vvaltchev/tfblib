@@ -42,10 +42,10 @@ static int ttyfd = -1;
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
 {
    if (x + w > __fb_screen_w)
-      return TFB_INVALID_WINDOW;
+      return TFB_ERR_INVALID_WINDOW;
 
    if (y + h > __fb_screen_h)
-      return TFB_INVALID_WINDOW;
+      return TFB_ERR_INVALID_WINDOW;
 
    __fb_off_x = __fbi.xoffset + x;
    __fb_off_y = __fbi.yoffset + y;
@@ -72,17 +72,17 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
    fbfd = open(fb_device, O_RDWR);
 
    if (fbfd < 0) {
-      ret = TFB_ERROR_OPEN_FB;
+      ret = TFB_ERR_OPEN_FB;
       goto out;
    }
 
    if (ioctl(fbfd, FBIOGET_FSCREENINFO, &fb_fixinfo) != 0) {
-      ret = TFB_ERROR_IOCTL_FB;
+      ret = TFB_ERR_IOCTL_FB;
       goto out;
    }
 
    if (ioctl(fbfd, FBIOGET_VSCREENINFO, &__fbi) != 0) {
-      ret = TFB_ERROR_IOCTL_FB;
+      ret = TFB_ERR_IOCTL_FB;
       goto out;
    }
 
@@ -91,26 +91,26 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
    __fb_pitch_div4 = __fb_pitch >> 2;
 
    if (__fbi.bits_per_pixel != 32) {
-      ret = TFB_UNSUPPORTED_VIDEO_MODE;
+      ret = TFB_ERR_UNSUPPORTED_VIDEO_MODE;
       goto out;
    }
 
    if (__fbi.red.msb_right || __fbi.green.msb_right || __fbi.blue.msb_right) {
-      ret = TFB_UNSUPPORTED_VIDEO_MODE;
+      ret = TFB_ERR_UNSUPPORTED_VIDEO_MODE;
       goto out;
    }
 
    ttyfd = open(tty_device, O_RDWR);
 
    if (ttyfd < 0) {
-      ret = TFB_ERROR_OPEN_TTY;
+      ret = TFB_ERR_OPEN_TTY;
       goto out;
    }
 
    if (!(flags & TFB_FL_NO_TTY_KD_GRAPHICS)) {
 
       if (ioctl(ttyfd, KDSETMODE, KD_GRAPHICS) != 0) {
-         ret = TFB_ERROR_TTY_GRAPHIC_MODE;
+         ret = TFB_ERR_TTY_GRAPHIC_MODE;
          goto out;
       }
    }
@@ -120,7 +120,7 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
                            MAP_SHARED, fbfd, 0);
 
    if (__fb_real_buffer == MAP_FAILED) {
-      ret = TFB_MMAP_FB_ERROR;
+      ret = TFB_ERR_MMAP_FB;
       goto out;
    }
 
@@ -129,7 +129,7 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
       __fb_buffer = malloc(__fb_size);
 
       if (!__fb_buffer) {
-         ret = TFB_OUT_OF_MEMORY;
+         ret = TFB_ERR_OUT_OF_MEMORY;
          goto out;
       }
 
@@ -215,25 +215,25 @@ int tfb_set_kb_raw_mode(u32 flags)
    int rc;
 
    if (tfb_kb_raw_mode)
-      return TFB_KB_WRONG_MODE;
+      return TFB_ERR_KB_WRONG_MODE;
 
    if (ioctl(ttyfd, KDGKBMODE, &tfb_saved_kdmode) != 0)
-      return TFB_KB_MODE_GET_FAILED;
+      return TFB_ERR_KB_MODE_GET_FAILED;
 
    if (tfb_saved_kdmode != K_XLATE) {
       if (ioctl(ttyfd, KDSKBMODE, K_XLATE) != 0)
-         return TFB_KB_MODE_SET_FAILED;
+         return TFB_ERR_KB_MODE_SET_FAILED;
    }
 
    if (tcgetattr(ttyfd, &orig_termios) != 0)
-      return TFB_KB_MODE_GET_FAILED;
+      return TFB_ERR_KB_MODE_GET_FAILED;
 
    t = orig_termios;
    t.c_iflag &= ~(BRKINT | INPCK | ISTRIP | IXON);
    t.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
 
    if (tcsetattr(ttyfd, TCSAFLUSH, &t) != 0)
-      return TFB_KB_MODE_SET_FAILED;
+      return TFB_ERR_KB_MODE_SET_FAILED;
 
    tfb_kb_raw_mode = true;
 
@@ -243,7 +243,7 @@ int tfb_set_kb_raw_mode(u32 flags)
 
       if (rc < 0) {
          tfb_restore_kb_mode();
-         return TFB_KB_MODE_GET_FAILED;
+         return TFB_ERR_KB_MODE_GET_FAILED;
       }
 
       tfb_kb_saved_fcntl_flags  = rc;
@@ -252,7 +252,7 @@ int tfb_set_kb_raw_mode(u32 flags)
 
       if (rc < 0) {
          tfb_restore_kb_mode();
-         return TFB_KB_MODE_SET_FAILED;
+         return TFB_ERR_KB_MODE_SET_FAILED;
       }
 
       tfb_kb_nonblock = true;
@@ -276,13 +276,13 @@ int tfb_restore_kb_mode(void)
    }
 
   if (!tfb_kb_raw_mode)
-      return TFB_KB_WRONG_MODE;
+      return TFB_ERR_KB_WRONG_MODE;
 
    /* Restore the original kb mode. Note: ignoring any failure */
   ioctl(ttyfd, KDSKBMODE, &tfb_saved_kdmode);
 
    if (tcsetattr(ttyfd, TCSAFLUSH, &orig_termios) != 0)
-      return TFB_KB_MODE_SET_FAILED;
+      return TFB_ERR_KB_MODE_SET_FAILED;
 
    tfb_kb_raw_mode = false;
    return TFB_SUCCESS;

@@ -18,52 +18,52 @@
  */
 
 /// The call completed successfully without any errors.
-#define TFB_SUCCESS                  0
+#define TFB_SUCCESS                       0
 
 /// open() failed on the framebuffer device
-#define TFB_ERROR_OPEN_FB            1
+#define TFB_ERR_OPEN_FB                   1
 
 /// ioctl() failed on the framebuffer device file descriptor
-#define TFB_ERROR_IOCTL_FB           2
+#define TFB_ERR_IOCTL_FB                  2
 
 /// open() failed on the tty device
-#define TFB_ERROR_OPEN_TTY           3
+#define TFB_ERR_OPEN_TTY                  3
 
 /// ioctl() on the tty failed while trying to set tty in graphic mode
-#define TFB_ERROR_TTY_GRAPHIC_MODE   4
+#define TFB_ERR_TTY_GRAPHIC_MODE          4
 
 /// mmap() on the framebuffer file description failed
-#define TFB_MMAP_FB_ERROR            6
+#define TFB_ERR_MMAP_FB                   6
 
 /// Invalid window position/size
-#define TFB_INVALID_WINDOW           7
+#define TFB_ERR_INVALID_WINDOW            7
 
 /// Unsupported video mode
-#define TFB_UNSUPPORTED_VIDEO_MODE   8
+#define TFB_ERR_UNSUPPORTED_VIDEO_MODE    8
 
 /// The supplied font_id is invalid
-#define TFB_INVALID_FONT_ID          9
+#define TFB_ERR_INVALID_FONT_ID           9
 
 /// Unable to open/read/load the supplied font file
-#define TFB_READ_FONT_FILE_FAILED   10
+#define TFB_ERR_READ_FONT_FILE_FAILED    10
 
 /// Out of memory (malloc() returned 0)
-#define TFB_OUT_OF_MEMORY           11
+#define TFB_ERR_OUT_OF_MEMORY            11
 
 /// The supplied font_id is does not belog to a dynamically loaded font
-#define TFB_NOT_A_DYN_LOADED_FONT   12
+#define TFB_ERR_NOT_A_DYN_LOADED_FONT    12
 
 /// The keyboard input is not in the expected mode (e.g. already in raw mode)
-#define TFB_KB_WRONG_MODE           13
+#define TFB_ERR_KB_WRONG_MODE            13
 
 /// Unable to get a keyboard input paramater with ioctl()
-#define TFB_KB_MODE_GET_FAILED      14
+#define TFB_ERR_KB_MODE_GET_FAILED       14
 
 /// Unable to set a keyboard input paramater with ioctl()
-#define TFB_KB_MODE_SET_FAILED      15
+#define TFB_ERR_KB_MODE_SET_FAILED       15
 
 /// Unable to find a font matching the criteria
-#define TFB_FONT_NOT_FOUND          16
+#define TFB_ERR_FONT_NOT_FOUND           16
 /** @} */
 
 
@@ -115,14 +115,26 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device);
 /**
  * Release the framebuffer.
  *
- * It must be called before exiting, otherwise the tty will remain in graphics
- * mode and be unusable.
+ * \note    The function **must** be called before exiting, otherwise the tty
+ *          will remain in graphics mode and be unusable.
+ *
+ * \note    This function does not affect the kb mode. If tfb_set_kb_raw_mode()
+ *          has been used, tfb_restore_kb_mode() must be called to restore the
+ *          kb mode to its original value.
  */
 void tfb_release_fb(void);
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h);
 int tfb_set_center_window_size(u32 w, u32 h);
 
-/* Text-related functions and definitions */
+
+
+/*
+ * ----------------------------------------------------------------------------
+ *
+ * Text-related functions and definitions
+ *
+ * ----------------------------------------------------------------------------
+ */
 
 #define TFB_FONT_ANY_WIDTH   0
 #define TFB_FONT_ANY_HEIGHT  0
@@ -147,7 +159,14 @@ int tfb_get_curr_font_width(void);
 int tfb_get_curr_font_height(void);
 
 
-/* KB input functions and definitions */
+
+/*
+ * ----------------------------------------------------------------------------
+ *
+ * KB input functions and definitions
+ *
+ * ----------------------------------------------------------------------------
+ */
 
 typedef uint64_t tfb_key_t;
 
@@ -157,10 +176,18 @@ int tfb_set_kb_raw_mode(u32 flags);
 int tfb_restore_kb_mode(void);
 tfb_key_t tfb_read_keypress(void);
 
-/* Drawing functions */
+
+
+/*
+ * ----------------------------------------------------------------------------
+ *
+ * Drawing functions
+ *
+ * ----------------------------------------------------------------------------
+ */
 
 /**
- * The Fastest low-level draw pixel function
+ * The fastest low-level draw pixel function available
  *
  * \warning
  *      Using this function is UNSAFE:
