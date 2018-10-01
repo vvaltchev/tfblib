@@ -26,4 +26,3 @@
 #define TFB_KEY_F12     (tfb_fn_key_sequences[11])
 
 extern tfb_key_t *tfb_fn_key_sequences;
-int tfb_get_fn_key_num(tfb_key_t k);
