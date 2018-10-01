@@ -2,13 +2,13 @@
 
 [![Build Status](https://travis-ci.org/vvaltchev/tfblib.svg?branch=master)](https://travis-ci.org/vvaltchev/tfblib)
 
-`Tfblib` is a simple graphics library for drawing to the Linux framebuffer.
-Currently, it is capable of drawing lines, rectangles and text. It has support
-both for embedded (compiled-in) fonts in the library and dynamically loaded
-`PSF` fonts at runtime. In addition to drawing functions, `Tfblib` has a minimal
-support for keyboard input that allows simple applications to put the TTY input
-in *raw mode* and read keystrokes. Both blocking and non-blocking modes are
-supported.
+`Tfblib` is a simple and low-level graphics library for drawing to the Linux
+framebuffer. Currently, it is capable of drawing lines, rectangles and text.
+It has support both for embedded (compiled-in) fonts in the library and
+dynamically loaded `PSF` fonts at runtime. In addition to drawing functions,
+`Tfblib` has a minimal support for keyboard input that allows simple
+applications to put the TTY input in *raw mode* and read keystrokes. Both
+blocking and non-blocking modes are supported.
 
 Building
 ---------
@@ -45,4 +45,4 @@ run (in project's root directory):
     doxygen
 
 The output html files will be placed in `<PROJECT_ROOT_DIR>/doxydocs/html`.
-Just open index.html with your browser.
+Just open `index.html` with your browser.

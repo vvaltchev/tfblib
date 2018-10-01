@@ -99,7 +99,6 @@ int main(int argc, char **argv)
 
    if (rc != TFB_SUCCESS) {
       fprintf(stderr, "tfb_acquire_fb() failed with error code: %d\n", rc);
-      tfb_release_fb();
       return 1;
    }
 
