@@ -62,8 +62,8 @@
  * A successful call to tfb_acquire_fb() is mandatory before calling any drawing
  * functions, including the tfb_clear_* and tfb_flush_* functions.
  *
- * @param[in] flags        One or more (OR-ed) among: TFB_FL_NO_TTY_KD_GRAPHICS,
- *                         TFB_FL_USE_DOUBLE_BUFFER.
+ * @param[in] flags        One or more among: #TFB_FL_NO_TTY_KD_GRAPHICS,
+ *                         #TFB_FL_USE_DOUBLE_BUFFER.
  *
  * @param[in] fb_device    The framebuffer device file. Can be NULL.
  *                         Defaults to /dev/fb0.
@@ -71,8 +71,14 @@
  * @param[in] tty_device   The tty device file to use for setting tty in
  *                         graphics mode. Can be NULL. Defaults to /dev/tty.
  *
- * @return                 TFB_SUCCESS in case of success or one of the errors
- *                         defined in tfb_errors.h. See \ref ErrorCodes.
+ * @return                 #TFB_SUCCESS in case of success or one of the
+ *                         following errors:
+ *                             #TFB_ERR_OPEN_FB,
+ *                             #TFB_ERR_IOCTL_FB,
+ *                             #TFB_ERR_UNSUPPORTED_VIDEO_MODE,
+ *                             #TFB_ERR_TTY_GRAPHIC_MODE,
+ *                             #TFB_ERR_MMAP_FB,
+ *                             #TFB_ERR_OUT_OF_MEMORY.
  *
  * \note This function does not affect the kb mode. tfb_set_kb_raw_mode() can
  *       be called before or after tfb_acquire_fb().
@@ -83,7 +89,7 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device);
 /**
  * Release the framebuffer device
  *
- * \note    The function **must** be called before exiting, otherwise the tty
+ * \note    The function **must** be called before exiting, otherwise the TTY
  *          will remain in graphics mode and be unusable.
  *
  * \note    This function does not affect the kb mode. If tfb_set_kb_raw_mode()
@@ -105,8 +111,7 @@ void tfb_release_fb(void);
  * @param[in] w      Width of the window, in pixels
  * @param[in] h      Height of the window, in pixels
  *
- * @return           TFB_SUCCESS in case of success or one of the errors
- *                   defined in tfb_errors.h. See \ref ErrorCodes.
+ * @return           #TFB_SUCCESS in case of success or #TFB_ERR_INVALID_WINDOW.
  */
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h);
 
@@ -120,9 +125,8 @@ int tfb_set_window(u32 x, u32 y, u32 w, u32 h);
  * @param[in] w      Width of the window, in pixels
  * @param[in] h      Height of the window, in pixels
  *
- * @return           TFB_SUCCESS in case of success or one of the errors
- *                   defined in tfb_errors.h. See \ref ErrorCodes.
- */
+ * @return           #TFB_SUCCESS in case of success or #TFB_ERR_INVALID_WINDOW.
+  */
 int tfb_set_center_window_size(u32 w, u32 h);
 
 
@@ -140,28 +144,125 @@ int tfb_set_center_window_size(u32 w, u32 h);
  * @{
  */
 
+/**
+ * When passed to the 'w' param of tfb_set_font_by_size(), means that any font
+ * width is acceptable.
+ */
 #define TFB_FONT_ANY_WIDTH   0
+
+/**
+ * When passed to the 'h' param of tfb_set_font_by_size(), means that any font
+ * height is acceptable.
+ */
 #define TFB_FONT_ANY_HEIGHT  0
 
 /** @} */
 
+
+/**
+ * Font info structure
+ *
+ * tfb_iterate_over_fonts() passes a pointer to a tfb_font_info * structure for
+ * each statically embedded font in the library to the callback function.
+ */
 typedef struct {
 
-   const char *name;
-   u32 width;
-   u32 height;
-   u32 psf_version; /* 1 or 2 */
-   void *font_id;
+   const char *name; /**< Font's file name */
+   u32 width;        /**< Font's character width in pixels */
+   u32 height;       /**< Font's character height in pixels */
+   u32 psf_version;  /**< PSF version: either 1 or 2 */
+   void *font_id;    /**< An opaque identifier of the font */
 
 } tfb_font_info;
 
-typedef bool (*tfb_font_iter_func)(tfb_font_info *, void *);
-void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg);
+/**
+ * Callback type accepted by tfb_iterate_over_fonts().
+ */
+typedef bool (*tfb_font_iter_func)(tfb_font_info *cb, void *user_arg);
+
+/**
+ * Iterate over the fonts embedded in the library.
+ *
+ * tfb_iterate_over_fonts() calls 'cb' once for each embedded font passing to
+ * it a pointer a tfb_font_info structure and the user_arg until either the
+ * font list is over or the callback returned false.
+ *
+ * @param[in] cb           An user callback function
+ * @param[in] user_arg     An arbitrary user pointer that will be passed to the
+ *                         callback function.
+ */
+void tfb_iterate_over_fonts(tfb_font_iter_func cb, void *user_arg);
+
+/**
+ * Set the font used by the functions for drawing text
+ *
+ * @param[in] font_id      An opaque identifier provided by the library either
+ *                         as a member of tfb_font_info, or returned as an out
+ *                         parameter by tfb_dyn_load_font().
+ *
+ * @return                 #TFB_SUCCESS in case of success or
+ *                         #TFB_ERR_INVALID_FONT_ID otherwise.
+ */
 int tfb_set_current_font(void *font_id);
-int tfb_dyn_load_font(const char *file, void **font_id /* out */);
+
+/**
+ * Load dynamically a PSF font file
+ *
+ * @param[in]     file     File path
+ * @param[in/out] font_id  Address of a void *font_id opaque pointer that will
+ *                         be set by the function in case of success.
+ *
+ * @return                 #TFB_SUCCESS in case of success or one of the
+ *                         following errors:
+ *                             #TFB_ERR_READ_FONT_FILE_FAILED,
+ *                             #TFB_ERR_OUT_OF_MEMORY.
+ */
+int tfb_dyn_load_font(const char *file, void **font_id);
+
+/**
+ * Unload a dynamically-loaded font
+ *
+ * @param[in]     font_id  Opaque pointer returned by tfb_dyn_load_font()
+ *
+ * @return                 #TFB_SUCCESS in case of success or
+ *                         #TFB_ERR_NOT_A_DYN_LOADED_FONT if the caller passed
+ *                         to it the font_id of an embedded font.
+ */
 int tfb_dyn_unload_font(void *font_id);
+
+/**
+ * Select the first font matching the given (w, h) criteria
+ *
+ * The tfb_set_font_by_size() function iterates over the fonts embedded in the
+ * library and sets the first font having width = w and height = h.
+ *
+ * @param[in]     w        Desired width of the font.
+ *                         The caller may pass #TFB_FONT_ANY_WIDTH to tell the
+ *                         function that any font width is acceptable.
+ *
+ * @param[in]     h        Desired height of the font.
+ *                         The caller may pass #TFB_FONT_ANY_HEIGHT to tell the
+ *                         function that any font width is acceptable.
+ *
+ * @return        #TFB_SUCCESS in case a font matching the given criteria has
+ *                been found or #TFB_ERR_FONT_NOT_FOUND otherwise.
+ */
 int tfb_set_font_by_size(int w, int h);
+
+/**
+ * Get current font's width
+ *
+ * @return        the width (in pixels) of the current font or 0 in case there
+ *                is no currently selected font.
+ */
 int tfb_get_curr_font_width(void);
+
+/**
+ * Get current font's height
+ *
+ * @return        the height (in pixels) of the current font or 0 in case there
+ *                is no currently selected font.
+ */
 int tfb_get_curr_font_height(void);
 
 
@@ -174,9 +275,27 @@ int tfb_get_curr_font_height(void);
  * ----------------------------------------------------------------------------
  */
 
+
+/**
+ * Library's type used to represent key strokes
+ */
 typedef uint64_t tfb_key_t;
 
+/**
+ * \addtogroup flags Flags
+ * @{
+ */
+
+
+/**
+ * Non-blocking input mode
+ *
+ * When passed to tfb_set_kb_raw_mode(), this flag makes the tty input to be
+ * non-blocking.
+ */
 #define TFB_FL_KB_NONBLOCK (1 << 2)
+
+/* @} */
 
 int tfb_set_kb_raw_mode(u32 flags);
 int tfb_restore_kb_mode(void);
@@ -213,6 +332,7 @@ void tfb_flush_window(void);
 void tfb_flush_rect(u32 x, u32 y, u32 w, u32 h);
 
 #include "tfb_inline_funcs.h"
+#include "tfb_kb.h"
 
 /* undef the the convenience types defined above */
 #undef u8

@@ -33,7 +33,11 @@
 /// Invalid window position/size
 #define TFB_ERR_INVALID_WINDOW            7
 
-/// Unsupported video mode
+/**
+ * Unsupported video mode
+ *
+ * \note Currently the library supports only 32-bit color modes.
+ */
 #define TFB_ERR_UNSUPPORTED_VIDEO_MODE    8
 
 /// The supplied font_id is invalid

@@ -459,9 +459,9 @@ static char tfb_fn_key_seq_char[12][8] =
    { '\033', '[', '2', '4', '~', 0, 0, 0 },
 };
 
-uint64_t *tfb_fn_key_sequences = (uint64_t *)tfb_fn_key_seq_char;
+tfb_key_t *tfb_fn_key_sequences = (tfb_key_t *)tfb_fn_key_seq_char;
 
-int tfb_get_fn_key_num(uint64_t k)
+int tfb_get_fn_key_num(tfb_key_t k)
 {
    for (u32 i = 0; i < 12; i++)
       if (tfb_fn_key_sequences[i] == k)
