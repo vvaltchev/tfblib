@@ -1,6 +1,6 @@
 
 #ifndef _TFBLIB_H_
-#error Never include tfb_inline_funcs.h directly. Include <tfblib/tfblib.h>.
+#  error Never include this header directly. Include <tfblib/tfblib.h>.
 #endif
 
 /* Essential variables */

@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 
-#pragma once
-#include <stdint.h>
+#ifndef _TFBLIB_H_
+#  error Never include this header directly. Include <tfblib/tfblib.h>.
+#endif
 
 #define TFB_KEY_ENTER   ((tfb_key_t)10)
 #define TFB_KEY_UP      (*(tfb_key_t*)("\033[A\0\0\0\0\0"))

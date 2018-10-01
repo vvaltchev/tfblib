@@ -348,9 +348,75 @@ int tfb_get_fn_key_num(tfb_key_t k);
  * ----------------------------------------------------------------------------
  */
 
+/**
+ * Get a representation of the RGB color (r, g, b) for the current video mode
+ *
+ * @param[in]  r        Red color component [0, 255]
+ * @param[in]  g        Green color component [0, 255]
+ * @param[in]  b        Blue color component [0, 255]
+ *
+ * @return              A framebuffer-specific representation of the RGB color
+ *                      passed in the r, g, b parameters.
+ */
+inline u32 tfb_make_color(u8 r, u8 g, u8 b);
+
+/**
+ * Set the color of the pixel at (x, y) to 'color'
+ *
+ * @param[in]  x        Window-relative X coordinate of the pixel
+ * @param[in]  y        Window-relative Y coordinate of the pixel
+ * @param[in]  color    A color returned by tfb_make_color()
+ *
+ * \note By default, the library uses as "window" the whole screen, therefore
+ *       by default the point (x, y) corresponds to the pixel at (x, y) on the
+ *       screen. But, after calling tfb_set_window() the origin of the
+ *       coordinate system gets shifted.
+ */
 inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
+
+/**
+ * Draw a horizonal line on-screen
+ *
+ * @param[in]  x        Window-relative X coordinate of line's first point
+ * @param[in]  y        Window-relative Y coordinate of line's first point
+ * @param[in]  len      Length of the line, in pixels
+ * @param[in]  color    Color of the line. See tfb_make_color().
+ *
+ * Calling tfb_draw_hline(x, y, len, color) is equivalent to calling:
+ *       tfb_draw_line(x, y, x + len, y, color)
+ *
+ * The only difference between the two functions is in the implementation: given
+ * the simpler task of tfb_draw_hline(), it can be implemented in much more
+ * efficient way.
+ */
 void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
+
+/**
+ * Draw a vertical line on-screen
+ *
+ * @param[in]  x        Window-relative X coordinate of line's first point
+ * @param[in]  y        Window-relative Y coordinate of line's first point
+ * @param[in]  len      Length of the line, in pixels
+ * @param[in]  color    Color of the line. See tfb_make_color().
+ *
+ * Calling tfb_draw_vline(x, y, len, color) is equivalent to calling:
+ *       tfb_draw_line(x, y, x, y + len, color)
+ *
+ * The only difference between the two functions is in the implementation: given
+ * the simpler task of tfb_draw_vline(), it can be implemented in much more
+ * efficient way.
+ */
 void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
+
+/**
+ * Draw a line on-screen
+ *
+ * @param[in]  x0       Window-relative X coordinate of line's first point
+ * @param[in]  y0       Window-relative Y coordinate of line's first point
+ * @param[in]  x1       Window-relative X coordinate of line's second point
+ * @param[in]  y1       Window-relative Y coordinate of line's second point
+ * @param[in]  color    Color of the line. See tfb_make_color().
+ */
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);
 void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
