@@ -418,17 +418,141 @@ void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
  * @param[in]  color    Color of the line. See tfb_make_color().
  */
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);
+
+/**
+ * Draw an empty rectangle on-screen
+ *
+ * @param[in]  x        Window-relative X coordinate of rect's top-left corner
+ * @param[in]  y        Window-relative Y coordinate of rect's top-left corner
+ * @param[in]  w        Width of the rectangle
+ * @param[in]  h        Height of the rectangle
+ * @param[in]  color    Color of the rectangle
+ */
 void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
+
+/**
+ * Draw filled rectangle on-screen
+ *
+ * @param[in]  x        Window-relative X coordinate of rect's top-left corner
+ * @param[in]  y        Window-relative Y coordinate of rect's top-left corner
+ * @param[in]  w        Width of the rectangle
+ * @param[in]  h        Height of the rectangle
+ * @param[in]  color    Color of the rectangle
+ */
 void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
-void tfb_draw_char(u32 x, u32 y, u32 fg_color, u32 bg_color, u8 c);
-void tfb_draw_string(u32 x, u32 y, u32 fg_color, u32 bg_color, const char *s);
-void tfb_draw_center_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s);
+
+/**
+ * Draw a single character on-screen at (x, y)
+ *
+ * @param[in]  x        Window-relative X coordinate of character's position
+ * @param[in]  y        Window-relative Y coordinate of character's position
+ * @param[in]  fg       Foreground text color
+ * @param[in]  bg       Background text color
+ * @param[in]  c        The character to draw on-screen
+ */
+void tfb_draw_char(u32 x, u32 y, u32 fg, u32 bg, u8 c);
+
+/**
+ * Draw a NUL-terminated string on-screen at (x, y)
+ *
+ * @param[in]  x        Window-relative X coordinate of text's position
+ * @param[in]  y        Window-relative Y coordinate of text's position
+ * @param[in]  fg       Foreground text color
+ * @param[in]  bg       Background text color
+ * @param[in]  s        A char pointer to the string
+ */
+void tfb_draw_string(u32 x, u32 y, u32 fg, u32 bg, const char *s);
+
+/**
+ * Draw a NUL-terminated string on-screen having its X-center at 'cx'
+ *
+ * @param[in]  cx       Window-relative X coordinate of text's X center
+ * @param[in]  y        Window-relative Y coordinate of text's Y position
+ * @param[in]  fg       Foreground text color
+ * @param[in]  bg       Background text color
+ * @param[in]  s        A char pointer to the string
+ *
+ * This function draws the given string by centering it horizonally at 'cx',
+ * while 'y' coordinate is used as-it-is. In other words, 'y' is the distance
+ * in pixels from the top of the current window to the top of the text.
+ *
+   \verbatim
+
+       (Window -> the whole screen by default)
+   #=======================================================#-------+
+   #                                                       #       |
+   #                                                       #       | y
+   #     (x0, y)           (cx, y)                         #       |
+   #        +-----------------+-----------------+ ---------#-------+
+   #        | This is some text string centered |          #
+   #        +-----------------+-----------------+          #
+   #                          |                            #
+   #                          |                            #
+   #=======================================================#
+   |                          |
+   +--------------------------+
+                cx
+
+   x0 is calculated as:
+         cx - curr_font_width * string_length / 2
+
+   \endverbatim
+ */
+void tfb_draw_xcenter_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s);
+
+/**
+ * Draw a single character on-screen at (x, y) scaled by (xscale, yscale)
+ *
+ * @param[in]  x        Window-relative X coordinate of character's position
+ * @param[in]  y        Window-relative Y coordinate of character's position
+ * @param[in]  fg       Foreground text color
+ * @param[in]  bg       Background text color
+ * @param[in]  xscale   Horizontal scale
+ * @param[in]  yscale   Vertical scale
+ * @param[in]  c        The character to draw on-screen
+
+ * Like tfb_draw_char() but the current font is graphically scaled xscale times
+ * horizontally and yscale times vertically. This useful when a font much bigger
+ * than any available is needed. Also, it might be useful to create a simple
+ * special effect by stretching a font only in one dimention (e.g. xscale=2,
+ * yscale=1).
+ *
+ * \note    Because of the scaling, tfb_draw_char_scaled() as well as all the
+ *          other tfb_draw_*_scaled() functions, is slower than their non-scaled
+ *          versions. Avoid using xscale=1 and yscale=1 (for performance
+ *          reasons).
+ */
 void tfb_draw_char_scaled(u32 x, u32 y, u32 fg, u32 bg,
                           u32 xscale, u32 yscale, u8 c);
+
+/**
+ * Draw a NUL-terminated string on-screen at (x, y) scaled by (xscale, yscale)
+ *
+ * @param[in]  x        Window-relative X coordinate of text's position
+ * @param[in]  y        Window-relative Y coordinate of text's position
+ * @param[in]  fg       Foreground text color
+ * @param[in]  bg       Background text color
+ * @param[in]  xscale   Horizontal scale
+ * @param[in]  yscale   Vertical scale
+ * @param[in]  s        A char pointer to the string
+ *
+ * Like tfb_draw_string(), but scaled. @see tfb_draw_char_scaled().
+ */
 void tfb_draw_string_scaled(u32 x, u32 y, u32 fg, u32 bg,
                             u32 xscale, u32 yscale, const char *s);
-void tfb_draw_center_string_scaled(u32 cx, u32 y, u32 fg, u32 bg,
-                                   u32 xscale, u32 yscale, const char *s);
+/**
+ * Draw a NUL-terminated string on-screen having its X-center at 'cx' (scaled)
+ *
+ * @param[in]  cx       Window-relative X coordinate of text's X center
+ * @param[in]  y        Window-relative Y coordinate of text's Y position
+ * @param[in]  fg       Foreground text color
+ * @param[in]  bg       Background text color
+ * @param[in]  s        A char pointer to the string
+ *
+ * Like tfb_draw_xcenter_string(), but scaled. @see tfb_draw_char_scaled().
+ */
+void tfb_draw_xcenter_string_scaled(u32 cx, u32 y, u32 fg, u32 bg,
+                                    u32 xscale, u32 yscale, const char *s);
 void tfb_clear_screen(u32 color);
 void tfb_clear_win(u32 color);
 void tfb_flush_window(void);

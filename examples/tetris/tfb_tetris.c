@@ -200,23 +200,23 @@ static void redraw_scene(void)
             draw_tile(row, col, *piece_colors[tiles[row][col] - 1]);
 
    if (game_over || game_paused) {
-      tfb_draw_center_string_scaled(center_w1,
-                                    h / 2 - tfb_get_curr_font_height(),
-                                    yellow, black, 2, 2,
-                                    game_paused ? "GAME PAUSED" : "GAME OVER");
+      tfb_draw_xcenter_string_scaled(center_w1,
+                                     h / 2 - tfb_get_curr_font_height(),
+                                     yellow, black, 2, 2,
+                                     game_paused ? "GAME PAUSED" : "GAME OVER");
    }
 
    cy = 20;
 
    if (!title_and_labels_drawn) {
-      tfb_draw_center_string(center_w2, cy, white, black, "A Tiny Framebuffer");
+      tfb_draw_xcenter_string(center_w2,cy,white,black,"A Tiny Framebuffer");
       full_flush = true;
    }
 
    cy += tfb_get_curr_font_height() + 5;
 
    if (!title_and_labels_drawn) {
-      tfb_draw_center_string_scaled(center_w2,cy,yellow,black,2,2,"Tetris");
+      tfb_draw_xcenter_string_scaled(center_w2,cy,yellow,black,2,2,"Tetris");
       full_flush = true;
    }
 
@@ -244,7 +244,7 @@ static void redraw_scene(void)
    cy += 4 * th + 10;
 
    if (!title_and_labels_drawn) {
-      tfb_draw_center_string(center_w2, cy, white, black, "Coming next");
+      tfb_draw_xcenter_string(center_w2, cy, white, black, "Coming next");
       full_flush = true;
    }
 
@@ -252,7 +252,7 @@ static void redraw_scene(void)
 
    if (game_level != saved_level) {
       sprintf(buf, "%02d", game_level);
-      tfb_draw_center_string_scaled(center_w2, cy, cyan, black, 3, 3, buf);
+      tfb_draw_xcenter_string_scaled(center_w2, cy, cyan, black, 3, 3, buf);
       saved_level = game_level;
       full_flush = true;
    }
@@ -260,7 +260,7 @@ static void redraw_scene(void)
    cy += tfb_get_curr_font_height() * 3;
 
    if (!title_and_labels_drawn) {
-      tfb_draw_center_string(center_w2, cy, white, black, "Level");
+      tfb_draw_xcenter_string(center_w2, cy, white, black, "Level");
       full_flush = true;
    }
 
@@ -268,7 +268,7 @@ static void redraw_scene(void)
 
    if (game_score != saved_score) {
       sprintf(buf, "%06d", game_score);
-      tfb_draw_center_string_scaled(center_w2, cy, magenta, black, 2, 2, buf);
+      tfb_draw_xcenter_string_scaled(center_w2, cy, magenta, black, 2, 2, buf);
       saved_score = game_score;
       full_flush = true;
    }
@@ -277,7 +277,7 @@ static void redraw_scene(void)
 
    if (!title_and_labels_drawn) {
 
-      tfb_draw_center_string(center_w2, cy, white, black, "Score");
+      tfb_draw_xcenter_string(center_w2, cy, white, black, "Score");
 
       // window border
       tfb_draw_rect(0, 0, w, h, white);

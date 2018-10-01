@@ -285,15 +285,15 @@ void tfb_draw_string_scaled(u32 x, u32 y,
    }
 }
 
-void tfb_draw_center_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s)
+void tfb_draw_xcenter_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s)
 {
    size_t len = strlen(s);
    tfb_draw_string(cx - curr_font_w * len / 2, y, fg, bg, s);
 }
 
-void tfb_draw_center_string_scaled(u32 cx, u32 y,
-                                   u32 fg, u32 bg,
-                                   u32 xscale, u32 yscale, const char *s)
+void tfb_draw_xcenter_string_scaled(u32 cx, u32 y,
+                                    u32 fg, u32 bg,
+                                    u32 xscale, u32 yscale, const char *s)
 {
    size_t len = strlen(s);
    tfb_draw_string_scaled(cx - xscale * curr_font_w * len / 2,
