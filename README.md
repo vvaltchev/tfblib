@@ -34,15 +34,21 @@ Or:
 
 In case a release build with debug info is desired.
 
+Online documentation
+----------------------
 
-Documentation
----------------
+Library's `doxygen`-generated documentation is available at:
+https://vvaltchev.github.io/tfblib/tfblib_8h.html
 
-Libray's API is documented using `Doxygen`. In order to generate the
-documentation, make sure you have `doxygen` installed on your system and just
-run (in project's root directory):
+
+Generating the documentation locally
+--------------------------------------
+
+In order to generate the documentation locally, make sure you have `doxygen`
+installed on your system and just run (in project's root directory):
 
     doxygen
 
 The output html files will be placed in `<PROJECT_ROOT_DIR>/doxydocs/html`.
 Just open `index.html` with your browser.
+
