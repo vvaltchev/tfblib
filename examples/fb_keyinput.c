@@ -92,29 +92,11 @@ void loop(void)
    } while (k != TFB_KEY_ENTER);
 }
 
-bool font_iter_cb_select_font32x16(tfb_font_info *fi, void *user_arg)
-{
-   if (fi->width == 16 && fi->height == 32) {
-
-      int rc = tfb_set_current_font(fi->font_id);
-
-      if (rc != TFB_SUCCESS) {
-         fprintf(stderr, "tfb_set_current_font() failed with error: %d\n", rc);
-         abort();
-      }
-
-      printf("Selected font '%s'\n", fi->name);
-      return false; /* stop iterating over fonts */
-   }
-
-   return true;
-}
-
 int main(int argc, char **argv)
 {
    int rc;
 
-   tfb_iterate_over_fonts(font_iter_cb_select_font32x16, NULL);
+   tfb_set_font_by_size(16, 32);
    rc = tfb_acquire_fb(TFB_FL_USE_DOUBLE_BUFFER, NULL, NULL);
 
    if (rc != TFB_SUCCESS) {

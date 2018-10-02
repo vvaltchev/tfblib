@@ -37,7 +37,7 @@ In case a release build with debug info is desired.
 Online documentation
 ----------------------
 
-Library's `doxygen`-generated documentation is available at:
+A pre-generated `doxygen` documentation is available at:
 https://vvaltchev.github.io/tfblib/tfblib_8h.html
 
 

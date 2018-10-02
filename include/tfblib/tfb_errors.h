@@ -28,39 +28,39 @@
 #define TFB_ERR_TTY_GRAPHIC_MODE          4
 
 /// mmap() on the framebuffer file description failed
-#define TFB_ERR_MMAP_FB                   6
+#define TFB_ERR_MMAP_FB                   5
 
 /// Invalid window position/size
-#define TFB_ERR_INVALID_WINDOW            7
+#define TFB_ERR_INVALID_WINDOW            6
 
 /**
  * Unsupported video mode
  *
  * \note Currently the library supports only 32-bit color modes.
  */
-#define TFB_ERR_UNSUPPORTED_VIDEO_MODE    8
+#define TFB_ERR_UNSUPPORTED_VIDEO_MODE    7
 
 /// The supplied font_id is invalid
-#define TFB_ERR_INVALID_FONT_ID           9
+#define TFB_ERR_INVALID_FONT_ID           8
 
 /// Unable to open/read/load the supplied font file
-#define TFB_ERR_READ_FONT_FILE_FAILED    10
+#define TFB_ERR_READ_FONT_FILE_FAILED     9
 
 /// Out of memory (malloc() returned 0)
-#define TFB_ERR_OUT_OF_MEMORY            11
+#define TFB_ERR_OUT_OF_MEMORY            10
 
 /// The supplied font_id is does not belog to a dynamically loaded font
-#define TFB_ERR_NOT_A_DYN_LOADED_FONT    12
+#define TFB_ERR_NOT_A_DYN_LOADED_FONT    11
 
 /// The keyboard input is not in the expected mode (e.g. already in raw mode)
-#define TFB_ERR_KB_WRONG_MODE            13
+#define TFB_ERR_KB_WRONG_MODE            12
 
 /// Unable to get a keyboard input paramater with ioctl()
-#define TFB_ERR_KB_MODE_GET_FAILED       14
+#define TFB_ERR_KB_MODE_GET_FAILED       13
 
 /// Unable to set a keyboard input paramater with ioctl()
-#define TFB_ERR_KB_MODE_SET_FAILED       15
+#define TFB_ERR_KB_MODE_SET_FAILED       14
 
 /// Unable to find a font matching the criteria
-#define TFB_ERR_FONT_NOT_FOUND           16
+#define TFB_ERR_FONT_NOT_FOUND           15
 /** @} */
