@@ -45,7 +45,7 @@ void loop(void)
    do {
 
       k = tfb_read_keypress();
-      tfb_clear_win(black);
+      tfb_clear_win(tfb_black);
 
       if (isprint(k & 0xff)) {
 
@@ -68,10 +68,10 @@ void loop(void)
       }
 
       // redraw the rect
-      tfb_fill_rect(x, y, w/4, h/4, red);
+      tfb_fill_rect(x, y, w/4, h/4, tfb_red);
 
       // win border
-      tfb_draw_rect(0, 0, w, h, white);
+      tfb_draw_rect(0, 0, w, h, tfb_white);
 
       // do the actual copy to the framebuffer
       tfb_flush_window();
