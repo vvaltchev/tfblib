@@ -17,10 +17,10 @@ Building `Tfblib` as a static library is simple as executing (in project's root
 directory):
 
 ```
-    $ mkdir build
-    $ cd build
-    $ cmake ..
-    $ make
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
 ```
 The `make` command will build the library along with the programs in the
 examples/ directory. In case a release build (with optimizations) is desired,
@@ -38,8 +38,8 @@ In case a release build with debug info is desired.
 A "hello world" application
 -----------------------------
 
-Using `Tfblib` is extremely simple. Here below, there's an example about to
-initialize the library and draw a rectangle at the center of the screen.
+Using `Tfblib` is extremely simple. Here below, there's an example about how
+to initialize the library and draw a rectangle at the center of the screen.
 
 ```C
 #include <stdio.h>
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
    /* Draw a red rectangle at the center of the screen */
 
    tfb_draw_rect(w / 2 - rect_w / 2,       /* x coordinate */
-                 h/ 2 - rect_h / 2,        /* y coordinate */
+                 h / 2 - rect_h / 2,       /* y coordinate */
                  rect_w,                   /* width */
                  rect_h,                   /* height */
                  tfb_make_color(255, 0, 0) /* red color */);
