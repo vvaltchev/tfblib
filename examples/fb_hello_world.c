@@ -19,15 +19,15 @@ int main(int argc, char **argv)
    uint32_t rect_h = 200;
 
    /* Paint the whole screen in black */
-   tfb_clear_screen(tfb_make_color(0, 0, 0));
+   tfb_clear_screen(tfb_black);
 
    /* Draw a red rectangle at the center of the screen */
 
-   tfb_draw_rect(w / 2 - rect_w / 2,       /* x coordinate */
-                 h/ 2 - rect_h / 2,        /* y coordinate */
-                 rect_w,                   /* width */
-                 rect_h,                   /* height */
-                 tfb_make_color(255, 0, 0) /* red color */);
+   tfb_draw_rect(w / 2 - rect_w / 2,  /* x coordinate */
+                 h / 2 - rect_h / 2,  /* y coordinate */
+                 rect_w,              /* width */
+                 rect_h,              /* height */
+                 tfb_red              /* color */);
 
    getchar();
    tfb_release_fb();

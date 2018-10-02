@@ -42,10 +42,6 @@ Using `Tfblib` is extremely simple. Here below, there's an example about how
 to initialize the library and draw a rectangle at the center of the screen.
 
 ```C
-#include <stdio.h>
-#include <stdlib.h>
-#include <tfblib/tfblib.h>
-
 int main(int argc, char **argv)
 {
    int rc;
@@ -61,15 +57,15 @@ int main(int argc, char **argv)
    uint32_t rect_h = 200;
 
    /* Paint the whole screen in black */
-   tfb_clear_screen(tfb_make_color(0, 0, 0));
+   tfb_clear_screen(tfb_black);
 
    /* Draw a red rectangle at the center of the screen */
 
-   tfb_draw_rect(w / 2 - rect_w / 2,       /* x coordinate */
-                 h / 2 - rect_h / 2,       /* y coordinate */
-                 rect_w,                   /* width */
-                 rect_h,                   /* height */
-                 tfb_make_color(255, 0, 0) /* red color */);
+   tfb_draw_rect(w / 2 - rect_w / 2,  /* x coordinate */
+                 h / 2 - rect_h / 2,  /* y coordinate */
+                 rect_w,              /* width */
+                 rect_h,              /* height */
+                 tfb_red              /* color */);
 
    getchar();
    tfb_release_fb();
@@ -78,7 +74,7 @@ int main(int argc, char **argv)
 ```
 
 
-Online documentation
+Online API reference
 ----------------------
 
 A pre-generated `doxygen` documentation is available at:

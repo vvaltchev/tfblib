@@ -27,6 +27,8 @@ int __tfb_ttyfd = -1;
 
 static int fbfd = -1;
 
+static void tfb_init_colors(void);
+
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
 {
    if (x + w > __fb_screen_w)
@@ -142,6 +144,7 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
    __fb_b_mask = ((1 << __fb_b_mask_size) - 1) << __fb_b_pos;
 
    tfb_set_window(0, 0, __fb_screen_w, __fb_screen_h);
+   tfb_init_colors();
 
    /* Just use as default font the first one (if any) */
    if (*tfb_font_file_list)
@@ -195,4 +198,73 @@ void tfb_flush_rect(u32 x, u32 y, u32 w, u32 h)
 void tfb_flush_window(void)
 {
    tfb_flush_rect(0, 0, __fb_win_w, __fb_win_h);
+}
+
+/*
+ * ----------------------------------------------------------------------------
+ *
+ * Colors
+ *
+ * ----------------------------------------------------------------------------
+ */
+
+uint32_t tfb_red;
+uint32_t tfb_darkred;
+uint32_t tfb_pink;
+uint32_t tfb_deeppink;
+uint32_t tfb_orange;
+uint32_t tfb_darkorange;
+uint32_t tfb_gold;
+uint32_t tfb_yellow;
+uint32_t tfb_violet;
+uint32_t tfb_magenta;
+uint32_t tfb_darkviolet;
+uint32_t tfb_indigo;
+uint32_t tfb_lightgreen;
+uint32_t tfb_green;
+uint32_t tfb_darkgreen;
+uint32_t tfb_olive;
+uint32_t tfb_cyan;
+uint32_t tfb_lightblue;
+uint32_t tfb_blue;
+uint32_t tfb_darkblue;
+uint32_t tfb_brown;
+uint32_t tfb_maroon;
+uint32_t tfb_white;
+uint32_t tfb_lightgray;
+uint32_t tfb_gray;
+uint32_t tfb_darkgray;
+uint32_t tfb_silver;
+uint32_t tfb_black;
+
+static void tfb_init_colors(void)
+{
+   tfb_red = tfb_make_color(255, 0, 0);
+   tfb_darkred = tfb_make_color(139, 0, 0);
+   tfb_pink = tfb_make_color(255, 192, 203);
+   tfb_deeppink = tfb_make_color(255, 20, 147);
+   tfb_orange = tfb_make_color(255, 165, 0);
+   tfb_darkorange = tfb_make_color(255, 140, 0);
+   tfb_gold = tfb_make_color(255, 215, 0);
+   tfb_yellow = tfb_make_color(255, 255, 0);
+   tfb_violet = tfb_make_color(238, 130, 238);
+   tfb_magenta = tfb_make_color(255, 0, 255);
+   tfb_darkviolet = tfb_make_color(148, 0, 211);
+   tfb_indigo = tfb_make_color(75, 0, 130);
+   tfb_lightgreen = tfb_make_color(144, 238, 144);
+   tfb_green = tfb_make_color(0, 255, 0);
+   tfb_darkgreen = tfb_make_color(0, 100, 0);
+   tfb_olive = tfb_make_color(128, 128, 0);
+   tfb_cyan = tfb_make_color(0, 255, 255);
+   tfb_lightblue = tfb_make_color(173, 216, 230);
+   tfb_blue = tfb_make_color(0, 0, 255);
+   tfb_darkblue = tfb_make_color(0, 0, 139);
+   tfb_brown = tfb_make_color(165, 42, 42);
+   tfb_maroon = tfb_make_color(128, 0, 0);
+   tfb_white = tfb_make_color(255, 255, 255);
+   tfb_lightgray = tfb_make_color(211, 211, 211);
+   tfb_gray = tfb_make_color(128, 128, 128);
+   tfb_darkgray = tfb_make_color(169, 169, 169);
+   tfb_silver = tfb_make_color(192, 192, 192);
+   tfb_black = tfb_make_color(0, 0, 0);
 }

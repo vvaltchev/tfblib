@@ -18,19 +18,6 @@
       __typeof__ (y) _y = (y); \
       _x > _y ? _x : _y; })
 
-uint32_t red, green, blue, white, black, yellow, gray;
-
-void init_colors(void)
-{
-   white = tfb_make_color(255, 255, 255);
-   black = tfb_make_color(0, 0, 0);
-   red = tfb_make_color(255, 0, 0);
-   green = tfb_make_color(0, 255, 0);
-   blue = tfb_make_color(0, 0, 255);
-   yellow = tfb_make_color(255, 255, 0);
-   gray = tfb_make_color(50, 50, 50);
-}
-
 void loop(void)
 {
    char buf[64];
@@ -50,9 +37,9 @@ void loop(void)
    h = tfb_win_height();
    uint32_t x = w/8, y = h/8 - h/16;
 
-   tfb_clear_win(black);
-   tfb_draw_rect(0, 0, w, h, white);
-   tfb_fill_rect(x, y, w/4, h/4, red);
+   tfb_clear_win(tfb_black);
+   tfb_draw_rect(0, 0, w, h, tfb_white);
+   tfb_fill_rect(x, y, w/4, h/4, tfb_red);
    tfb_flush_window();
 
    do {
@@ -63,12 +50,12 @@ void loop(void)
       if (isprint(k & 0xff)) {
 
          sprintf(buf, "Pressed key: %c", (char)k);
-         tfb_draw_string(5, 5, green, black, buf);
+         tfb_draw_string(5, 5, tfb_green, tfb_black, buf);
 
       } else if ((n = tfb_get_fn_key_num(k))) {
 
          sprintf(buf, "Pressed key: F%d", n);
-         tfb_draw_string(5, 5, green, black, buf);
+         tfb_draw_string(5, 5, tfb_green, tfb_black, buf);
 
       } else if (k == TFB_KEY_RIGHT) {
          x += step;
@@ -104,8 +91,6 @@ int main(int argc, char **argv)
       tfb_release_fb();
       return 1;
    }
-
-   init_colors();
 
    rc = tfb_set_kb_raw_mode(0);
 

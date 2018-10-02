@@ -628,6 +628,7 @@ void tfb_flush_window(void);
 
 #include "tfb_inline_funcs.h"
 #include "tfb_kb.h"
+#include "tfb_colors.h"
 
 /* undef the the convenience types defined above */
 #undef u8
