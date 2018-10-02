@@ -42,6 +42,10 @@ Using `Tfblib` is extremely simple. Here below, there's an example about how
 to initialize the library and draw a rectangle at the center of the screen.
 
 ```C
+#include <stdio.h>
+#include <stdlib.h>
+#include <tfblib/tfblib.h>
+
 int main(int argc, char **argv)
 {
    int rc;
