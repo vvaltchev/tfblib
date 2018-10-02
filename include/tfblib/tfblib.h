@@ -553,10 +553,78 @@ void tfb_draw_string_scaled(u32 x, u32 y, u32 fg, u32 bg,
  */
 void tfb_draw_xcenter_string_scaled(u32 cx, u32 y, u32 fg, u32 bg,
                                     u32 xscale, u32 yscale, const char *s);
+
+/**
+ * Set all the pixels of the screen to the supplied color
+ *
+ * @param[in]  color    The color. See tfb_make_color().
+ */
 void tfb_clear_screen(u32 color);
+
+/**
+ * Set all the pixels of the current window to the supplied color
+ *
+ * @param[in]  color    The color. See tfb_make_color().
+ *
+ * \note Unless tfb_set_window() has been called, the current window is by
+ *       default large as the whole screen.
+ */
 void tfb_clear_win(u32 color);
-void tfb_flush_window(void);
+
+/**
+ * Get screen's width
+ *
+ * @return  the width of the screen in pixels
+ */
+inline u32 tfb_screen_width(void);
+
+/**
+ * Get screen's height
+ *
+ * @return  the height of the screen in pixels
+ */
+inline u32 tfb_screen_height(void);
+
+/**
+ * Get current window's width
+ *
+ * @return  the width of the current window
+ * @see tfb_set_window()
+ */
+inline u32 tfb_win_width(void);
+
+/**
+ * Get current window's height
+ *
+ * @return  the height of the current window
+ * @see tfb_set_window()
+ */
+inline u32 tfb_win_height(void);
+
+/**
+ * Flush a given region to the actual framebuffer
+ *
+ * @param[in]  x        Window-relative X coordinate of region's position
+ * @param[in]  y        Window-relative Y coordinate of region's position
+ * @param[in]  w        Width of the region (in pixels)
+ * @param[in]  h        Height of the region (in pixels)
+ *
+ * In case tfb_acquire_fb() has been called with #TFB_FL_USE_DOUBLE_BUFFER,
+ * this function copies the pixels in the specified region to actual
+ * framebuffer. By default double buffering is not used and this function has no
+ * effect.
+ */
 void tfb_flush_rect(u32 x, u32 y, u32 w, u32 h);
+
+/**
+ * Flush the current window to the actual framebuffer
+ *
+ * A shortcut for tfb_flush_rect(0, 0, tfb_win_width(), tfb_win_height()).
+ *
+ * @see tfb_flush_rect
+ * @see tfb_set_window
+ */
+void tfb_flush_window(void);
 
 #include "tfb_inline_funcs.h"
 #include "tfb_kb.h"
