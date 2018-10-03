@@ -36,4 +36,4 @@ extern uint32_t tfb_gray;
 extern uint32_t tfb_darkgray;
 extern uint32_t tfb_silver;
 extern uint32_t tfb_black;
-
+extern uint32_t tfb_purple;

@@ -236,6 +236,7 @@ uint32_t tfb_gray;
 uint32_t tfb_darkgray;
 uint32_t tfb_silver;
 uint32_t tfb_black;
+uint32_t tfb_purple;
 
 static void tfb_init_colors(void)
 {
@@ -267,4 +268,5 @@ static void tfb_init_colors(void)
    tfb_darkgray = tfb_make_color(169, 169, 169);
    tfb_silver = tfb_make_color(192, 192, 192);
    tfb_black = tfb_make_color(0, 0, 0);
+   tfb_purple = tfb_make_color(128, 0, 128);
 }
