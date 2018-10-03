@@ -41,73 +41,6 @@ static int cleared_rows;
 static double fp_cp_row;
 static double row_dec_speed;
 
-static const unsigned char piece_i[4][4] =
-{
-   {0, 1, 0, 0},
-   {0, 1, 0, 0},
-   {0, 1, 0, 0},
-   {0, 1, 0, 0}
-};
-
-static const unsigned char piece_j[4][4] =
-{
-   {0, 0, 0, 0},
-   {0, 0, 1, 0},
-   {0, 0, 1, 0},
-   {0, 1, 1, 0}
-};
-
-static const unsigned char piece_l[4][4] =
-{
-   {0, 0, 0, 0},
-   {0, 1, 0, 0},
-   {0, 1, 0, 0},
-   {0, 1, 1, 0}
-};
-
-static const unsigned char piece_o[4][4] =
-{
-   {0, 0, 0, 0},
-   {0, 1, 1, 0},
-   {0, 1, 1, 0},
-   {0, 0, 0, 0}
-};
-
-static const unsigned char piece_s[4][4] =
-{
-   {0, 0, 0, 0},
-   {0, 0, 1, 1},
-   {0, 1, 1, 0},
-   {0, 0, 0, 0}
-};
-
-static const unsigned char piece_t[4][4] =
-{
-   {0, 0, 0, 0},
-   {0, 1, 0, 0},
-   {1, 1, 1, 0},
-   {0, 0, 0, 0},
-};
-
-static const unsigned char piece_z[4][4] =
-{
-   {0, 0, 0, 0},
-   {0, 1, 1, 0},
-   {0, 0, 1, 1},
-   {0, 0, 0, 0}
-};
-
-static const unsigned char (*pieces[])[4][4] =
-{
-   &piece_i,
-   &piece_j,
-   &piece_l,
-   &piece_o,
-   &piece_s,
-   &piece_t,
-   &piece_z,
-};
-
 static u32 *piece_colors[] =
 {
    &tfb_cyan,
@@ -118,26 +51,6 @@ static u32 *piece_colors[] =
    &tfb_purple,
    &tfb_red
 };
-
-static bool is_tile_set(u32 p, int r, int c, u32 rotation)
-{
-   switch (rotation % 4) {
-
-      case 0:
-         return (*pieces[p])[r][c];
-
-      case 1:
-         return (*pieces[p])[4-c-1][r];
-
-      case 2:
-         return (*pieces[p])[4-r-1][4-c-1];
-
-      case 3:
-         return (*pieces[p])[c][4-r-1];
-   }
-
-   __builtin_unreachable();
-}
 
 static inline void draw_tile_xy(int x, int y, u32 color)
 {
@@ -151,20 +64,22 @@ static inline void draw_tile(int r, int c, u32 color)
    draw_tile_xy(c * tw, (rows - r - 1) * th + off, color);
 }
 
-static void draw_piece(int piece, int row, int col, u32 color, u32 rotation)
+static void draw_piece(int piece, int row, int col, u32 rotation)
 {
    for (int r = 0; r < 4; r++)
       for (int c = 0; c < 4; c++)
          if (is_tile_set(piece, r, c, rotation))
-            draw_tile(row + 4 - r - 1, col + c, color);
+            draw_tile(row + 4 - r - 1, col + c, *piece_colors[piece]);
 }
 
-static void draw_piece_xy(int piece, int x, int y, u32 color, u32 rotation)
+static void draw_piece_xy(int piece, int x, int y, u32 rotation)
 {
    for (int r = 0; r < 4; r++)
       for (int c = 0; c < 4; c++)
          if (is_tile_set(piece, r, c, rotation))
-            draw_tile_xy(x + (4 - r - 1) * tw, y + c * th, color);
+            draw_tile_xy(x + (4 - r - 1) * tw,
+                         y + c * th,
+                         *piece_colors[piece]);
 }
 
 
@@ -191,7 +106,6 @@ static void redraw_scene(void)
       draw_piece(curr_piece,
                  cp_row,
                  cp_col,
-                 *piece_colors[curr_piece],
                  cp_rot);
    }
 
@@ -240,7 +154,7 @@ static void redraw_scene(void)
       draw_piece_xy(next_piece,
                     center_w2 - 2 * tw + xoff,
                     cy + yoff,
-                    *piece_colors[next_piece], 3);
+                    3);
 
       saved_next_piece = next_piece;
       full_flush = true;

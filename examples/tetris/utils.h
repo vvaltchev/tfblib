@@ -15,3 +15,4 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 
 double int_pow(double b, int p);
+bool is_tile_set(u32 piece, int r, int c, u32 rotation);
