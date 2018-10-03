@@ -2,7 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <tfblib/tfblib.h>
+#include <tfblib/tfb_colors.h>
 
 int main(int argc, char **argv)
 {

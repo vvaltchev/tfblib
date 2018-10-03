@@ -7,6 +7,7 @@
 
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_kb.h>
+#include <tfblib/tfb_colors.h>
 
 #define MIN(x, y) \
    ({ __typeof__ (x) _x = (x); \

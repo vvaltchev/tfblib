@@ -1,5 +1,10 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 
+/**
+ * @file tfb_colors.h
+ * @brief Definitions for common colors
+ */
+
 #pragma once
 #include <stdint.h>
 
