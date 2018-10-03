@@ -16,3 +16,10 @@ target_link_libraries(fb_text tfb)
 file(GLOB TETRIS_SRC tetris/*.c)
 add_executable(tfb_tetris ${TETRIS_SRC})
 target_link_libraries(tfb_tetris tfb)
+
+# Tilck compiles all the applications with a libmusl GCC toolchain which has
+# the math library embedded. Therefore, we need to link to only in the Linux
+# case.
+if (NOT "${CMAKE_PROJECT_NAME}" STREQUAL "tilck")
+   target_link_libraries(fb_drawing m)
+endif()

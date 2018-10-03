@@ -2,11 +2,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_colors.h>
 
-void draw_something()
+void draw_something(void)
 {
    uint32_t w = tfb_screen_width();
    uint32_t h = tfb_screen_height();
@@ -16,55 +17,21 @@ void draw_something()
    // screen border
    tfb_draw_rect(0, 0, w, h, tfb_white);
 
-   // full rect
-   tfb_fill_rect(w/8, h/8 - h/16, w/4, h/4, tfb_red);
+   uint32_t l = (w > h ? w : h) / 4;
+   uint32_t cx = w/2;
+   uint32_t cy = h/2;
 
-   // empty rect
-   tfb_draw_rect(w - w/4 - w/8, h/8 - h/16, w/4, h/4, tfb_red);
+   const double full_circle = 2.0 * M_PI;
+   const double delta_ang = full_circle / 64.0;
 
-   // Lines
+   for (double ang = 0.0; (full_circle - ang) > delta_ang; ang += delta_ang) {
 
-   tfb_draw_line(w/2, h/2, w/2 + 100, h/2 + 100, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 + 100, h/2 + 75, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 + 100, h/2 + 50, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 + 100, h/2 + 25, tfb_red);
+      uint32_t px = cx + cos(ang) * l;
+      uint32_t py = cy + sin(ang) * l;
 
-   tfb_draw_line(w/2, h/2, w/2 + 100, h/2, tfb_red);
-
-   tfb_draw_line(w/2, h/2, w/2 + 75, h/2 + 100, tfb_white);
-   tfb_draw_line(w/2, h/2, w/2 + 50, h/2 + 100, tfb_white);
-   tfb_draw_line(w/2, h/2, w/2 + 25, h/2 + 100, tfb_white);
-   tfb_draw_line(w/2, h/2, w/2 + 0, h/2 + 100, tfb_white);
-
-
-   tfb_draw_line(w/2, h/2, w/2 + 75, h/2 - 100, tfb_green);
-   tfb_draw_line(w/2, h/2, w/2 + 50, h/2 - 100, tfb_green);
-   tfb_draw_line(w/2, h/2, w/2 + 25, h/2 - 100, tfb_green);
-   tfb_draw_line(w/2, h/2, w/2 + 0, h/2 - 100, tfb_green);
-
-   tfb_draw_line(w/2, h/2, w/2 + 100, h/2 - 25, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 + 100, h/2 - 50, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 + 100, h/2 - 75, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 + 100, h/2 - 100, tfb_red);
-
-   tfb_draw_line(w/2, h/2, w/2 - 25, h/2 + 100, tfb_blue);
-   tfb_draw_line(w/2, h/2, w/2 - 50, h/2 + 100, tfb_blue);
-   tfb_draw_line(w/2, h/2, w/2 - 75, h/2 + 100, tfb_blue);
-   tfb_draw_line(w/2, h/2, w/2 - 100, h/2 + 100, tfb_blue);
-
-   tfb_draw_line(w/2, h/2, w/2 - 100, h/2 + 75, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 - 100, h/2 + 50, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 - 100, h/2 + 25, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 - 100, h/2 + 0, tfb_red);
-
-   tfb_draw_line(w/2, h/2, w/2 - 100, h/2 - 25, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 - 100, h/2 - 50, tfb_red);
-   tfb_draw_line(w/2, h/2, w/2 - 100, h/2 - 75, tfb_red);
-
-   tfb_draw_line(w/2, h/2, w/2 - 100, h/2 - 100, tfb_yellow);
-   tfb_draw_line(w/2, h/2, w/2 - 75, h/2 - 100, tfb_yellow);
-   tfb_draw_line(w/2, h/2, w/2 - 50, h/2 - 100, tfb_yellow);
-   tfb_draw_line(w/2, h/2, w/2 - 25, h/2 - 100, tfb_yellow);
+      tfb_draw_line(cx, cy, px, py, tfb_red);
+      tfb_draw_rect(px - 10, py - 10, 20, 20, tfb_white);
+   }
 }
 
 void draw_something2(void)
