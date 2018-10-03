@@ -1,6 +1,6 @@
 # Tfblib (Tiny Framebuffer Library)
 
-[![Build Status](https://travis-ci.org/vvaltchev/tfblib.svg?branch=master)](https://travis-ci.org/vvaltchev/tfblib)
+![Build Status](https://travis-ci.org/vvaltchev/tfblib.svg?branch=master)
 
 `Tfblib` is a simple and low-level graphics library for drawing to the Linux
 framebuffer. Currently, it is capable of drawing lines, rectangles and text.
