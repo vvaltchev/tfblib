@@ -1,8 +1,6 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 
 #include <stdio.h>
-#include <stdlib.h>
-
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_colors.h>
 

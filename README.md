@@ -43,8 +43,8 @@ to initialize the library and draw a rectangle at the center of the screen.
 
 ```C
 #include <stdio.h>
-#include <stdlib.h>
 #include <tfblib/tfblib.h>
+#include <tfblib/tfb_colors.h>
 
 int main(int argc, char **argv)
 {
