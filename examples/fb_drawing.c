@@ -17,7 +17,7 @@ void draw_something(void)
    // screen border
    tfb_draw_rect(0, 0, w, h, tfb_white);
 
-   uint32_t l = (w > h ? w : h) / 4;
+   uint32_t l = (w < h ? w : h) * 4 / 10;
    uint32_t cx = w/2;
    uint32_t cy = h/2;
 

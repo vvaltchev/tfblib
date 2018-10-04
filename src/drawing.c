@@ -145,35 +145,30 @@ midpoint_line(int x, int y, int x1, int y1, u32 color, bool swap_xy)
 
    if (swap_xy) {
 
-      tfb_draw_pixel_raw(y, x, color);
+      tfb_draw_pixel(y, x, color);
 
       while (x != x1) {
          x += sx;
          y += inc_y[d <= 0];
          d += inc_d[d <= 0];
-         tfb_draw_pixel_raw(y, x, color);
+         tfb_draw_pixel(y, x, color);
       }
 
    } else {
 
-      tfb_draw_pixel_raw(x, y, color);
+      tfb_draw_pixel(x, y, color);
 
       while (x != x1) {
          x += sx;
          y += inc_y[d <= 0];
          d += inc_d[d <= 0];
-         tfb_draw_pixel_raw(x, y, color);
+         tfb_draw_pixel(x, y, color);
       }
    }
 }
 
 void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color)
 {
-   x0 = MIN(x0 + __fb_off_x, __fb_win_end_x);
-   y0 = MIN(y0 + __fb_off_y, __fb_win_end_y);
-   x1 = MIN(x1 + __fb_off_x, __fb_win_end_x);
-   y1 = MIN(y1 + __fb_off_y, __fb_win_end_y);
-
    const int dx = INT_ABS((int)x1 - (int)x0);
    const int dy = INT_ABS((int)y1 - (int)y0);
 
