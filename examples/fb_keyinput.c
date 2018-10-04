@@ -36,7 +36,7 @@ void loop(void)
 
    w = tfb_win_width();
    h = tfb_win_height();
-   uint32_t x = w/8, y = h/8 - h/16;
+   int x = w/8, y = h/8 - h/16;
 
    tfb_clear_win(tfb_black);
    tfb_draw_rect(0, 0, w, h, tfb_white);
@@ -63,13 +63,13 @@ void loop(void)
       } else if (k == TFB_KEY_DOWN) {
          y += step;
       } else if (k == TFB_KEY_UP) {
-         y -= y >= step ? step : y;
+         y -= step;
       } else if (k == TFB_KEY_LEFT) {
-         x -= x >= step ? step : x;
+         x -= step;
       }
 
       // redraw the rect
-      tfb_fill_rect(x, y, w/4, h/4, tfb_red);
+      tfb_draw_rect(x, y, w/4, h/4, tfb_red);
 
       // win border
       tfb_draw_rect(0, 0, w, h, tfb_white);

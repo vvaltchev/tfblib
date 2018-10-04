@@ -315,7 +315,7 @@ inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
  * the simpler task of tfb_draw_hline(), it can be implemented in much more
  * efficient way.
  */
-void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
+void tfb_draw_hline(int x, int y, int len, u32 color);
 
 /**
  * Draw a vertical line on-screen
@@ -332,7 +332,7 @@ void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color);
  * the simpler task of tfb_draw_vline(), it can be implemented in much more
  * efficient way.
  */
-void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
+void tfb_draw_vline(int x, int y, int len, u32 color);
 
 /**
  * Draw a line on-screen
@@ -343,7 +343,7 @@ void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color);
  * @param[in]  y1       Window-relative Y coordinate of line's second point
  * @param[in]  color    Color of the line. See tfb_make_color().
  */
-void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);
+void tfb_draw_line(int x0, int y0, int x1, int y1, u32 color);
 
 /**
  * Draw an empty rectangle on-screen
@@ -354,7 +354,7 @@ void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color);
  * @param[in]  h        Height of the rectangle
  * @param[in]  color    Color of the rectangle
  */
-void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
+void tfb_draw_rect(int x, int y, int w, int h, u32 color);
 
 /**
  * Draw filled rectangle on-screen
@@ -365,7 +365,7 @@ void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
  * @param[in]  h        Height of the rectangle
  * @param[in]  color    Color of the rectangle
  */
-void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
+void tfb_fill_rect(int x, int y, int w, int h, u32 color);
 
 /**
  * Draw a single character on-screen at (x, y)
@@ -376,7 +376,7 @@ void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color);
  * @param[in]  bg       Background text color
  * @param[in]  c        The character to draw on-screen
  */
-void tfb_draw_char(u32 x, u32 y, u32 fg, u32 bg, u8 c);
+void tfb_draw_char(int x, int y, u32 fg, u32 bg, u8 c);
 
 /**
  * Draw a NUL-terminated string on-screen at (x, y)
@@ -387,7 +387,7 @@ void tfb_draw_char(u32 x, u32 y, u32 fg, u32 bg, u8 c);
  * @param[in]  bg       Background text color
  * @param[in]  s        A char pointer to the string
  */
-void tfb_draw_string(u32 x, u32 y, u32 fg, u32 bg, const char *s);
+void tfb_draw_string(int x, int y, u32 fg, u32 bg, const char *s);
 
 /**
  * Draw a NUL-terminated string on-screen having its X-center at 'cx'
@@ -424,7 +424,7 @@ void tfb_draw_string(u32 x, u32 y, u32 fg, u32 bg, const char *s);
 
    \endverbatim
  */
-void tfb_draw_xcenter_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s);
+void tfb_draw_xcenter_string(int cx, int y, u32 fg, u32 bg, const char *s);
 
 /**
  * Draw a single character on-screen at (x, y) scaled by (xscale, yscale)
@@ -448,7 +448,7 @@ void tfb_draw_xcenter_string(u32 cx, u32 y, u32 fg, u32 bg, const char *s);
  *          versions. Avoid using xscale=1 and yscale=1 (for performance
  *          reasons).
  */
-void tfb_draw_char_scaled(u32 x, u32 y, u32 fg, u32 bg,
+void tfb_draw_char_scaled(int x, int y, u32 fg, u32 bg,
                           u32 xscale, u32 yscale, u8 c);
 
 /**
@@ -464,7 +464,7 @@ void tfb_draw_char_scaled(u32 x, u32 y, u32 fg, u32 bg,
  *
  * Like tfb_draw_string(), but scaled. @see tfb_draw_char_scaled().
  */
-void tfb_draw_string_scaled(u32 x, u32 y, u32 fg, u32 bg,
+void tfb_draw_string_scaled(int x, int y, u32 fg, u32 bg,
                             u32 xscale, u32 yscale, const char *s);
 /**
  * Draw a NUL-terminated string on-screen having its X-center at 'cx' (scaled)
@@ -477,7 +477,7 @@ void tfb_draw_string_scaled(u32 x, u32 y, u32 fg, u32 bg,
  *
  * Like tfb_draw_xcenter_string(), but scaled. @see tfb_draw_char_scaled().
  */
-void tfb_draw_xcenter_string_scaled(u32 cx, u32 y, u32 fg, u32 bg,
+void tfb_draw_xcenter_string_scaled(int cx, int y, u32 fg, u32 bg,
                                     u32 xscale, u32 yscale, const char *s);
 
 /**

@@ -17,7 +17,7 @@ void draw_something(void)
    // screen border
    tfb_draw_rect(0, 0, w, h, tfb_white);
 
-   uint32_t l = (w < h ? w : h) * 4 / 10;
+   uint32_t l = (w < h ? w : h) * 45 / 100;
    uint32_t cx = w/2;
    uint32_t cy = h/2;
 
@@ -30,7 +30,7 @@ void draw_something(void)
       uint32_t py = cy + sin(ang) * l;
 
       tfb_draw_line(cx, cy, px, py, tfb_red);
-      tfb_draw_rect(px - 10, py - 10, 20, 20, tfb_white);
+      tfb_fill_rect(px - 10, py - 10, 20, 20, tfb_white);
    }
 }
 
@@ -43,8 +43,9 @@ void draw_something2(void)
    tfb_clear_win(tfb_gray);
 
    tfb_draw_rect(0, 0, w, h, tfb_red);
-   tfb_draw_line(0, 0, w * 2, h * 2, tfb_yellow);
+   tfb_draw_rect(-50, -50, w/4, h/4, tfb_magenta);
 
+   tfb_draw_line(0, 0, w * 2, h * 2, tfb_yellow);
    tfb_fill_rect(w/2, h/2, w, h, tfb_green);
 }
 

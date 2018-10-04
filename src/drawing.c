@@ -77,24 +77,38 @@ void tfb_clear_win(u32 color)
    tfb_fill_rect(0, 0, __fb_win_w, __fb_win_h, color);
 }
 
-void tfb_draw_hline(u32 x, u32 y, u32 len, u32 color)
+void tfb_draw_hline(int x, int y, int len, u32 color)
 {
+   if (x < 0) {
+      len += x;
+      x = 0;
+   }
+
    x += __fb_off_x;
    y += __fb_off_y;
 
-   if (y >= __fb_win_end_y)
+   if (len < 0 || y < __fb_off_y || y >= __fb_win_end_y)
       return;
 
-   len = MIN((int)len, MAX(0, (int)__fb_win_end_x - (int)x));
+   len = MIN(len, MAX(0, (int)__fb_win_end_x - x));
    memset32(__fb_buffer + y * __fb_pitch + (x << 2), color, len);
 }
 
-void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color)
+void tfb_draw_vline(int x, int y, int len, u32 color)
 {
    u32 yend;
 
+   if (y < 0) {
+      len += y;
+      y = 0;
+   }
+
    x += __fb_off_x;
    y += __fb_off_y;
+
+   if (len < 0 || x < __fb_off_x || x >= __fb_win_end_x)
+      return;
+
    yend = MIN(y + len, __fb_win_end_y);
 
    volatile u32 *buf =
@@ -104,7 +118,7 @@ void tfb_draw_vline(u32 x, u32 y, u32 len, u32 color)
       *buf = color;
 }
 
-void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
+void tfb_fill_rect(int x, int y, int w, int h, u32 color)
 {
    u32 yend;
    void *dest;
@@ -112,7 +126,20 @@ void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
    x += __fb_off_x;
    y += __fb_off_y;
 
-   w = MIN((int)w, MAX(0, (int)__fb_win_end_x - (int)x));
+   if (x < 0) {
+      w += x;
+      x = 0;
+   }
+
+   if (y < 0) {
+      h += y;
+      y = 0;
+   }
+
+   if (w < 0 || h < 0)
+      return;
+
+   w = MIN(w, MAX(0, (int)__fb_win_end_x - x));
    yend = MIN(y + h, __fb_win_end_y);
 
    dest = __fb_buffer + y * __fb_pitch + (x << 2);
@@ -121,7 +148,7 @@ void tfb_fill_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
       memset32(dest, color, w);
 }
 
-void tfb_draw_rect(u32 x, u32 y, u32 w, u32 h, u32 color)
+void tfb_draw_rect(int x, int y, int w, int h, u32 color)
 {
    tfb_draw_hline(x, y, w, color);
    tfb_draw_vline(x, y, h, color);
@@ -167,12 +194,9 @@ midpoint_line(int x, int y, int x1, int y1, u32 color, bool swap_xy)
    }
 }
 
-void tfb_draw_line(u32 x0, u32 y0, u32 x1, u32 y1, u32 color)
+void tfb_draw_line(int x0, int y0, int x1, int y1, u32 color)
 {
-   const int dx = INT_ABS((int)x1 - (int)x0);
-   const int dy = INT_ABS((int)y1 - (int)y0);
-
-   if (dy <= dx)
+   if (INT_ABS(y1 - y0) <= INT_ABS(x1 - x0))
       midpoint_line(x0, y0, x1, y1, color, false);
    else
       midpoint_line(y0, x0, y1, x1, color, true);
