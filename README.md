@@ -10,6 +10,9 @@ dynamically loaded `PSF` fonts at runtime. In addition to drawing functions,
 applications to put the TTY input in *raw mode* and read keystrokes. Both
 blocking and non-blocking modes are supported.
 
+![Drawing example](other/drawing.png)
+![Drawing text example](other/text.png)
+
 Building
 ---------
 
@@ -79,6 +82,35 @@ int main(int argc, char **argv)
 }
 ```
 
+Compatibility
+--------------
+
+`Tfblib` has been designed to work on the Linux kernel, on any hardware. It has
+been tested on x86 and on ARM machines (Raspberry Pi 3). It addition to that,
+it has been tested to work on [Tilck](https://github.com/vvaltchev/tilck),
+which is a small Linux-compatible kernel.
+
+![Tetris on Tilck](other/tetris.png)
+
+In order to compile `Tfblib` for `Tilck` is necessary to use a 32-bit x86
+Linux `GCC` toolchian using `libmusl` and link everything statically. After
+compiling this way, the examples will run both on Linux and on Tilck natively.
+But, the **easiest way** to do that is just to use Tilck's build system.
+Just drop a copy (or a symlink) of `Tfblib`'s main directory in the following
+subdirectory of the `Tilck` project:
+
+```
+usermode_apps/extra
+```
+
+Than just run:
+
+```
+$ ./scripts/cmake_run
+```
+
+And finally build Tilck with `make`. The `Tfblib` examples will be visible in
+`/usr/bin/`, on Tilck.
 
 Online API reference
 ----------------------
