@@ -158,6 +158,10 @@ int tfb_set_center_window_size(u32 w, u32 h);
 
 /** @} */
 
+/**
+ * Opaque font type
+ */
+typedef void *tfb_font_t;
 
 /**
  * Font info structure
@@ -167,11 +171,11 @@ int tfb_set_center_window_size(u32 w, u32 h);
  */
 typedef struct {
 
-   const char *name; /**< Font's file name */
-   u32 width;        /**< Font's character width in pixels */
-   u32 height;       /**< Font's character height in pixels */
-   u32 psf_version;  /**< PSF version: either 1 or 2 */
-   void *font_id;    /**< An opaque identifier of the font */
+   const char *name;     /**< Font's file name */
+   u32 width;            /**< Font's character width in pixels */
+   u32 height;           /**< Font's character height in pixels */
+   u32 psf_version;      /**< PSF version: either 1 or 2 */
+   tfb_font_t font_id;   /**< An opaque identifier of the font */
 
 } tfb_font_info;
 
@@ -203,13 +207,13 @@ void tfb_iterate_over_fonts(tfb_font_iter_func cb, void *user_arg);
  * @return                 #TFB_SUCCESS in case of success or
  *                         #TFB_ERR_INVALID_FONT_ID otherwise.
  */
-int tfb_set_current_font(void *font_id);
+int tfb_set_current_font(tfb_font_t font_id);
 
 /**
  * Load dynamically a PSF font file
  *
  * @param[in]     file     File path
- * @param[in,out] font_id  Address of a void *font_id opaque pointer that will
+ * @param[in,out] font_id  Address of a tfb_font_t variable that will
  *                         be set by the function in case of success.
  *
  * @return                 #TFB_SUCCESS in case of success or one of the
@@ -217,7 +221,7 @@ int tfb_set_current_font(void *font_id);
  *                             #TFB_ERR_READ_FONT_FILE_FAILED,
  *                             #TFB_ERR_OUT_OF_MEMORY.
  */
-int tfb_dyn_load_font(const char *file, void **font_id);
+int tfb_dyn_load_font(const char *file, tfb_font_t *font_id);
 
 /**
  * Unload a dynamically-loaded font
@@ -228,7 +232,7 @@ int tfb_dyn_load_font(const char *file, void **font_id);
  *                         #TFB_ERR_NOT_A_DYN_LOADED_FONT if the caller passed
  *                         to it the font_id of an embedded font.
  */
-int tfb_dyn_unload_font(void *font_id);
+int tfb_dyn_unload_font(tfb_font_t font_id);
 
 /**
  * Select the first font matching the given (w, h) criteria
@@ -473,6 +477,8 @@ void tfb_draw_string_scaled(int x, int y, u32 fg, u32 bg,
  * @param[in]  y        Window-relative Y coordinate of text's Y position
  * @param[in]  fg       Foreground text color
  * @param[in]  bg       Background text color
+ * @param[in]  xscale   Horizontal scale
+ * @param[in]  yscale   Vertical scale
  * @param[in]  s        A char pointer to the string
  *
  * Like tfb_draw_xcenter_string(), but scaled. @see tfb_draw_char_scaled().

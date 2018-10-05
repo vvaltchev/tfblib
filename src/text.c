@@ -17,13 +17,13 @@ static u32 curr_font_bytes_per_glyph;
 static u8 *curr_font_data;
 
 /* Internal function */
-void tfb_set_default_font(void *font_id)
+void tfb_set_default_font(tfb_font_t font_id)
 {
    if (!curr_font)
       tfb_set_current_font(font_id);
 }
 
-int tfb_dyn_load_font(const char *file, void **font_id /* out */)
+int tfb_dyn_load_font(const char *file, tfb_font_t *font_id)
 {
    struct stat statbuf;
    size_t tot_read = 0;
@@ -68,11 +68,11 @@ int tfb_dyn_load_font(const char *file, void **font_id /* out */)
 
    fclose(fh);
 
-   *font_id = ff;
+   *font_id = (tfb_font_t)ff;
    return TFB_SUCCESS;
 }
 
-int tfb_dyn_unload_font(void *font_id)
+int tfb_dyn_unload_font(tfb_font_t font_id)
 {
    font_file *ff = font_id;
    const font_file **it;
@@ -105,7 +105,7 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
             .width = h2->width,
             .height = h2->height,
             .psf_version = 2,
-            .font_id = (void *)*it
+            .font_id = (tfb_font_t)*it
          };
 
       } else {
@@ -115,7 +115,7 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
             .width = 8,
             .height = h1->bytes_per_glyph,
             .psf_version = 1,
-            .font_id = (void *)*it
+            .font_id = (tfb_font_t)*it
          };
 
       }
@@ -166,7 +166,7 @@ int tfb_set_font_by_size(int w, int h)
    return TFB_SUCCESS;
 }
 
-int tfb_set_current_font(void *font_id)
+int tfb_set_current_font(tfb_font_t font_id)
 {
    const font_file *ff = font_id;
    psf1_header *h1 = (void *)ff->data;
