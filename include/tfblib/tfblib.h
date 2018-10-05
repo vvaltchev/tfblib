@@ -449,7 +449,7 @@ void tfb_draw_xcenter_string(int cx, int y, u32 fg, u32 bg, const char *s);
  *          reasons).
  */
 void tfb_draw_char_scaled(int x, int y, u32 fg, u32 bg,
-                          u32 xscale, u32 yscale, u8 c);
+                          int xscale, int yscale, u8 c);
 
 /**
  * Draw a NUL-terminated string on-screen at (x, y) scaled by (xscale, yscale)
@@ -465,7 +465,7 @@ void tfb_draw_char_scaled(int x, int y, u32 fg, u32 bg,
  * Like tfb_draw_string(), but scaled. @see tfb_draw_char_scaled().
  */
 void tfb_draw_string_scaled(int x, int y, u32 fg, u32 bg,
-                            u32 xscale, u32 yscale, const char *s);
+                            int xscale, int yscale, const char *s);
 /**
  * Draw a NUL-terminated string on-screen having its X-center at 'cx' (scaled)
  *
@@ -478,7 +478,7 @@ void tfb_draw_string_scaled(int x, int y, u32 fg, u32 bg,
  * Like tfb_draw_xcenter_string(), but scaled. @see tfb_draw_char_scaled().
  */
 void tfb_draw_xcenter_string_scaled(int cx, int y, u32 fg, u32 bg,
-                                    u32 xscale, u32 yscale, const char *s);
+                                    int xscale, int yscale, const char *s);
 
 /**
  * Set all the pixels of the screen to the supplied color

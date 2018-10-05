@@ -123,6 +123,16 @@ void tfb_fill_rect(int x, int y, int w, int h, u32 color)
    u32 yend;
    void *dest;
 
+   if (w < 0) {
+      x += w;
+      w = -w;
+   }
+
+   if (h < 0) {
+      y += h;
+      h = -h;
+   }
+
    x += __fb_off_x;
    y += __fb_off_y;
 

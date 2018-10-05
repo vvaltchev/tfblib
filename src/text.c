@@ -227,12 +227,18 @@ void tfb_draw_char(int x, int y, u32 fg_color, u32 bg_color, u8 c)
 }
 
 void tfb_draw_char_scaled(int x, int y,
-                          u32 fg, u32 bg, u32 xscale, u32 yscale, u8 c)
+                          u32 fg, u32 bg, int xscale, int yscale, u8 c)
 {
    if (!curr_font) {
       fprintf(stderr, "[tfblib] ERROR: no font currently selected\n");
       return;
    }
+
+   if (xscale < 0)
+      x += -xscale * curr_font_w;
+
+   if (yscale < 0)
+      y += -yscale * curr_font_h;
 
    u8 *d = curr_font_data + curr_font_bytes_per_glyph * c;
 
@@ -271,16 +277,18 @@ void tfb_draw_string(int x, int y, u32 fg_color, u32 bg_color, const char *s)
 
 void tfb_draw_string_scaled(int x, int y,
                             u32 fg, u32 bg,
-                            u32 xscale, u32 yscale, const char *s)
+                            int xscale, int yscale, const char *s)
 {
    if (!curr_font) {
       fprintf(stderr, "[tfblib] ERROR: no font currently selected\n");
       return;
    }
 
+   int xs = xscale > 0 ? xscale : -xscale;
+
    while (*s) {
       tfb_draw_char_scaled(x, y, fg, bg, xscale, yscale, *s);
-      x += xscale * curr_font_w;
+      x += xs * curr_font_w;
       s++;
    }
 }
@@ -293,7 +301,7 @@ void tfb_draw_xcenter_string(int cx, int y, u32 fg, u32 bg, const char *s)
 
 void tfb_draw_xcenter_string_scaled(int cx, int y,
                                     u32 fg, u32 bg,
-                                    u32 xscale, u32 yscale, const char *s)
+                                    int xscale, int yscale, const char *s)
 {
    size_t len = strlen(s);
    tfb_draw_string_scaled(cx - xscale * curr_font_w * len / 2,
