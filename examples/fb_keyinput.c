@@ -25,11 +25,17 @@ void loop(void)
    uint32_t w = MAX(tfb_screen_width()/2, 640);
    uint32_t h = MAX(tfb_screen_height()/2, 480);
    uint32_t step = 10;
-   int n;
-
+   int n, rc;
    tfb_key_t k = (tfb_key_t)-1;
 
-   if (tfb_set_center_window_size(w, h) != TFB_SUCCESS) {
+   /*
+    * Set the current window to be smaller than the screen. This will allow
+    * to see and test how graphic elements (such as rectangles and text) get
+    * cut when they are moved outside of the current window.
+    */
+   rc = tfb_set_center_window_size(w, h);
+
+   if (rc != TFB_SUCCESS) {
       fprintf(stderr, "Unable to set window to %ux%u\n", w, h);
       return;
    }
@@ -64,12 +70,16 @@ void loop(void)
          x -= step;
       }
 
+      // draw the text at the top
       tfb_draw_string(5, 5, tfb_green, tfb_black, buf1);
 
-      // redraw the rect
-      tfb_fill_rect(x, y, rw, rh, tfb_red);
+      // draw the rectangle
+      tfb_draw_rect(x, y, rw, rh, tfb_red);
+      tfb_fill_rect(x + 5, y + 5, rw - 10, rh - 10, tfb_red);
 
-      sprintf(buf2, "(%d, %d)", x, y);
+      sprintf(buf2, "%d, %d", x, y);
+
+      // draw the text at the center of rectangle
       tfb_draw_xcenter_string(x + rw / 2,
                               y + rh / 2 - tfb_get_curr_font_height()/2,
                               tfb_white, tfb_red, buf2);

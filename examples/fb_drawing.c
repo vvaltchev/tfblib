@@ -9,10 +9,13 @@
 
 void draw_something(void)
 {
+   tfb_set_font_by_size(8, 16);
+
    uint32_t w = tfb_screen_width();
    uint32_t h = tfb_screen_height();
 
    tfb_clear_screen(tfb_black);
+   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER to quit");
 
    // screen border
    tfb_draw_rect(0, 0, w, h, tfb_white);
@@ -34,21 +37,6 @@ void draw_something(void)
    }
 }
 
-void draw_something2(void)
-{
-   uint32_t w = tfb_screen_width() / 2;
-   uint32_t h = tfb_screen_height() / 2;
-
-   tfb_set_center_window_size(w, h);
-   tfb_clear_win(tfb_gray);
-
-   tfb_draw_rect(0, 0, w, h, tfb_red);
-   tfb_draw_rect(-50, -50, w/4, h/4, tfb_magenta);
-
-   tfb_draw_line(0, 0, w * 2, h * 2, tfb_yellow);
-   tfb_fill_rect(w/2, h/2, w, h, tfb_green);
-}
-
 int main(int argc, char **argv)
 {
    int rc;
@@ -60,8 +48,6 @@ int main(int argc, char **argv)
    }
 
    draw_something();
-   getchar();
-   draw_something2();
    getchar();
 
    tfb_release_fb();
