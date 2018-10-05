@@ -279,6 +279,11 @@ int tfb_get_curr_font_height(void);
  */
 
 /**
+ * Value for 1 degree (of 360) of hue, when passed to tfb_make_color_hsv()
+ */
+#define TFB_HUE_DEGREE 256
+
+/**
  * Get a representation of the RGB color (r, g, b) for the current video mode
  *
  * @param[in]  r        Red color component [0, 255]
@@ -286,9 +291,26 @@ int tfb_get_curr_font_height(void);
  * @param[in]  b        Blue color component [0, 255]
  *
  * @return              A framebuffer-specific representation of the RGB color
- *                      passed in the r, g, b parameters.
+ *                      passed using the r, g, b parameters.
  */
 inline u32 tfb_make_color(u8 r, u8 g, u8 b);
+
+/**
+ * Get a representation of the HSV color (h, s, v) for the current video mode
+ *
+ * @param[in]  h        Hue                  [0, 360 * #TFB_HUE_DEGREE]
+ * @param[in]  s        Saturation           [0, 255]
+ * @param[in]  v        Value (Brightness)   [0, 255]
+ *
+ * @return              A framebuffer-specific representation of the HSV color
+ *                      passed using the h, s, v parameters.
+ *
+ * \note    1 degree of hue is #TFB_HUE_DEGREE, not simply 1. This is necessary
+ *          in order to increase the precision of the internal integer-only
+ *          computations.
+ */
+
+u32 tfb_make_color_hsv(u32 h, u8 s, u8 v);
 
 /**
  * Set the color of the pixel at (x, y) to 'color'

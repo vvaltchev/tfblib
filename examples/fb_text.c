@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
    tfb_draw_string(20, 20,
                    tfb_yellow, tfb_gray,
-                   "Using font 8x16!! [Press ENTER to exit]");
+                   "Using font 8x16!! [Press ENTER to quit]");
 
    tfb_set_font_by_size(16, 32);
 

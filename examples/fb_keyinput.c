@@ -54,7 +54,7 @@ void loop(void)
 
       tfb_clear_win(tfb_black);
 
-      strcpy(buf1, "Use ARROW keys to move or ENTER to exit");
+      strcpy(buf1, "Use ARROW keys to move or ENTER to quit");
 
       if (isprint(k & 0xff)) {
          sprintf(buf1, "Pressed key: %c", (char)k);

@@ -7,6 +7,11 @@
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_colors.h>
 
+static inline double rad_to_deg(double rad)
+{
+   return (rad / (2 * M_PI)) * 360.0;
+}
+
 void draw_something(void)
 {
    tfb_set_font_by_size(8, 16);
@@ -25,15 +30,19 @@ void draw_something(void)
    uint32_t cy = h/2;
 
    const double full_circle = 2.0 * M_PI;
-   const double delta_ang = full_circle / 64.0;
+   const double delta_ang = full_circle / 120.0;
 
-   for (double ang = 0.0; (full_circle - ang) > delta_ang; ang += delta_ang) {
+   for (double ang = 0.0; ang < full_circle; ang += delta_ang) {
 
       uint32_t px = cx + cos(ang) * l;
       uint32_t py = cy + sin(ang) * l;
+      uint32_t color =
+         tfb_make_color_hsv(TFB_HUE_DEGREE * rad_to_deg(ang),
+                            255,
+                            255);
 
-      tfb_draw_line(cx, cy, px, py, tfb_red);
-      tfb_fill_rect(px - 10, py - 10, 20, 20, tfb_white);
+      tfb_draw_line(cx, cy, px, py, color);
+      tfb_fill_rect(px - 10, py - 10, 20, 20, color);
    }
 }
 
