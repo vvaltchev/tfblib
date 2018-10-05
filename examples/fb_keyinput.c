@@ -21,13 +21,13 @@
 
 void loop(void)
 {
-   char buf[64];
+   char buf1[64], buf2[64];
    uint32_t w = MAX(tfb_screen_width()/2, 640);
    uint32_t h = MAX(tfb_screen_height()/2, 480);
    uint32_t step = 10;
    int n;
 
-   uint64_t k = 0;
+   tfb_key_t k = (tfb_key_t)-1;
 
    if (tfb_set_center_window_size(w, h) != TFB_SUCCESS) {
       fprintf(stderr, "Unable to set window to %ux%u\n", w, h);
@@ -36,28 +36,24 @@ void loop(void)
 
    w = tfb_win_width();
    h = tfb_win_height();
-   int x = w/8, y = h/8 - h/16;
 
-   tfb_clear_win(tfb_black);
-   tfb_draw_rect(0, 0, w, h, tfb_white);
-   tfb_fill_rect(x, y, w/4, h/4, tfb_red);
-   tfb_flush_window();
+   int rw = w / 4;
+   int rh = h / 4;
+   int x = w / 2 - rw / 2;
+   int y = h / 2 - rh / 2;
 
    do {
 
-      k = tfb_read_keypress();
+      k = (k != (tfb_key_t)-1) ? tfb_read_keypress() : 0;
+
       tfb_clear_win(tfb_black);
 
+      strcpy(buf1, "Use ARROW keys to move or ENTER to exit");
+
       if (isprint(k & 0xff)) {
-
-         sprintf(buf, "Pressed key: %c", (char)k);
-         tfb_draw_string(5, 5, tfb_green, tfb_black, buf);
-
+         sprintf(buf1, "Pressed key: %c", (char)k);
       } else if ((n = tfb_get_fn_key_num(k))) {
-
-         sprintf(buf, "Pressed key: F%d", n);
-         tfb_draw_string(5, 5, tfb_green, tfb_black, buf);
-
+         sprintf(buf1, "Pressed key: F%d", n);
       } else if (k == TFB_KEY_RIGHT) {
          x += step;
       } else if (k == TFB_KEY_DOWN) {
@@ -68,8 +64,16 @@ void loop(void)
          x -= step;
       }
 
+      tfb_draw_string(5, 5, tfb_green, tfb_black, buf1);
+
       // redraw the rect
-      tfb_draw_rect(x, y, w/4, h/4, tfb_red);
+      tfb_fill_rect(x, y, rw, rh, tfb_red);
+
+      sprintf(buf2, "(%d, %d)", x, y);
+      tfb_draw_xcenter_string(x + rw / 2,
+                              y + rh / 2 - tfb_get_curr_font_height()/2,
+                              tfb_white, tfb_red, buf2);
+
 
       // win border
       tfb_draw_rect(0, 0, w, h, tfb_white);
