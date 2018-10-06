@@ -49,11 +49,6 @@ u8 __fb_r_pos;
 u8 __fb_g_pos;
 u8 __fb_b_pos;
 
-static inline void tfb_draw_pixel_raw(u32 x, u32 y, u32 color)
-{
-   ((volatile u32 *)__fb_buffer)[x + y * __fb_pitch_div4] = color;
-}
-
 int tfb_set_center_window_size(u32 w, u32 h)
 {
    return tfb_set_window(__fb_screen_w / 2 - w / 2,
