@@ -17,14 +17,14 @@
 #define MAX_ROWS 40
 #define MAX_COLS 40
 
-static u32 tw = 2 * 20; /* single tile width */
-static u32 th = 2 * 20; /* single tile height */
+static int tw = 2 * 20; /* single tile width */
+static int th = 2 * 20; /* single tile height */
 
-static u32 rows;
-static u32 cols;
+static int rows;
+static int cols;
 
 static int tetris_row = -1;
-static u32 off_y = 0; /* temporary offset used for the tetris effect */
+static int off_y = 0; /* temporary offset used for the tetris effect */
 
 static unsigned char tiles[MAX_ROWS][MAX_COLS];
 
@@ -109,8 +109,8 @@ static void redraw_scene(void)
                  cp_rot);
    }
 
-   for (u32 row = 0; row < rows; row++)
-      for (u32 col = 0; col < cols; col++)
+   for (int row = 0; row < rows; row++)
+      for (int col = 0; col < cols; col++)
          if (tiles[row][col] > 0)
             draw_tile(row, col, *piece_colors[tiles[row][col] - 1]);
 

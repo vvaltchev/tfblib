@@ -11,7 +11,7 @@
 #include "utils.h"
 
 extern inline u32 tfb_make_color(u8 red, u8 green, u8 blue);
-extern inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
+extern inline void tfb_draw_pixel(int x, int y, u32 color);
 extern inline u32 tfb_screen_width(void);
 extern inline u32 tfb_screen_height(void);
 extern inline u32 tfb_win_width(void);
@@ -30,14 +30,14 @@ size_t __fb_pitch_div4; /*
                          * cast to u32.
                          */
 
-u32 __fb_screen_w;
-u32 __fb_screen_h;
-u32 __fb_win_w;
-u32 __fb_win_h;
-u32 __fb_off_x;
-u32 __fb_off_y;
-u32 __fb_win_end_x;
-u32 __fb_win_end_y;
+int __fb_screen_w;
+int __fb_screen_h;
+int __fb_win_w;
+int __fb_win_h;
+int __fb_off_x;
+int __fb_off_y;
+int __fb_win_end_x;
+int __fb_win_end_y;
 
 u32 __fb_r_mask;
 u32 __fb_g_mask;
@@ -63,12 +63,12 @@ int tfb_set_center_window_size(u32 w, u32 h)
 
 void tfb_clear_screen(u32 color)
 {
-   if (__fb_pitch == 4 * __fb_screen_w) {
+   if (__fb_pitch == (u32) 4 * __fb_screen_w) {
       memset32(__fb_buffer, color, __fb_size >> 2);
       return;
    }
 
-   for (u32 y = 0; y < __fb_screen_h; y++)
+   for (int y = 0; y < __fb_screen_h; y++)
       tfb_draw_hline(0, y, __fb_screen_w, color);
 }
 
@@ -96,7 +96,7 @@ void tfb_draw_hline(int x, int y, int len, u32 color)
 
 void tfb_draw_vline(int x, int y, int len, u32 color)
 {
-   u32 yend;
+   int yend;
 
    if (y < 0) {
       len += y;

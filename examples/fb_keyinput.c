@@ -22,8 +22,8 @@
 void loop(void)
 {
    char buf1[64], buf2[64];
-   uint32_t w = MAX(tfb_screen_width()/2, 640);
-   uint32_t h = MAX(tfb_screen_height()/2, 480);
+   uint32_t w = MAX(tfb_screen_width()/2, (unsigned)640);
+   uint32_t h = MAX(tfb_screen_height()/2, (unsigned)480);
    uint32_t step = 10;
    int n, rc;
    tfb_key_t k = (tfb_key_t)-1;

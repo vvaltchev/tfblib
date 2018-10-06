@@ -31,10 +31,10 @@ static void tfb_init_colors(void);
 
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
 {
-   if (x + w > __fb_screen_w)
+   if (x + w > (u32)__fb_screen_w)
       return TFB_ERR_INVALID_WINDOW;
 
-   if (y + h > __fb_screen_h)
+   if (y + h > (u32)__fb_screen_h)
       return TFB_ERR_INVALID_WINDOW;
 
    __fb_off_x = __fbi.xoffset + x;
@@ -174,16 +174,30 @@ void tfb_release_fb(void)
       close(fbfd);
 }
 
-void tfb_flush_rect(u32 x, u32 y, u32 w, u32 h)
+void tfb_flush_rect(int x, int y, int w, int h)
 {
+   int yend;
+
    if (__fb_buffer == __fb_real_buffer)
       return;
 
-   u32 yend;
    x += __fb_off_x;
    y += __fb_off_y;
 
-   w = MIN((int)w, MAX(0, (int)__fb_win_end_x - (int)x));
+   if (x < 0) {
+      w += x;
+      x = 0;
+   }
+
+   if (y < 0) {
+      h += y;
+      y = 0;
+   }
+
+   if (w < 0 || h < 0)
+      return;
+
+   w = MIN(w, MAX(0, __fb_win_end_x - x));
    yend = MIN(y + h, __fb_win_end_y);
 
    size_t offset = y * __fb_pitch + (__fb_off_x << 2);
@@ -191,7 +205,7 @@ void tfb_flush_rect(u32 x, u32 y, u32 w, u32 h)
    void *src = __fb_buffer + offset;
    u32 rect_pitch = w << 2;
 
-   for (u32 cy = y; cy < yend; cy++, src += __fb_pitch, dest += __fb_pitch)
+   for (int cy = y; cy < yend; cy++, src += __fb_pitch, dest += __fb_pitch)
       memcpy(dest, src, rect_pitch);
 }
 

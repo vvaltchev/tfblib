@@ -324,7 +324,7 @@ u32 tfb_make_color_hsv(u32 h, u8 s, u8 v);
  *       screen. But, after calling tfb_set_window() the origin of the
  *       coordinate system gets shifted.
  */
-inline void tfb_draw_pixel(u32 x, u32 y, u32 color);
+inline void tfb_draw_pixel(int x, int y, u32 color);
 
 /**
  * Draw a horizonal line on-screen
@@ -568,7 +568,7 @@ inline u32 tfb_win_height(void);
  * framebuffer. By default double buffering is not used and this function has no
  * effect.
  */
-void tfb_flush_rect(u32 x, u32 y, u32 w, u32 h);
+void tfb_flush_rect(int x, int y, int w, int h);
 
 /**
  * Flush the current window to the actual framebuffer

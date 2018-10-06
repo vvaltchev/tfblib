@@ -15,6 +15,9 @@ if (NOT "${CMAKE_PROJECT_NAME}" STREQUAL "tilck")
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG}")
    endif()
 
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror -Wno-unused-parameter")
+
 else()
 
    # We're not using the project() command here because CMake does not handle

@@ -139,10 +139,10 @@ static bool tfb_sel_font_cb(tfb_font_info *fi, void *arg)
    bool good = true;
 
    if (dfs->w > 0)
-      good = good && (fi->width == dfs->w);
+      good = good && (fi->width == (u32)dfs->w);
 
    if (dfs->h > 0)
-      good = good && (fi->height == dfs->h);
+      good = good && (fi->height == (u32)dfs->h);
 
    if (good) {
 
