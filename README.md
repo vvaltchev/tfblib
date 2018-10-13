@@ -85,10 +85,10 @@ int main(int argc, char **argv)
 Compatibility
 --------------
 
-`Tfblib` has been designed to work on the Linux kernel, on any hardware. It has
-been tested on x86 and on ARM machines (Raspberry Pi 3). It addition to that,
-it has been tested to work on [Tilck](https://github.com/vvaltchev/tilck),
-which is a small Linux-compatible kernel.
+`Tfblib` has been designed to work on the `Linux` kernel, on any hardware. It has
+been tested on `x86` and on `ARM` machines (Raspberry Pi 3). It addition to that,
+it works on [Tilck](https://github.com/vvaltchev/tilck), which is a small Linux
+compatible kernel.
 
 ![Tetris on Tilck](other/tetris.png)
 
@@ -111,6 +111,11 @@ $ ./scripts/cmake_run
 
 And finally build Tilck with `make`. The `Tfblib` examples will be visible in
 `/usr/bin/`, on Tilck.
+
+Limitations
+-------------
+
+For the moment, the library supports only 32-bbp video modes.
 
 Online API reference
 ----------------------
