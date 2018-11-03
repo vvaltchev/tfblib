@@ -45,8 +45,10 @@ int tfb_dyn_load_font(const char *file, tfb_font_t *font_id)
 
    fh = fopen(file, "rb");
 
-   if (!fh)
+   if (!fh) {
+      free(ff);
       return TFB_ERR_READ_FONT_FILE_FAILED;
+   }
 
    ff->filename = malloc(strlen(file) + 1);
 

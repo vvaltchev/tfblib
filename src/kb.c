@@ -217,7 +217,7 @@ static tfb_key_t tfb_switch_state_read(int rc, char c)
 tfb_key_t tfb_read_keypress(void)
 {
    tfb_key_t ret = 0;
-   int rc;
+   int rc = nb_ctx.readbuf_len;
    char c;
 
    if (!tfb_kb_raw_mode) {

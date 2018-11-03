@@ -39,7 +39,7 @@
 u32 tfb_make_color_hsv(u32 h, u8 s, u8 v)
 {
    u32 p, x;
-   u32 r, g, b;
+   u32 r = 0, g = 0, b = 0;
    int sv = -s * v;
 
    u32 region = h / DEG_60;
