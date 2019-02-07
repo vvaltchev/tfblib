@@ -102,7 +102,7 @@ Just drop a copy (or a symlink) of `Tfblib`'s main directory in the following
 subdirectory of the `Tilck` project:
 
 ```
-usermode_apps/extra
+userapps/extra
 ```
 
 Than just run:
@@ -130,10 +130,7 @@ Generating the documentation locally
 --------------------------------------
 
 In order to generate the documentation locally, make sure you have `doxygen`
-installed on your system and just run (in project's root directory):
-
-    doxygen
-
+installed on your system and just run it in project's root directory.
 The output html files will be placed in `<PROJECT_ROOT_DIR>/doxydocs/html`.
 Just open `index.html` with your browser.
 
