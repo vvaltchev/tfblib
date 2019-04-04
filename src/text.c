@@ -195,6 +195,18 @@ int tfb_set_current_font(tfb_font_t font_id)
    return TFB_SUCCESS;
 }
 
+#define draw_char_partial(b)                                                \
+   do {                                                                     \
+      tfb_draw_pixel(x + (b << 3) + 7, row, arr[!(data[b] & (1 << 0))]);    \
+      tfb_draw_pixel(x + (b << 3) + 6, row, arr[!(data[b] & (1 << 1))]);    \
+      tfb_draw_pixel(x + (b << 3) + 5, row, arr[!(data[b] & (1 << 2))]);    \
+      tfb_draw_pixel(x + (b << 3) + 4, row, arr[!(data[b] & (1 << 3))]);    \
+      tfb_draw_pixel(x + (b << 3) + 3, row, arr[!(data[b] & (1 << 4))]);    \
+      tfb_draw_pixel(x + (b << 3) + 2, row, arr[!(data[b] & (1 << 5))]);    \
+      tfb_draw_pixel(x + (b << 3) + 1, row, arr[!(data[b] & (1 << 6))]);    \
+      tfb_draw_pixel(x + (b << 3) + 0, row, arr[!(data[b] & (1 << 7))]);    \
+   } while (0)
+
 void tfb_draw_char(int x, int y, u32 fg_color, u32 bg_color, u8 c)
 {
    if (!curr_font) {
@@ -202,7 +214,8 @@ void tfb_draw_char(int x, int y, u32 fg_color, u32 bg_color, u8 c)
       return;
    }
 
-   u8 *d = curr_font_data + curr_font_bytes_per_glyph * c;
+   u8 *data = curr_font_data + curr_font_bytes_per_glyph * c;
+   const u32 arr[] = { fg_color, bg_color };
 
    /*
     * NOTE: the following algorithm is certainly not the fastest way to draw
@@ -220,12 +233,39 @@ void tfb_draw_char(int x, int y, u32 fg_color, u32 bg_color, u8 c)
     *     https://github.com/vvaltchev/tilck
     */
 
-   for (u32 row = 0; row < curr_font_h; row++, d += curr_font_w_bytes)
-      for (u32 b = 0; b < curr_font_w_bytes; b++)
-         for (u32 bit = 0; bit < 8; bit++)
-            tfb_draw_pixel(x + (b << 3) + 8 - bit - 1,
-                           y + row,
-                           (d[b] & (1 << bit)) ? fg_color : bg_color);
+
+   /*
+    * PERFORMANCE NOTE: using the following if (...) else if (...) sequence is
+    * measurably faster on modern CPUs compared to turning the whole
+    * fb_draw_char_failsafe() into a function pointer and having a separate
+    * function per case because of the branch prediction.
+    */
+
+   if (curr_font_w_bytes == 1)
+
+      for (u32 row = y; row < (y + curr_font_h); row++) {
+         draw_char_partial(0);
+         data += curr_font_w_bytes;
+      }
+
+   else if (curr_font_w_bytes == 2)
+
+      for (u32 row = y; row < (y + curr_font_h); row++) {
+         draw_char_partial(0);
+         draw_char_partial(1);
+         data += curr_font_w_bytes;
+      }
+
+   else
+
+      for (u32 row = y; row < (y + curr_font_h); row++) {
+
+         for (u32 b = 0; b < curr_font_w_bytes; b++) {
+            draw_char_partial(b);
+         }
+
+         data += curr_font_w_bytes;
+      }
 }
 
 void tfb_draw_char_scaled(int x, int y,
@@ -247,17 +287,17 @@ void tfb_draw_char_scaled(int x, int y,
    /*
     * NOTE: this algorithm is clearly much slower than the simpler variant
     * used in tfb_draw_char(), but it is still pretty good for static text.
-    * In case better performance is needed, just a scaled font should be used
-    * instead of the *_scaled draw text functions.
+    * In case better performance is needed, the proper solution would be to use
+    * a scaled font instead of the *_scaled draw text functions.
     */
 
    for (u32 row = 0; row < curr_font_h; row++, d += curr_font_w_bytes)
       for (u32 b = 0; b < curr_font_w_bytes; b++)
          for (u32 bit = 0; bit < 8; bit++) {
 
-            u32 xoff = xscale * ((b << 3) + 8 - bit - 1);
-            u32 yoff = yscale * row;
-            u32 color = (d[b] & (1 << bit)) ? fg : bg;
+            const int xoff = xscale * ((b << 3) + 8 - bit - 1);
+            const int yoff = yscale * row;
+            const u32 color = (d[b] & (1 << bit)) ? fg : bg;
 
             tfb_fill_rect(x + xoff, y + yoff, xscale, yscale, color);
          }
