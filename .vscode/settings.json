@@ -12,5 +12,8 @@
       "**/.git": true,
       "**/.DS_Store": true,
       "doxydoc/**": true
-    }
+   },
+   "files.associations": {
+      "tfblib.h": "c"
+   }
 }

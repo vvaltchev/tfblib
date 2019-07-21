@@ -63,4 +63,14 @@
 
 /// Unable to find a font matching the criteria
 #define TFB_ERR_FONT_NOT_FOUND           15
+
+/**
+ * Returns a human-readable error message.
+ *
+ * @param[in] error_code   The error code returned by one of the library funcs
+ *
+ * @return  A string representation of the error code
+ */
+const char *tfb_strerror(int error_code);
+
 /** @} */

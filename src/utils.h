@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
 #define INT_ABS(x) ((x) > 0 ? (x) : (-(x)))
 
 #define MIN(x, y) \
