@@ -310,10 +310,8 @@ void tfb_draw_string(int x, int y, u32 fg_color, u32 bg_color, const char *s)
       return;
    }
 
-   while (*s) {
+   for (; *s; s++, x += curr_font_w) {
       tfb_draw_char(x, y, fg_color, bg_color, *s);
-      x += curr_font_w;
-      s++;
    }
 }
 
@@ -326,27 +324,23 @@ void tfb_draw_string_scaled(int x, int y,
       return;
    }
 
-   int xs = xscale > 0 ? xscale : -xscale;
+   const int xs = xscale > 0 ? xscale : -xscale;
 
-   while (*s) {
+   for (; *s; s++, x += xs * curr_font_w) {
       tfb_draw_char_scaled(x, y, fg, bg, xscale, yscale, *s);
-      x += xs * curr_font_w;
-      s++;
    }
 }
 
 void tfb_draw_xcenter_string(int cx, int y, u32 fg, u32 bg, const char *s)
 {
-   size_t len = strlen(s);
-   tfb_draw_string(cx - curr_font_w * len / 2, y, fg, bg, s);
+   tfb_draw_string(cx - curr_font_w * strlen(s) / 2, y, fg, bg, s);
 }
 
 void tfb_draw_xcenter_string_scaled(int cx, int y,
                                     u32 fg, u32 bg,
                                     int xscale, int yscale, const char *s)
 {
-   size_t len = strlen(s);
-   tfb_draw_string_scaled(cx - xscale * curr_font_w * len / 2,
+   tfb_draw_string_scaled(cx - xscale * curr_font_w * strlen(s) / 2,
                           y, fg, bg, xscale, yscale, s);
 }
 
