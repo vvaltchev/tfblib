@@ -49,14 +49,20 @@ void draw_circles(void)
 
    tfb_clear_screen(tfb_black);
    tfb_set_font_by_size(8, 16);
-   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER to quit");
 
    int n = 20;
    int r = w / n;
 
-   for (int i = 0; i < n; i++)
-      for (int j = 0; j < n; j++)
-         tfb_draw_circle(i * r * 2, j * r * 2, r, tfb_red);
+   for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+         if ((i+j) % 2)
+            tfb_draw_circle(i * r * 2, j * r * 2, r, tfb_red);
+         else
+            tfb_fill_circle(i * r * 2, j * r * 2, r, tfb_red);
+      }
+   }
+
+   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER to quit");
 }
 
 int main(int argc, char **argv)

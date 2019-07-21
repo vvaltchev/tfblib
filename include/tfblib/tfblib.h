@@ -404,6 +404,16 @@ void tfb_fill_rect(int x, int y, int w, int h, u32 color);
 void tfb_draw_circle(int cx, int cy, int r, u32 color);
 
 /**
+ * Draw a filled circle on-screen
+ *
+ * @param[in]  cx       X coordinate of circle's center
+ * @param[in]  cy       Y coordinate of circle's center
+ * @param[in]  r        Circle's radius
+ * @param[in]  color    Circle's color
+ */
+void tfb_fill_circle(int cx, int cy, int r, u32 color);
+
+/**
  * Draw a single character on-screen at (x, y)
  *
  * @param[in]  x        Window-relative X coordinate of character's position

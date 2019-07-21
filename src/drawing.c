@@ -243,3 +243,17 @@ void tfb_draw_circle(int cx, int cy, int r, u32 color)
       }
    }
 }
+
+/*
+ * Simple algorithm for drawing a filled circle which just scans the whole
+ * 2R x 2R square containing the circle.
+ */
+void tfb_fill_circle(int cx, int cy, int r, u32 color)
+{
+   const int r2 = r * r + r;
+
+   for (int y = -r; y <= r; y++)
+      for (int x = -r; x <= r; x++)
+         if (x*x + y*y <= r2)
+            tfb_draw_pixel(cx + x, cy + y, color);
+}
