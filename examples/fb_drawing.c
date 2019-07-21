@@ -14,13 +14,12 @@ static inline double rad_to_deg(double rad)
 
 void draw_something(void)
 {
-   tfb_set_font_by_size(8, 16);
-
    uint32_t w = tfb_screen_width();
    uint32_t h = tfb_screen_height();
 
+   tfb_set_font_by_size(8, 16);
    tfb_clear_screen(tfb_black);
-   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER to quit");
+   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER for the next");
 
    // screen border
    tfb_draw_rect(0, 0, w, h, tfb_white);
@@ -37,13 +36,27 @@ void draw_something(void)
       uint32_t px = cx + cos(ang) * l;
       uint32_t py = cy + sin(ang) * l;
       uint32_t color =
-         tfb_make_color_hsv(TFB_HUE_DEGREE * rad_to_deg(ang),
-                            255,
-                            255);
+         tfb_make_color_hsv(TFB_HUE_DEGREE * rad_to_deg(ang), 255, 255);
 
       tfb_draw_line(cx, cy, px, py, color);
       tfb_fill_rect(px - 10, py - 10, 20, 20, color);
    }
+}
+
+void draw_circles(void)
+{
+   uint32_t w = tfb_screen_width();
+
+   tfb_clear_screen(tfb_black);
+   tfb_set_font_by_size(8, 16);
+   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER to quit");
+
+   int n = 20;
+   int r = w / n;
+
+   for (int i = 0; i < n; i++)
+      for (int j = 0; j < n; j++)
+         tfb_draw_circle(i * r * 2, j * r * 2, r, tfb_red);
 }
 
 int main(int argc, char **argv)
@@ -57,6 +70,8 @@ int main(int argc, char **argv)
    }
 
    draw_something();
+   getchar();
+   draw_circles();
    getchar();
 
    tfb_release_fb();

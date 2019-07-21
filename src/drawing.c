@@ -206,3 +206,40 @@ void tfb_draw_line(int x0, int y0, int x1, int y1, u32 color)
    else
       midpoint_line(y0, x0, y1, x1, color, true);
 }
+
+/*
+ * Based on the pseudocode in:
+ * https://sites.google.com/site/johnkennedyshome/home/downloadable-papers/bcircle.pdf
+ *
+ * Written by John Kennedy, Mathematics Department, Santa Monica College.
+ */
+void tfb_draw_circle(int cx, int cy, int r, u32 color)
+{
+   int x = r;
+   int y = 0;
+   int xch = 1 - 2 * r;
+   int ych = 1;
+   int rerr = 0;
+
+   while (x >= y) {
+
+      tfb_draw_pixel(cx + x, cy + y, color);
+      tfb_draw_pixel(cx - x, cy + y, color);
+      tfb_draw_pixel(cx - x, cy - y, color);
+      tfb_draw_pixel(cx + x, cy - y, color);
+      tfb_draw_pixel(cx + y, cy + x, color);
+      tfb_draw_pixel(cx - y, cy + x, color);
+      tfb_draw_pixel(cx - y, cy - x, color);
+      tfb_draw_pixel(cx + y, cy - x, color);
+
+      y++;
+      rerr += ych;
+      ych += 2;
+
+      if (2 * rerr + xch > 0) {
+         x--;
+         rerr += xch;
+         xch += 2;
+      }
+   }
+}
