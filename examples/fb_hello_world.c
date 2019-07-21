@@ -9,7 +9,7 @@ int main(int argc, char **argv)
    int rc;
 
    if ((rc = tfb_acquire_fb(0, NULL, NULL)) != TFB_SUCCESS) {
-      fprintf(stderr, "tfb_acquire_fb() failed with error code: %d\n", rc);
+      fprintf(stderr, "tfb_acquire_fb() failed: %s\n", tfb_strerror(rc));
       return 1;
    }
 

@@ -20,7 +20,7 @@ bool font_iter_cb_select_font16(tfb_font_info *fi, void *user_arg)
       int rc = tfb_set_current_font(fi->font_id);
 
       if (rc != TFB_SUCCESS) {
-         fprintf(stderr, "tfb_set_current_font() failed with error: %d\n", rc);
+         fprintf(stderr,"tfb_set_current_font() failed: %s\n",tfb_strerror(rc));
          abort();
       }
 
@@ -51,8 +51,8 @@ int main(int argc, char **argv)
       rc = tfb_dyn_load_font(argv[1], &font_id);
 
       if (rc != TFB_SUCCESS) {
-         fprintf(stderr, "tfb_dyn_load_font(%s) failed with error: %d\n",
-                 argv[1], rc);
+         fprintf(stderr, "tfb_dyn_load_font(%s) failed: %s\n",
+                 argv[1], tfb_strerror(rc));
 
          return 1;
       }
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
       rc = tfb_set_current_font(font_id);
 
       if (rc != TFB_SUCCESS) {
-         fprintf(stderr, "tfb_set_current_font() failed with error: %d\n", rc);
+         fprintf(stderr,"tfb_set_current_font() failed: %s\n",tfb_strerror(rc));
          return 1;
       }
    }
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
    rc = tfb_acquire_fb(0, NULL, NULL);
 
    if (rc != TFB_SUCCESS) {
-      fprintf(stderr, "tfb_acquire_fb() failed with error code: %d\n", rc);
+      fprintf(stderr, "tfb_acquire_fb() failed: %s\n", tfb_strerror(rc));
       tfb_release_fb();
       return 1;
    }

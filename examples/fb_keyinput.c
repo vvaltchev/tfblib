@@ -102,7 +102,7 @@ int main(int argc, char **argv)
    rc = tfb_acquire_fb(TFB_FL_USE_DOUBLE_BUFFER, NULL, NULL);
 
    if (rc != TFB_SUCCESS) {
-      fprintf(stderr, "tfb_acquire_fb() failed with error code: %d\n", rc);
+      fprintf(stderr, "tfb_acquire_fb() failed: %s\n", tfb_strerror(rc));
       tfb_release_fb();
       return 1;
    }
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
    rc = tfb_set_kb_raw_mode(0);
 
    if (rc != TFB_SUCCESS) {
-      fprintf(stderr, "tfb_set_kb_raw_mode() failed with err: %d\n", rc);
+      fprintf(stderr, "tfb_set_kb_raw_mode() failed: %s\n", tfb_strerror(rc));
       goto end;
    }
 
@@ -121,7 +121,7 @@ end:
    tfb_release_fb();
 
    if (rc)
-      fprintf(stderr, "tfblib error: %d", rc);
+      fprintf(stderr, "tfblib error: %d (%s)", rc, tfb_strerror(rc));
 
    return 0;
 }
