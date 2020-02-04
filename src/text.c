@@ -91,8 +91,8 @@ int tfb_dyn_unload_font(tfb_font_t font_id)
 void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
 {
    struct tfb_font_info fi;
-   psf1_header *h1;
-   psf2_header *h2;
+   struct psf1_header *h1;
+   struct psf2_header *h2;
    const struct font_file **it;
 
    for (it = tfb_font_file_list; *it; it++) {
@@ -170,8 +170,8 @@ int tfb_set_font_by_size(int w, int h)
 int tfb_set_current_font(tfb_font_t font_id)
 {
    const struct font_file *ff = font_id;
-   psf1_header *h1 = (void *)ff->data;
-   psf2_header *h2 = (void *)ff->data;
+   struct psf1_header *h1 = (void *)ff->data;
+   struct psf2_header *h2 = (void *)ff->data;
 
    if (h2->magic == PSF2_MAGIC) {
       curr_font = h2;
@@ -185,7 +185,7 @@ int tfb_set_current_font(tfb_font_t font_id)
       curr_font_w = 8;
       curr_font_h = h1->bytes_per_glyph;
       curr_font_w_bytes = 1;
-      curr_font_data = curr_font + sizeof(psf1_header);
+      curr_font_data = curr_font + sizeof(struct psf1_header);
       curr_font_bytes_per_glyph = h1->bytes_per_glyph;
    } else {
       return TFB_ERR_INVALID_FONT_ID;

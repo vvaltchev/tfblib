@@ -21,11 +21,11 @@ extern const struct font_file **tfb_font_file_list;
 #define PSF1_SEPARATOR  0xFFFF
 #define PSF1_STARTSEQ   0xFFFE
 
-typedef struct {
+struct psf1_header {
    u16 magic;
    u8 mode;
    u8 bytes_per_glyph;
-} psf1_header;
+};
 
 #define PSF2_MAGIC 0x864ab572
 
@@ -39,7 +39,7 @@ typedef struct {
 #define PSF2_SEPARATOR  0xFF
 #define PSF2_STARTSEQ   0xFE
 
-typedef struct {
+struct psf2_header {
     u32 magic;
     u32 version;
     u32 header_size;
@@ -48,6 +48,6 @@ typedef struct {
     u32 bytes_per_glyph;
     u32 height;          /* height in pixels */
     u32 width;           /* width in pixels */
-} psf2_header;
+};
 
 void tfb_set_default_font(void *font_id);
