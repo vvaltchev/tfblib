@@ -23,7 +23,6 @@ static void draw_something(void)
 
    tfb_set_font_by_size(8, 16);
    tfb_clear_screen(tfb_black);
-   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER for the next");
 
    // screen border
    tfb_draw_rect(0, 0, w, h, tfb_white);
@@ -65,8 +64,6 @@ static void draw_circles(void)
             tfb_fill_circle(i * r * 2, j * r * 2, r, tfb_red);
       }
    }
-
-   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER for the next");
 }
 
 static int mandelbrot_diverge_steps(complex double c)
@@ -108,9 +105,14 @@ static void draw_mandelbrot_set(void)
          tfb_draw_pixel(xoff + x, yoff + h - y, c);
       }
    }
-
-   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER to quit");
 }
+
+static void (*screen_funcs[])(void) = {
+   draw_something,
+   draw_circles,
+   draw_mandelbrot_set,
+   NULL,
+};
 
 int main(int argc, char **argv)
 {
@@ -122,12 +124,17 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   draw_something();
-   getchar();
-   draw_circles();
-   getchar();
-   draw_mandelbrot_set();
-   getchar();
+   for (void (**f)(void) = screen_funcs; *f; f++) {
+
+      (*f)();
+
+      tfb_draw_string(10, 10, tfb_white, tfb_black,
+                      *(f+1)
+                        ? "Press ENTER for the next"
+                        : "Press ENTER to quit");
+
+      getchar();
+   }
 
    tfb_release_fb();
    return 0;
