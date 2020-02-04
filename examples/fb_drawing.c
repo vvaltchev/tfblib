@@ -3,16 +3,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <complex.h>
 
 #include <tfblib/tfblib.h>
 #include <tfblib/tfb_colors.h>
+
+#define MANDELBROT_MAX_STEPS        60
+#define MANDELBROT_HUE_K            (TFB_HUE_DEGREE * 360/MANDELBROT_MAX_STEPS)
 
 static inline double rad_to_deg(double rad)
 {
    return (rad / (2 * M_PI)) * 360.0;
 }
 
-void draw_something(void)
+static void draw_something(void)
 {
    uint32_t w = tfb_screen_width();
    uint32_t h = tfb_screen_height();
@@ -43,7 +47,7 @@ void draw_something(void)
    }
 }
 
-void draw_circles(void)
+static void draw_circles(void)
 {
    uint32_t w = tfb_screen_width();
 
@@ -65,6 +69,43 @@ void draw_circles(void)
    tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER to quit");
 }
 
+static inline int mandelbrot_diverge_steps(complex double c)
+{
+   complex double z = 0.0;
+
+   for (int i = 0; i < MANDELBROT_MAX_STEPS; i++) {
+
+      z = z*z + c;
+
+      if (cabs(z) >= 2.0)
+         return i;
+   }
+
+   return -1;
+}
+
+static void draw_mandelbrot_set(void)
+{
+   uint32_t colors[MANDELBROT_MAX_STEPS];
+   const uint32_t w = tfb_screen_width();
+   const uint32_t h = tfb_screen_height();
+   const double scaleR = 1.0 / (w / 4.0);
+
+   for (int i = 0; i < MANDELBROT_MAX_STEPS; i++)
+      colors[i] = tfb_make_color_hsv(i * MANDELBROT_HUE_K, 255, 255);
+
+   tfb_clear_screen(colors[0]);
+
+   for (uint32_t y = 0; y < h; y++) {
+      for (uint32_t x = 0; x < w; x++) {
+         const double re = (x * scaleR) - 2.5;
+         const double im = 1.0 - (y * scaleR);
+         const int r = mandelbrot_diverge_steps(re + im * I);
+         tfb_draw_pixel(x, y, r < 0 ? tfb_black : colors[r]);
+      }
+   }
+}
+
 int main(int argc, char **argv)
 {
    int rc;
@@ -78,6 +119,8 @@ int main(int argc, char **argv)
    draw_something();
    getchar();
    draw_circles();
+   getchar();
+   draw_mandelbrot_set();
    getchar();
 
    tfb_release_fb();
