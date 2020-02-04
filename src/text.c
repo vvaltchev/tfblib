@@ -127,17 +127,16 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
    }
 }
 
-typedef struct {
+struct desired_font_size {
 
    int w;
    int h;
    bool found;
-
-} desired_font_size;
+};
 
 static bool tfb_sel_font_cb(struct tfb_font_info *fi, void *arg)
 {
-   desired_font_size *dfs = arg;
+   struct desired_font_size *dfs = arg;
    bool good = true;
 
    if (dfs->w > 0)
@@ -159,7 +158,7 @@ static bool tfb_sel_font_cb(struct tfb_font_info *fi, void *arg)
 
 int tfb_set_font_by_size(int w, int h)
 {
-   desired_font_size dfs = { w, h, false };
+   struct desired_font_size dfs = { w, h, false };
    tfb_iterate_over_fonts(tfb_sel_font_cb, &dfs);
 
    if (!dfs.found)
