@@ -90,7 +90,7 @@ int tfb_dyn_unload_font(tfb_font_t font_id)
 
 void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
 {
-   tfb_font_info fi;
+   struct tfb_font_info fi;
    psf1_header *h1;
    psf2_header *h2;
    const font_file **it;
@@ -102,7 +102,7 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
 
       if (h2->magic == PSF2_MAGIC) {
 
-         fi = (tfb_font_info) {
+         fi = (struct tfb_font_info) {
             .name = (*it)->filename,
             .width = h2->width,
             .height = h2->height,
@@ -112,7 +112,7 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
 
       } else {
 
-         fi = (tfb_font_info) {
+         fi = (struct tfb_font_info) {
             .name = (*it)->filename,
             .width = 8,
             .height = h1->bytes_per_glyph,
@@ -135,7 +135,7 @@ typedef struct {
 
 } desired_font_size;
 
-static bool tfb_sel_font_cb(tfb_font_info *fi, void *arg)
+static bool tfb_sel_font_cb(struct tfb_font_info *fi, void *arg)
 {
    desired_font_size *dfs = arg;
    bool good = true;

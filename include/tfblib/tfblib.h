@@ -166,30 +166,29 @@ typedef void *tfb_font_t;
 /**
  * Font info structure
  *
- * tfb_iterate_over_fonts() passes a pointer to a tfb_font_info * structure for
+ * tfb_iterate_over_fonts() passes a pointer to a struct tfb_font_info * for
  * each statically embedded font in the library to the callback function.
  */
-typedef struct {
+struct tfb_font_info {
 
    const char *name;     /**< Font's file name */
    u32 width;            /**< Font's character width in pixels */
    u32 height;           /**< Font's character height in pixels */
    u32 psf_version;      /**< PSF version: either 1 or 2 */
    tfb_font_t font_id;   /**< An opaque identifier of the font */
-
-} tfb_font_info;
+};
 
 /**
  * Callback type accepted by tfb_iterate_over_fonts().
  */
-typedef bool (*tfb_font_iter_func)(tfb_font_info *cb, void *user_arg);
+typedef bool (*tfb_font_iter_func)(struct tfb_font_info *cb, void *user_arg);
 
 /**
  * Iterate over the fonts embedded in the library.
  *
  * tfb_iterate_over_fonts() calls 'cb' once for each embedded font passing to
- * it a pointer a tfb_font_info structure and the user_arg until either the
- * font list is over or the callback returned false.
+ * it a pointer a struct tfb_font_info structure and the user_arg until either
+ * the font list is over or the callback returned false.
  *
  * @param[in] cb           An user callback function
  * @param[in] user_arg     An arbitrary user pointer that will be passed to the
@@ -201,8 +200,8 @@ void tfb_iterate_over_fonts(tfb_font_iter_func cb, void *user_arg);
  * Set the font used by the functions for drawing text
  *
  * @param[in] font_id      An opaque identifier provided by the library either
- *                         as a member of tfb_font_info, or returned as an out
- *                         parameter by tfb_dyn_load_font().
+ *                         as a member of struct tfb_font_info, or returned as
+ *                         an out parameter by tfb_dyn_load_font().
  *
  * @return                 #TFB_SUCCESS in case of success or
  *                         #TFB_ERR_INVALID_FONT_ID otherwise.

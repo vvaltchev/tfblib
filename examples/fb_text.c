@@ -6,14 +6,14 @@
 #include <tfblib/tfb_colors.h>
 
 
-bool font_iter_callback(tfb_font_info *fi, void *user_arg)
+bool font_iter_callback(struct tfb_font_info *fi, void *user_arg)
 {
    printf("    font '%s', psf%u, %u x %u\n",
           fi->name, fi->psf_version, fi->width, fi->height);
    return true;
 }
 
-bool font_iter_cb_select_font16(tfb_font_info *fi, void *user_arg)
+bool font_iter_cb_select_font16(struct tfb_font_info *fi, void *user_arg)
 {
    if (fi->height == 16) {
 
