@@ -3,5 +3,5 @@
 
 @font_decls@
 
-static const font_file *__font_file_list[] = { @fonts_list_str@ };
-const font_file **tfb_font_file_list = __font_file_list;
+static const struct font_file *__font_file_list[] = { @fonts_list_str@ };
+const struct font_file **tfb_font_file_list = __font_file_list;

@@ -27,7 +27,7 @@ int tfb_dyn_load_font(const char *file, tfb_font_t *font_id)
 {
    struct stat statbuf;
    size_t tot_read = 0;
-   font_file *ff;
+   struct font_file *ff;
    size_t ret;
    FILE *fh;
    int rc;
@@ -38,7 +38,7 @@ int tfb_dyn_load_font(const char *file, tfb_font_t *font_id)
    if (rc != 0)
       return TFB_ERR_READ_FONT_FILE_FAILED;
 
-   ff = malloc(sizeof(font_file) + statbuf.st_size);
+   ff = malloc(sizeof(struct font_file) + statbuf.st_size);
 
    if (!ff)
       return TFB_ERR_OUT_OF_MEMORY;
@@ -76,8 +76,8 @@ int tfb_dyn_load_font(const char *file, tfb_font_t *font_id)
 
 int tfb_dyn_unload_font(tfb_font_t font_id)
 {
-   font_file *ff = font_id;
-   const font_file **it;
+   struct font_file *ff = font_id;
+   const struct font_file **it;
 
    for (it = tfb_font_file_list; *it; it++)
       if (*it == font_id)
@@ -93,7 +93,7 @@ void tfb_iterate_over_fonts(tfb_font_iter_func f, void *user_arg)
    struct tfb_font_info fi;
    psf1_header *h1;
    psf2_header *h2;
-   const font_file **it;
+   const struct font_file **it;
 
    for (it = tfb_font_file_list; *it; it++) {
 
@@ -169,7 +169,7 @@ int tfb_set_font_by_size(int w, int h)
 
 int tfb_set_current_font(tfb_font_t font_id)
 {
-   const font_file *ff = font_id;
+   const struct font_file *ff = font_id;
    psf1_header *h1 = (void *)ff->data;
    psf2_header *h2 = (void *)ff->data;
 
