@@ -11,15 +11,15 @@ struct font_file {
 
 extern const struct font_file **tfb_font_file_list;
 
-#define PSF1_MAGIC 0x0436
+#define PSF1_MAGIC               0x0436
 
-#define PSF1_MODE512    0x01
-#define PSF1_MODEHASTAB 0x02
-#define PSF1_MODEHASSEQ 0x04
-#define PSF1_MAXMODE    0x05
+#define PSF1_MODE512             0x01
+#define PSF1_MODEHASTAB          0x02
+#define PSF1_MODEHASSEQ          0x04
+#define PSF1_MAXMODE             0x05
 
-#define PSF1_SEPARATOR  0xFFFF
-#define PSF1_STARTSEQ   0xFFFE
+#define PSF1_SEPARATOR           0xFFFF
+#define PSF1_STARTSEQ            0xFFFE
 
 struct psf1_header {
    u16 magic;
@@ -27,17 +27,17 @@ struct psf1_header {
    u8 bytes_per_glyph;
 };
 
-#define PSF2_MAGIC 0x864ab572
+#define PSF2_MAGIC               0x864ab572
 
 /* bits used in flags */
-#define PSF2_HAS_UNICODE_TABLE 0x01
+#define PSF2_HAS_UNICODE_TABLE   0x01
 
 /* max version recognized so far */
-#define PSF2_MAXVERSION 0
+#define PSF2_MAXVERSION          0
 
 /* UTF8 separators */
-#define PSF2_SEPARATOR  0xFF
-#define PSF2_STARTSEQ   0xFE
+#define PSF2_SEPARATOR           0xFF
+#define PSF2_STARTSEQ            0xFE
 
 struct psf2_header {
     u32 magic;
