@@ -66,44 +66,50 @@ static void draw_circles(void)
       }
    }
 
-   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER to quit");
+   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER for the next");
 }
 
-static inline int mandelbrot_diverge_steps(complex double c)
+static int mandelbrot_diverge_steps(complex double c)
 {
    complex double z = 0.0;
+   int i;
 
-   for (int i = 0; i < MANDELBROT_MAX_STEPS; i++) {
-
+   for (i = 0; i < MANDELBROT_MAX_STEPS && cabs(z) <= 2.0; i++)
       z = z*z + c;
 
-      if (cabs(z) >= 2.0)
-         return i;
-   }
-
-   return -1;
+   return i;
 }
 
 static void draw_mandelbrot_set(void)
 {
    uint32_t colors[MANDELBROT_MAX_STEPS];
-   const uint32_t w = tfb_screen_width();
-   const uint32_t h = tfb_screen_height();
-   const double scaleR = 1.0 / (w / 4.0);
+   const int sW = tfb_screen_width();
+   const int sH = tfb_screen_height();
+   const double unit = sW / 3.2;
+   const double scaleR = 1.0 / unit;
+   const int w = unit * 3.0;
+   const int h = unit * 2.0;
+   const int h2 = h / 2;
+   const int xoff = (sW - w) / 2;
+   const int yoff = (sH - h) / 2;
 
    for (int i = 0; i < MANDELBROT_MAX_STEPS; i++)
       colors[i] = tfb_make_color_hsv(i * MANDELBROT_HUE_K, 255, 255);
 
-   tfb_clear_screen(colors[0]);
+   tfb_clear_screen(tfb_black);
 
-   for (uint32_t y = 0; y < h; y++) {
-      for (uint32_t x = 0; x < w; x++) {
-         const double re = (x * scaleR) - 2.5;
+   for (int y = 0; y <= h2; y++) {
+      for (int x = 0; x < w; x++) {
+         const double re = (x * scaleR) - 2.0;
          const double im = 1.0 - (y * scaleR);
          const int r = mandelbrot_diverge_steps(re + im * I);
-         tfb_draw_pixel(x, y, r < 0 ? tfb_black : colors[r]);
+         const uint32_t c = (r == MANDELBROT_MAX_STEPS ? tfb_black : colors[r]);
+         tfb_draw_pixel(xoff + x, yoff + y, c);
+         tfb_draw_pixel(xoff + x, yoff + h - y, c);
       }
    }
+
+   tfb_draw_string(10, 10, tfb_white, tfb_black, "Press ENTER to quit");
 }
 
 int main(int argc, char **argv)
