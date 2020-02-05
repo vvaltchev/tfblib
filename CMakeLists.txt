@@ -76,7 +76,8 @@ foreach(file ${font_files})
 
    set(cvar "font_${basename}")
    list(APPEND c_font_files fonts/${basename}.c)
-   string(APPEND font_decls "\nextern const struct font_file ${cvar};")
+   set(new_decl "extern const struct font_file ${cvar};")
+   set(font_decls "${font_decls}\n${new_decl}")
    set(fonts_list_str "&${cvar}, ${fonts_list_str}")
 
 endforeach()
