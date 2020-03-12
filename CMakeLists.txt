@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 cmake_minimum_required(VERSION 3.2)
+include(ExternalProject)
 
 if (NOT "${CMAKE_PROJECT_NAME}" STREQUAL "tilck")
 
@@ -43,7 +44,16 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
-add_subdirectory(tools)
+ExternalProject_Add(
+
+   tools
+
+   PREFIX "${CMAKE_CURRENT_BINARY_DIR}/tools"
+   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tools"
+   INSTALL_COMMAND ""
+)
+
+set(B2C "${CMAKE_CURRENT_BINARY_DIR}/tools/src/tools-build/binary2c")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -68,10 +78,10 @@ foreach(file ${font_files})
          mkdir -p fonts
 
       COMMAND
-         binary2c ${file} fonts/${basename}.c font_${basename}
+         ${B2C} ${file} fonts/${basename}.c font_${basename}
 
       DEPENDS
-         binary2c
+         tools
    )
 
    set(cvar "font_${basename}")
