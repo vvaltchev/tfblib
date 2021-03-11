@@ -17,7 +17,7 @@
       __typeof__ (y) _y = (y); \
       _x > _y ? _x : _y; })
 
-/* Here in our internal header, it's save to typedef our convenience types */
+/* Here in our internal header, it's safe to typedef our convenience types */
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;

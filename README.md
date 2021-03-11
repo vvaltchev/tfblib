@@ -1,6 +1,6 @@
 # Tfblib (Tiny Framebuffer Library)
 
-![Build Status](https://travis-ci.org/vvaltchev/tfblib.svg?branch=master)
+[![Build Status](https://travis-ci.org/vvaltchev/tfblib.svg?branch=master)](https://travis-ci.org/vvaltchev/tfblib)
 [![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://vvaltchev.github.io/tfblib/tfblib_8h.html)
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
 

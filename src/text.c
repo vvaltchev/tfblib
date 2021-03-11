@@ -225,19 +225,11 @@ void tfb_draw_char(int x, int y, u32 fg_color, u32 bg_color, u8 c)
     * its performance is pretty acceptable on modern machines, even when used
     * by a console to full-redraw a screen with text. Therefore, for the
     * purposes of this library (mostly to show static text on-screen), the
-    * following implementation is absolutely good-enough.
+    * following implementation is absolutely good enough.
     *
     * -------------------------------------------------
     * [1] Tilck [A Tiny Linux-Compatible Kernel]
     *     https://github.com/vvaltchev/tilck
-    */
-
-
-   /*
-    * PERFORMANCE NOTE: using the following if (...) else if (...) sequence is
-    * measurably faster on modern CPUs compared to turning the whole
-    * fb_draw_char_failsafe() into a function pointer and having a separate
-    * function per case because of the branch prediction.
     */
 
    if (curr_font_w_bytes == 1)
