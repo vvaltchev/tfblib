@@ -599,6 +599,18 @@ void tfb_flush_rect(int x, int y, int w, int h);
  */
 void tfb_flush_window(void);
 
+/**
+ * Flush the framebuffer, causing it to update. This is different
+ * to tfb_flush_window() as it doesn't deal with double_buffering,
+ * rather it handles the case where the framebuffer has to be "ACTIVATED".
+ * 
+ * @return #TFB_SUCCESS on success or #TFB_ERR_FB_FLUSH_IOCTL_FAILED
+ *    on failure.
+ * 
+ * @see tfb_flush_window
+ */
+int tfb_flush_fb(void);
+
 #include "tfb_inline_funcs.h" // internal header
 
 /* undef the the convenience types defined above */

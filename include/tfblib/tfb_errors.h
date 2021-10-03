@@ -64,6 +64,9 @@
 /// Unable to find a font matching the criteria
 #define TFB_ERR_FONT_NOT_FOUND           15
 
+/// Unable to flush the framebuffer with ioctl()
+#define TFB_ERR_FB_FLUSH_IOCTL_FAILED 16
+
 /**
  * Returns a human-readable error message.
  *
