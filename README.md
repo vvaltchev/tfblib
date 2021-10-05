@@ -117,7 +117,7 @@ And finally build Tilck with `make`. The `Tfblib` examples will be visible in
 Limitations
 -------------
 
-For the moment, the library supports only 32-bbp video modes.
+For the moment, the library supports only 32-bpp video modes.
 
 Online API reference
 ----------------------
