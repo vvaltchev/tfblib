@@ -21,6 +21,7 @@ static const char *error_msgs[] =
    /* 13 */    "Unable to get a keyboard input paramater with ioctl()",
    /* 14 */    "Unable to set a keyboard input paramater with ioctl()",
    /* 15 */    "Unable to find a font matching the criteria",
+   /* 16 */    "Unable to flush the framebuffer with ioctl()",
 };
 
 const char *tfb_strerror(int error_code)
