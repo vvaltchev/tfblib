@@ -497,6 +497,27 @@ void tfb_draw_char_scaled(int x, int y, u32 fg, u32 bg,
                           int xscale, int yscale, u8 c);
 
 /**
+ * line tfb_draw_char_scaled but also line wraps at (wrap_col), and
+ * newlines.
+ *
+ * @param[in]  x        Window-relative X coordinate of text's position
+ * @param[in]  y        Window-relative Y coordinate of text's position
+ * @param[in]  fg       Foreground text color
+ * @param[in]  bg       Background text color
+ * @param[in]  xscale   Horizontal scale
+ * @param[in]  yscale   Vertical scale
+ * @param[in]  wrap_col Number of characters to print before wrapping
+ * @param[in]  s        A char pointer to the string
+ *
+ * Like tfb_draw_string(), but scaled. @see tfb_draw_char_scaled().
+ *
+ * \see tfb_draw_char_scaled
+ */
+void tfb_draw_string_scaled_wrapped(int x, int y, u32 fg, u32 bg,
+                                    int xscale, int yscale, u32 wrap_col,
+                                    const char *s);
+
+/**
  * Draw a NUL-terminated string on-screen at (x, y) scaled by (xscale, yscale)
  *
  * @param[in]  x        Window-relative X coordinate of text's position
