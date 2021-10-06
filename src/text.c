@@ -306,6 +306,29 @@ void tfb_draw_string(int x, int y, u32 fg_color, u32 bg_color, const char *s)
    }
 }
 
+void tfb_draw_string_scaled_wrapped(int x, int y,
+                                    u32 fg, u32 bg,
+                                    int xscale, int yscale, u32 wrap_col,
+                                    const char *s)
+{
+   int base_x = x;
+   if (!curr_font) {
+      fprintf(stderr, "[tfblib] ERROR: no font currently selected\n");
+      return;
+   }
+
+   const int xs = xscale > 0 ? xscale : -xscale;
+
+   for (int i = 0; *s; s++, x += xs * curr_font_w, i++) {
+      if ((*s == '\n' && *++s) || (wrap_col > 0 && i % wrap_col == 0))
+      {
+         y += curr_font_h * yscale + 2;
+         x = base_x;
+      }
+      tfb_draw_char_scaled(x, y, fg, bg, xscale, yscale, *s);
+   }
+}
+
 void tfb_draw_string_scaled(int x, int y,
                             u32 fg, u32 bg,
                             int xscale, int yscale, const char *s)
