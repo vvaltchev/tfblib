@@ -4,7 +4,12 @@ include(ExternalProject)
 
 if (NOT "${CMAKE_PROJECT_NAME}" STREQUAL "tilck")
 
-   project(tfblib C)
+   project(tfblib
+      LANGUAGES C
+      HOMEPAGE_URL https://github.com/vvaltchev/tfblib
+      DESCRIPTION "A Tiny Linux Framebuffer Library"
+      VERSION "0.1"
+      )
 
    set(CMAKE_C_FLAGS_DEBUG "-g")
    set(CMAKE_C_FLAGS_MINSIZEREL "-Os")
@@ -110,4 +115,15 @@ if (${CMAKE_PROJECT_NAME} STREQUAL "tilck")
    tilck_add_extra_app(${CMAKE_CURRENT_BINARY_DIR}/examples/fb_keyinput)
    tilck_add_extra_app(${CMAKE_CURRENT_BINARY_DIR}/examples/fb_text)
    tilck_add_extra_app(${CMAKE_CURRENT_BINARY_DIR}/examples/fb_tetris)
+else()
+   # For populating pkg-config template
+   set(target1 tfb)
+   configure_file(tfblib.pc.in tfblib.pc @ONLY)
+
+   install(TARGETS tfb DESTINATION lib)
+   install (
+     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+     DESTINATION include
+     FILES_MATCHING PATTERN "*.h")
+   install(FILES ${CMAKE_BINARY_DIR}/tfblib.pc DESTINATION lib/pkgconfig)
 endif()
