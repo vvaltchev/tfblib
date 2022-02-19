@@ -580,6 +580,20 @@ inline u32 tfb_screen_width(void);
 inline u32 tfb_screen_height(void);
 
 /**
+ * Get screen's physical width in mm
+ *
+ * @return  the width of the screen in mm
+ */
+u32 tfb_screen_width_mm(void);
+
+/**
+ * Get screen's physical height in mm
+ *
+ * @return  the height of the screen in mm
+ */
+u32 tfb_screen_height_mm(void);
+
+/**
  * Get current window's width
  *
  * @return  the width of the current window
@@ -624,10 +638,10 @@ void tfb_flush_window(void);
  * Flush the framebuffer, causing it to update. This is different
  * to tfb_flush_window() as it doesn't deal with double_buffering,
  * rather it handles the case where the framebuffer has to be "ACTIVATED".
- * 
+ *
  * @return #TFB_SUCCESS on success or #TFB_ERR_FB_FLUSH_IOCTL_FAILED
  *    on failure.
- * 
+ *
  * @see tfb_flush_window
  */
 int tfb_flush_fb(void);
