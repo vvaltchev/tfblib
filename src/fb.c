@@ -215,7 +215,7 @@ void tfb_flush_window(void)
 }
 
 int tfb_flush_fb(void)
-{ 
+{
    __fbi.activate |= FB_ACTIVATE_NOW | FB_ACTIVATE_FORCE;
    if(ioctl(fbfd, FBIOPUT_VSCREENINFO, &__fbi) < 0) {
       return TFB_ERR_FB_FLUSH_IOCTL_FAILED;
@@ -223,6 +223,9 @@ int tfb_flush_fb(void)
 
    return TFB_SUCCESS;
 }
+
+u32 tfb_screen_width_mm(void) { return __fbi.width; }
+u32 tfb_screen_height_mm(void) { return __fbi.height; }
 
 /*
  * ----------------------------------------------------------------------------
