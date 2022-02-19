@@ -8,7 +8,7 @@ if (NOT "${CMAKE_PROJECT_NAME}" STREQUAL "tilck")
       LANGUAGES C
       HOMEPAGE_URL https://github.com/vvaltchev/tfblib
       DESCRIPTION "A Tiny Linux Framebuffer Library"
-      VERSION "0.1"
+      VERSION "0.1.1"
       )
 
    set(CMAKE_C_FLAGS_DEBUG "-g")
