@@ -200,7 +200,7 @@ void tfb_flush_rect(int x, int y, int w, int h)
    w = MIN(w, MAX(0, __fb_win_end_x - x));
    yend = MIN(y + h, __fb_win_end_y);
 
-   size_t offset = y * __fb_pitch + (__fb_off_x << 2);
+   size_t offset = y * __fb_pitch + (x << 2);
    void *dest = __fb_real_buffer + offset;
    void *src = __fb_buffer + offset;
    u32 rect_pitch = w << 2;
