@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-2-Clause
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.10)
 
 add_executable(fb_hello_world fb_hello_world.c)
 target_link_libraries(fb_hello_world tfb)
