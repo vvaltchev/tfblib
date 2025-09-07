@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-2-Clause
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.10)
 include(ExternalProject)
 
 if (NOT "${CMAKE_PROJECT_NAME}" STREQUAL "tilck")
