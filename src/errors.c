@@ -12,7 +12,7 @@ static const char *error_msgs[] =
    /*  4 */    "Unable to set TTY in graphic mode",
    /*  5 */    "Unable to mmap the framebuffer",
    /*  6 */    "Invalid window position/size",
-   /*  7 */    "Unsupported video mode",
+   /*  7 */    "Unsupported video mode: wrong color depth",
    /*  8 */    "Invalid font_id",
    /*  9 */    "Unable to open/read/load the font file",
    /* 10 */    "Out of memory",
@@ -22,6 +22,7 @@ static const char *error_msgs[] =
    /* 14 */    "Unable to set a keyboard input paramater with ioctl()",
    /* 15 */    "Unable to find a font matching the criteria",
    /* 16 */    "Unable to flush the framebuffer with ioctl()",
+   /* 17 */    "Unsupported video mode: MSB is to the right"
 };
 
 const char *tfb_strerror(int error_code)

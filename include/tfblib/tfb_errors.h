@@ -36,9 +36,9 @@
 /**
  * Unsupported video mode
  *
- * \note Currently the library supports only 32-bit color modes.
+ * \note Currently the library supports only 16-bit and 32-bit color modes.
  */
-#define TFB_ERR_UNSUPPORTED_VIDEO_MODE    7
+#define TFB_ERR_UNSUPPORTED_VIDEO_MODE_DEPTH 7
 
 /// The supplied font_id is invalid
 #define TFB_ERR_INVALID_FONT_ID           8
@@ -66,6 +66,9 @@
 
 /// Unable to flush the framebuffer with ioctl()
 #define TFB_ERR_FB_FLUSH_IOCTL_FAILED 16
+
+/// MSB is to the right in the colour byte
+#define TFB_ERR_UNSUPPORTED_VIDEO_MODE_MSB 17
 
 /**
  * Returns a human-readable error message.

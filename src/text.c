@@ -233,14 +233,12 @@ void tfb_draw_char(int x, int y, u32 fg_color, u32 bg_color, u8 c)
     */
 
    if (curr_font_w_bytes == 1)
-
       for (u32 row = y; row < (y + curr_font_h); row++) {
          draw_char_partial(0);
          data += curr_font_w_bytes;
       }
 
    else if (curr_font_w_bytes == 2)
-
       for (u32 row = y; row < (y + curr_font_h); row++) {
          draw_char_partial(0);
          draw_char_partial(1);
@@ -248,13 +246,10 @@ void tfb_draw_char(int x, int y, u32 fg_color, u32 bg_color, u8 c)
       }
 
    else
-
       for (u32 row = y; row < (y + curr_font_h); row++) {
-
          for (u32 b = 0; b < curr_font_w_bytes; b++) {
             draw_char_partial(b);
          }
-
          data += curr_font_w_bytes;
       }
 }

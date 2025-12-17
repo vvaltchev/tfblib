@@ -18,6 +18,9 @@
 #define u8 uint8_t
 
 /// Convenience macro used to shorten the signatures. Undefined at the end.
+#define u16 uint16_t
+
+/// Convenience macro used to shorten the signatures. Undefined at the end.
 #define u32 uint32_t
 
 /*
@@ -650,4 +653,5 @@ int tfb_flush_fb(void);
 
 /* undef the the convenience types defined above */
 #undef u8
+#undef u16
 #undef u32

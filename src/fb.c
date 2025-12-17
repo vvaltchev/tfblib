@@ -27,6 +27,8 @@ int __tfb_ttyfd = -1;
 
 static int fbfd = -1;
 
+int __fb_depth = 0;
+
 static void tfb_init_colors(void);
 
 int tfb_set_window(u32 x, u32 y, u32 w, u32 h)
@@ -78,15 +80,18 @@ int tfb_acquire_fb(u32 flags, const char *fb_device, const char *tty_device)
 
    __fb_pitch = fb_fixinfo.line_length;
    __fb_size = __fb_pitch * __fbi.yres;
+   __fb_pitch_div2 = __fb_pitch >> 1;
    __fb_pitch_div4 = __fb_pitch >> 2;
 
-   if (__fbi.bits_per_pixel != 32) {
-      ret = TFB_ERR_UNSUPPORTED_VIDEO_MODE;
+   if ((__fbi.bits_per_pixel != 32) && (__fbi.bits_per_pixel != 16)) {
+      ret = TFB_ERR_UNSUPPORTED_VIDEO_MODE_DEPTH;
       goto out;
    }
 
+   __fb_depth = __fbi.bits_per_pixel;
+
    if (__fbi.red.msb_right || __fbi.green.msb_right || __fbi.blue.msb_right) {
-      ret = TFB_ERR_UNSUPPORTED_VIDEO_MODE;
+      ret = TFB_ERR_UNSUPPORTED_VIDEO_MODE_MSB;
       goto out;
    }
 
@@ -200,10 +205,10 @@ void tfb_flush_rect(int x, int y, int w, int h)
    w = MIN(w, MAX(0, __fb_win_end_x - x));
    yend = MIN(y + h, __fb_win_end_y);
 
-   size_t offset = y * __fb_pitch + (x << 2);
+   size_t offset = y * __fb_pitch + (x << (__fb_depth >> 4));
    void *dest = __fb_real_buffer + offset;
    void *src = __fb_buffer + offset;
-   u32 rect_pitch = w << 2;
+   u32 rect_pitch = w << (__fb_depth >> 4);
 
    for (int cy = y; cy < yend; cy++, src += __fb_pitch, dest += __fb_pitch)
       memcpy(dest, src, rect_pitch);

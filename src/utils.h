@@ -22,7 +22,6 @@ typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 
-
 /*
  * Set 'n' 32-bit elems pointed by 's' to 'val'.
  */
@@ -43,4 +42,33 @@ static inline void *memset32(void *s, u32 val, size_t n)
 #endif
 
    return s;
+}
+
+/*
+ * Set 'n' 16-bit elems pointed by 's' to 'val'.
+ */
+static inline void *memset16(void *s, u16 val, size_t n)
+{
+   for(size_t i = 0; i < n; i++)
+      ((volatile u16 *)s)[i] = val;
+
+   return s;
+}
+
+/*
+ * Choose between memset types based on depth
+ */
+static inline void *memset_N(void *s, u32 val, size_t n, int bits)
+{
+   switch(bits)
+   {
+      case 16:
+         return memset16(s, val, n);
+         break;
+      case 32:
+         return memset32(s, val, n);
+         break;
+      default:
+         return NULL;
+   }
 }
